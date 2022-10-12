@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -24,19 +25,26 @@ namespace BP
     /// </summary>
     public partial class MainWindow : Window
     {
-        NSec.Cryptography.Key? clientKeyPair;
+        private NSec.Cryptography.Key? clientKeyPair;
         Server? server;
-        
+        Client? client;
+
+        private Thread serverThread;
+        private Thread clientThread;
+
         public MainWindow()
         {
-            InitializeComponent();            
+            InitializeComponent();
         }
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
             statusText.Content = "Generating keypair...";
-            clientKeyPair = NSec.Cryptography.Key.Create(SignatureAlgorithm.Ed25519);
-            
+            KeyCreationParameters paramz = new KeyCreationParameters();
+            paramz.ExportPolicy = KeyExportPolicies.AllowPlaintextExport;
+            clientKeyPair = NSec.Cryptography.Key.Create(KeyAgreementAlgorithm.X25519, paramz);
+            publicKeyText.Text = Convert.ToBase64String(clientKeyPair.PublicKey.Export(KeyBlobFormat.RawPublicKey));
+
             statusText.Content = "Starting server...";
             RunServer();
             statusText.Content = "Idle";
@@ -45,8 +53,35 @@ namespace BP
         private void RunServer()
         {
             server = new Server(this);
-            Thread serverThread = new Thread(server.Start);
+            serverThread = new Thread(server.Start);
             serverThread.Start();
+        }
+
+        public NSec.Cryptography.Key? ClientKeyPair { 
+            get { return clientKeyPair; }
+        }
+
+        private void connectBtn_Click(object sender, RoutedEventArgs e)
+        {
+            client = new Client(ipAddressInput.Text, portInput.Text, this);
+            clientThread = new Thread(client.Start);
+            clientThread.Start();
+        }
+
+        private void onWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (clientThread != null)
+            {
+                client.connection.Close();
+                client.connection.Dispose();
+                clientThread.Interrupt();
+            }
+            
+            if(serverThread != null)
+            {
+                server.tcpListener.Stop();
+                serverThread.Interrupt();
+            }
         }
     }
 }

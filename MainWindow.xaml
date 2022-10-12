@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BP"
         mc:Ignorable="d"
-        Title="MainWindow" Width="642" Height="344" Loaded="OnWindowLoaded">
+        Title="MainWindow" Width="642" Height="344" Loaded="OnWindowLoaded" Closing="onWindowClosing">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition/>
+            <RowDefinition Height="307"/>
             <RowDefinition Height="21.04"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -20,19 +20,18 @@
             <StatusBarItem x:Name="statusPortText" Content="Port" Height="22" VerticalAlignment="Center" Width="116" HorizontalAlignment="Left"/>
         </StatusBar>
         <Label x:Name="currentConnectionText" Content="Žiadne spojenie" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" Padding="0,5,5,5"/>
-        <TextBox x:Name="ouputFilePath" HorizontalAlignment="Left" Margin="10,138,0,0" VerticalAlignment="Top" Width="461" Height="26" VerticalContentAlignment="Center" MaxLines="1"/>
-        <TextBox x:Name="publicKeyText" Margin="10,77,0,0" VerticalAlignment="Top" Width="461" Height="26" MaxLines="15" MaxLength="5" VerticalContentAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" IsReadOnly="True">
-            <TextBox.Style>
-                <Style/>
-            </TextBox.Style>
-        </TextBox>
+        <TextBox x:Name="ouputFilePath" HorizontalAlignment="Left" Margin="189,78,0,0" VerticalAlignment="Top" Width="442" Height="26" VerticalContentAlignment="Center" MaxLines="1"/>
+        <TextBox x:Name="publicKeyText" Margin="9,78,0,0" VerticalAlignment="Top" Width="167" Height="49" MaxLines="15" MaxLength="5" HorizontalAlignment="Left" TextWrapping="Wrap" IsReadOnly="True"/>
         <Label Content="Vaša identita (verejný kľúč)" HorizontalAlignment="Left" Margin="10,52,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.015,0.618" Padding="0,5,5,5">
         </Label>
-        <Label Content="Cesta k súboru pre poslanie" HorizontalAlignment="Left" Margin="11,112,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.015,0.618" Padding="0,5,5,5"/>
-        <TextBox x:Name="ouputFilePath_Copy" HorizontalAlignment="Left" Margin="10,194,0,0" VerticalAlignment="Top" Width="461" Height="26" VerticalContentAlignment="Center" MaxLines="1"/>
-        <Label Content="Ukladať súbory do priečinka" HorizontalAlignment="Left" Margin="11,168,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.015,0.618" Padding="0,5,5,5"/>
-        <Button Content="Odoslať súbor" HorizontalAlignment="Left" Margin="10,231,0,0" VerticalAlignment="Top" Width="98"/>
+        <Label Content="Cesta k súboru pre poslanie" HorizontalAlignment="Left" Margin="189,52,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.015,0.618" Padding="0,5,5,5"/>
+        <TextBox x:Name="saveFolderLocation" HorizontalAlignment="Left" Margin="189,139,0,0" VerticalAlignment="Top" Width="443" Height="26" VerticalContentAlignment="Center" MaxLines="1"/>
+        <Label Content="Ukladať súbory do priečinka" HorizontalAlignment="Left" Margin="189,114,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.015,0.618" Padding="0,5,5,5"/>
+        <Button Content="Odoslať súbor" HorizontalAlignment="Left" Margin="361,181,0,0" VerticalAlignment="Top" Width="98"/>
         <ProgressBar x:Name="fileProgressBar" Height="23" Margin="0,268,0,0" VerticalAlignment="Top" Width="622"/>
+        <TextBox x:Name="ipAddressInput" HorizontalAlignment="Left" Margin="10,143,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="108" Text="127.0.0.1"/>
+        <TextBox x:Name="portInput" HorizontalAlignment="Left" Margin="122,143,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="54" Text="23488"/>
+        <Button x:Name="connectBtn" Content="Pripojiť sa" HorizontalAlignment="Left" Margin="10,166,0,0" VerticalAlignment="Top" Width="166" Click="connectBtn_Click"/>
 
     </Grid>
 </Window>

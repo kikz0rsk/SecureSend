@@ -9,17 +9,26 @@ namespace BP
 {
     internal class NetworkUtils
     {
-        public byte[] readExactlyBytes(NetworkStream stream, int howManyBytes)
+        public static byte[] ReadExactlyBytes(NetworkStream stream, uint howManyBytes)
         {
             int read = 0;
             byte[] output = new byte[howManyBytes];
 
             while(read < howManyBytes)
             {
-                read += stream.Read(output, read, howManyBytes - read);
+                read += stream.Read(output, read, (int)howManyBytes - read);
             }
 
             return output;
+        }
+
+        // Convert between Big-endian and Low-endian
+        public static void EnsureCorrectEndianness(byte[] bytes)
+        {
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bytes);
+            }
         }
     }
 }

@@ -15,7 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-
+using BP.Networking;
 using NSec.Cryptography;
 
 namespace BP
@@ -29,8 +29,8 @@ namespace BP
         Server? server;
         Client? client;
 
-        private Thread serverThread;
-        private Thread clientThread;
+        private Thread? serverThread;
+        private Thread? clientThread;
 
         public MainWindow()
         {
@@ -82,6 +82,22 @@ namespace BP
                 server.tcpListener.Stop();
                 serverThread.Interrupt();
             }
+        }
+
+        private void sendFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (client != null)
+            {
+                client.GetFilesToSend().Enqueue(inputFilePath.Text.Trim());
+                return;
+            }
+
+            if (server != null)
+            {
+                server.GetFilesToSend().Enqueue(inputFilePath.Text.Trim());
+                return;
+            }
+            
         }
     }
 }

@@ -18,7 +18,8 @@ namespace BP.Protocol
         public byte[] Serialize()
         {
             byte[] payload = SerializePayload();
-            return BitConverter.GetBytes((byte)type).Concat(payload).ToArray();
+            byte[] output = {(byte)type};
+            return output.Concat(payload).ToArray();
         }
 
         protected abstract byte[] SerializePayload();

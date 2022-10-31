@@ -15,18 +15,25 @@ namespace BP.Networking
 {
     internal class Client : NetworkEndpoint
     {
-        private string ipAddress;
-        private string port;
-        public TcpClient connection;
+        private string? ipAddress;
+        private string? port;
+        protected Thread? thread;
 
-        public Client(string ipAddress, string port, MainWindow mainWindow)
+        public Client(MainWindow mainWindow)
         {
-            this.ipAddress = ipAddress;
-            this.port = port;
             this.mainWindow = mainWindow;
         }
 
-        public void Start()
+        public void Connect(string ipAddress, string port)
+        {
+            this.ipAddress = ipAddress;
+            this.port = port;
+
+            thread = new Thread(_Connect);
+            thread.Start();
+        }
+
+        protected void _Connect()
         {
             try
             {
@@ -42,44 +49,19 @@ namespace BP.Networking
                     return;
                 }
 
-                Application.Current.Dispatcher.Invoke(new Action(() => { mainWindow.currentConnectionText.Content = "Pripojené"; }));
+                SetConnected(true);
                 CommunicationLoop();
             }
             catch (ThreadInterruptedException inter)
             {
-                connection.Close();
+                connection?.Close();
             }
+            SetConnected(false);
         }
 
-        private void CommunicationLoop()
+        public Thread? GetThread()
         {
-            while (true)
-            {
-                if (stream.DataAvailable)
-                {
-                    Packet? packet = ReceivePacket();
-
-                    if (packet == null)
-                    {
-                        throw new InvalidDataException("Data available in stream but failed to get packet");
-                    }
-
-                    if (packet.GetType() != Packet.Type.FILE_INFO)
-                    {
-                        throw new InvalidDataException("Invalid packet type, expected file info");
-                    }
-
-                    GetFile((FileInfoPacket)packet);
-                }
-                else if (filesToSend.Count > 0)
-                {
-                    SendFile();
-                }
-                else
-                {
-                    Thread.Sleep(100);
-                }
-            }
+            return thread;
         }
     }
 }

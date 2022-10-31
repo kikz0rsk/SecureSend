@@ -5,11 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BP"
         mc:Ignorable="d"
-        Title="SendFile" Width="642" Height="344" Loaded="OnWindowLoaded" Closing="onWindowClosing">
+        Title="SendFile" Width="662" Height="364" Loaded="OnWindowLoaded" Closing="onWindowClosing">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="307"/>
-            <RowDefinition Height="21.04"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -28,7 +28,7 @@
         <TextBox x:Name="saveFolderLocation" HorizontalAlignment="Left" Margin="189,139,0,0" VerticalAlignment="Top" Width="443" Height="26" VerticalContentAlignment="Center" MaxLines="1"/>
         <Label Content="Ukladať súbory do priečinka" HorizontalAlignment="Left" Margin="189,114,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.015,0.618" Padding="0,5,5,5"/>
         <Button x:Name="sendFileButton" Content="Odoslať súbor" HorizontalAlignment="Left" Margin="361,181,0,0" VerticalAlignment="Top" Width="98" Click="sendFileButton_Click"/>
-        <ProgressBar x:Name="fileProgressBar" Height="23" Margin="0,268,0,0" VerticalAlignment="Top" Width="622"/>
+        <ProgressBar x:Name="fileProgressBar" Height="23" Margin="10,268,10,0" VerticalAlignment="Top" Width="622"/>
         <TextBox x:Name="ipAddressInput" HorizontalAlignment="Left" Margin="10,143,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="108" Text="127.0.0.1"/>
         <TextBox x:Name="portInput" HorizontalAlignment="Left" Margin="122,143,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="54" Text="23488"/>
         <Button x:Name="connectBtn" Content="Pripojiť sa" HorizontalAlignment="Left" Margin="10,166,0,0" VerticalAlignment="Top" Width="166" Click="connectBtn_Click"/>

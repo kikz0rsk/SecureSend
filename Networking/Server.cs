@@ -21,40 +21,48 @@ namespace BP.Networking
     {
 
         private int? port;
+        public TcpListener? serverSocket;
+        private Thread? thread;
 
-        public TcpListener? tcpListener;
-
-        private TcpClient? connection;
-        
+        private bool stopSignal = false;
 
         public Server(MainWindow mainWindow)
         {
             this.mainWindow = mainWindow;
         }
 
-        public void Start()
+        public void StartServer()
+        {
+            if (thread != null) return;
+
+            thread = new Thread(_StartServer);
+            thread.Start();
+        }
+
+        protected void _StartServer()
         {
             try
             {
-                tcpListener = new TcpListener(IPAddress.Any, 23488);
-                tcpListener.Start();
+                serverSocket = new TcpListener(IPAddress.Any, 23488);
+                serverSocket.Start();
             }
             catch (SocketException ex)
             {
-                tcpListener = new TcpListener(IPAddress.Any, 0);
-                tcpListener.Start();
+                serverSocket = new TcpListener(IPAddress.Any, 0);
+                serverSocket.Start();
             }
 
-            port = ((IPEndPoint)tcpListener.LocalEndpoint).Port;
+            port = ((IPEndPoint)serverSocket.LocalEndpoint).Port;
             Application.Current.Dispatcher.Invoke(new Action(() => { mainWindow.statusPortText.Content = port.ToString(); }));
 
             try
             {
                 // accepting loop
-                while (true)
+                while (!stopSignal)
                 {
-                    Application.Current.Dispatcher.Invoke(new Action(() => { mainWindow.currentConnectionText.Content = "Žiadne spojenie"; }));
-                    connection = tcpListener.AcceptTcpClient();
+                    SetConnected(false);
+                    connection = serverSocket.AcceptTcpClient();
+                    SetConnected(true);
                     stream = connection.GetStream();
 
                     this.symmetricKey = EstablishTrust();
@@ -64,7 +72,6 @@ namespace BP.Networking
                         continue;
                     }
 
-                    Application.Current.Dispatcher.Invoke(new Action(() => { mainWindow.currentConnectionText.Content = "Pripojené"; }));
                     CommunicationLoop();
                 }
             }
@@ -77,39 +84,17 @@ namespace BP.Networking
             }
         }
 
-        private void CommunicationLoop()
+        public void StopServer()
         {
-            while (true)
-            {
-                if (stream.DataAvailable)
-                {
-                    Packet? packet = ReceivePacket();
-
-                    if (packet == null)
-                    {
-                        throw new InvalidDataException("Data available in stream but failed to get packet");
-                    }
-
-                    if(packet.GetType() != Packet.Type.FILE_INFO)
-                    {
-                        throw new InvalidDataException("Invalid packet type, expected file info");
-                    }
-
-                    GetFile((FileInfoPacket)packet);
-                }
-                else if (filesToSend.Count > 0)
-                {
-                    SendFile();
-                }
-                else
-                {
-                    Thread.Sleep(100);
-                }
-            }
+            stopSignal = true;
+            serverSocket?.Stop();
         }
 
         public int? Port { get { return port; } }
 
-        
+        public Thread? GetThread()
+        {
+            return thread;
+        }
     }
 }

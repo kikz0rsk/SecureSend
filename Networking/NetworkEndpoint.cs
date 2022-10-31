@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using BP.Protocol;
@@ -16,8 +18,10 @@ namespace BP.Networking
     {
         protected Key? symmetricKey;
         protected NetworkStream stream;
+        protected TcpClient? connection;
         protected ConcurrentQueue<string> filesToSend = new ConcurrentQueue<string>();
         protected MainWindow mainWindow;
+        protected volatile bool connected = false;
 
         protected void SendPacket(Packet packet)
         {
@@ -57,8 +61,7 @@ namespace BP.Networking
             stream.Write(mainWindow.ClientKeyPair.PublicKey.Export(KeyBlobFormat.RawPublicKey), 0, 32);
 
             // get other endpoint's public key
-            byte[] otherEndpointPublicKey = new byte[32];
-            stream.Read(otherEndpointPublicKey, 0, 32);
+            byte[] otherEndpointPublicKey = NetworkUtils.ReadExactlyBytes(stream, 32);
 
             PublicKey serverPublicKey = PublicKey.Import(KeyAgreementAlgorithm.X25519, otherEndpointPublicKey, KeyBlobFormat.RawPublicKey);
 
@@ -73,7 +76,7 @@ namespace BP.Networking
             return KeyDerivationAlgorithm.HkdfSha512.DeriveKey(sharedSecret, null, null, AeadAlgorithm.Aes256Gcm, CryptoUtils.AllowExport());
         }
 
-        protected void GetFile(FileInfoPacket fileInfo)
+        protected void ReceiveFile(FileInfoPacket fileInfo)
         {
             Application.Current.Dispatcher.Invoke(new Action(() => {
                 mainWindow.statusText.Content = "Incoming file: " + fileInfo.GetFileName();
@@ -105,6 +108,7 @@ namespace BP.Networking
 
             Application.Current.Dispatcher.Invoke(new Action(() => {
                 mainWindow.fileProgressBar.Value = 100;
+                mainWindow.statusText.Content = "Pripravené";
             }));
         }
 
@@ -118,10 +122,15 @@ namespace BP.Networking
 
             if (!File.Exists(filepath)) return;
 
+            Application.Current.Dispatcher.Invoke(new Action(() => {
+                mainWindow.fileProgressBar.Value = 0;
+            }));
+
             ulong totalBytes = (ulong)new FileInfo(filepath).Length;
             FileInfoPacket fileInfoPacket = new FileInfoPacket(Path.GetFileName(filepath), totalBytes);
             SendPacket(fileInfoPacket);
 
+            ulong bytesSent = 0;
             using (Stream fileStream = File.OpenRead(filepath))
             {
                 byte[] buffer = new byte[40_000];
@@ -130,13 +139,78 @@ namespace BP.Networking
                 {
                     DataPacket data = new DataPacket(buffer.Take(bytesRead).ToArray());
                     SendPacket(data);
+                    bytesSent += (ulong)bytesRead;
+                    Application.Current.Dispatcher.Invoke(new Action(() => {
+                        mainWindow.fileProgressBar.Value = ((float)bytesSent / totalBytes * 100);
+                    }));
                 }
             }
+        }
+
+        protected void CommunicationLoop()
+        {
+            while (connection.Connected)
+            {
+                connection.Client.Poll(-1, SelectMode.SelectRead);
+
+                try
+                {
+                    if (stream.DataAvailable)
+                    {
+                        Packet? packet = ReceivePacket();
+
+                        if (packet == null)
+                        {
+                            throw new InvalidDataException("Data available in stream but failed to get packet");
+                        }
+
+                        if (packet.GetType() != Packet.Type.FILE_INFO)
+                        {
+                            throw new InvalidDataException("Invalid packet type, expected file info");
+                        }
+
+                        ReceiveFile((FileInfoPacket)packet);
+                    }
+                    else if (filesToSend.Count > 0)
+                    {
+                        SendFile();
+                    } else
+                    {
+                        Thread.Sleep(100);
+                    }
+                } catch(SocketException ex)
+                {
+                    break;
+                }
+            }
+        }
+
+        public void Disconnect()
+        {
+            stream?.Close();
+            connection?.Close();
         }
 
         public ConcurrentQueue<string> GetFilesToSend()
         {
             return filesToSend;
+        }
+
+        public void SetConnected(bool connected)
+        {
+            this.connected = connected;
+            if(connected)
+            {
+                Application.Current.Dispatcher.Invoke(new Action(() => { mainWindow.SetConnected(); }));
+                return;
+            }
+
+            Application.Current.Dispatcher.Invoke(new Action(() => { mainWindow.SetDisconnected(); }));
+        }
+
+        public bool IsConnected()
+        {
+            return connected;
         }
     }
 }

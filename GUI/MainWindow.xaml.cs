@@ -26,35 +26,27 @@ namespace BP
     public partial class MainWindow : Window
     {
         private NSec.Cryptography.Key? clientKeyPair;
-        Server? server;
-        Client? client;
-
-        private Thread? serverThread;
-        private Thread? clientThread;
+        Server server;
+        Client client;
 
         public MainWindow()
         {
             InitializeComponent();
+            server = new Server(this);
+            client = new Client(this);
         }
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
-            statusText.Content = "Generating keypair...";
+            statusText.Content = "Vytváranie kľúčov...";
             KeyCreationParameters paramz = new KeyCreationParameters();
             paramz.ExportPolicy = KeyExportPolicies.AllowPlaintextExport;
             clientKeyPair = NSec.Cryptography.Key.Create(KeyAgreementAlgorithm.X25519, paramz);
             publicKeyText.Text = Convert.ToBase64String(clientKeyPair.PublicKey.Export(KeyBlobFormat.RawPublicKey));
 
-            statusText.Content = "Starting server...";
-            RunServer();
-            statusText.Content = "Idle";
-        }
-
-        private void RunServer()
-        {
-            server = new Server(this);
-            serverThread = new Thread(server.Start);
-            serverThread.Start();
+            statusText.Content = "Štart servera...";
+            server.StartServer();
+            statusText.Content = "Pripravené";
         }
 
         public NSec.Cryptography.Key? ClientKeyPair { 
@@ -63,41 +55,52 @@ namespace BP
 
         private void connectBtn_Click(object sender, RoutedEventArgs e)
         {
-            client = new Client(ipAddressInput.Text, portInput.Text, this);
-            clientThread = new Thread(client.Start);
-            clientThread.Start();
+            if(client.IsConnected())
+            {
+                client.Disconnect();
+            } else if (server.IsConnected())
+            {
+                server.Disconnect();
+            } else
+            {
+                client.Connect(ipAddressInput.Text, portInput.Text);
+            }
         }
 
         private void onWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (clientThread != null)
-            {
-                client.connection.Close();
-                client.connection.Dispose();
-                clientThread.Interrupt();
-            }
-            
-            if(serverThread != null)
-            {
-                server.tcpListener.Stop();
-                serverThread.Interrupt();
-            }
+            client.Disconnect();
+            client.GetThread()?.Interrupt();
+
+            server.StopServer();
+            server.GetThread()?.Join();
         }
 
         private void sendFileButton_Click(object sender, RoutedEventArgs e)
         {
-            if (client != null)
+            if (client.IsConnected())
             {
                 client.GetFilesToSend().Enqueue(inputFilePath.Text.Trim());
                 return;
             }
 
-            if (server != null)
+            if (server.IsConnected())
             {
                 server.GetFilesToSend().Enqueue(inputFilePath.Text.Trim());
-                return;
             }
             
+        }
+
+        public void SetConnected()
+        {
+            currentConnectionText.Content = "Pripojené";
+            connectBtn.Content = "Odpojiť sa";
+        }
+
+        public void SetDisconnected()
+        {
+            currentConnectionText.Content = "Žiadne spojenie";
+            connectBtn.Content = "Pripojiť sa";
         }
     }
 }

@@ -151,7 +151,7 @@ namespace BP.Networking
         {
             while (connection.Connected)
             {
-                connection.Client.Poll(-1, SelectMode.SelectRead);
+                //connection.Client.Poll(-1, SelectMode.SelectRead);
 
                 try
                 {

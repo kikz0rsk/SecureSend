@@ -39,9 +39,7 @@ namespace BP
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
             statusText.Content = "Vytváranie kľúčov...";
-            KeyCreationParameters paramz = new KeyCreationParameters();
-            paramz.ExportPolicy = KeyExportPolicies.AllowPlaintextExport;
-            clientKeyPair = NSec.Cryptography.Key.Create(KeyAgreementAlgorithm.X25519, paramz);
+            clientKeyPair = NSec.Cryptography.Key.Create(KeyAgreementAlgorithm.X25519, CryptoUtils.AllowExport());
             publicKeyText.Text = Convert.ToBase64String(clientKeyPair.PublicKey.Export(KeyBlobFormat.RawPublicKey));
 
             statusText.Content = "Štart servera...";

@@ -72,6 +72,13 @@ namespace BP.Networking
                         continue;
                     }
 
+                    var result = MessageBox.Show("Klient žiada o pripojenie. Chcete povoliť tomuto zariadeniu sa pripojiť?", "Prichádzajúce pripojenie", MessageBoxButton.YesNo);
+                    if (result == MessageBoxResult.No)
+                    {
+                        connection.Close();
+                        continue;
+                    }
+
                     CommunicationLoop();
                 }
             }

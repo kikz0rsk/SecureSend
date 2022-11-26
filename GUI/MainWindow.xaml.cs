@@ -1,22 +1,8 @@
 ﻿using System;
-using System.Buffers.Text;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using BP.Networking;
 using NSec.Cryptography;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace BP
 {
@@ -101,6 +87,28 @@ namespace BP
         {
             currentConnectionText.Content = "Žiadne spojenie";
             connectBtn.Content = "Pripojiť sa";
+        }
+
+        private void sendFileExploreBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog();
+            dialog.CheckFileExists = true;
+            dialog.CheckPathExists = true;
+            dialog.Filter = "Všetky súbory|*.*";
+
+            if (dialog.ShowDialog() != true) return;
+
+            inputFilePath.Text = dialog.FileName;
+        }
+
+        private void saveLocationExploreBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new CommonOpenFileDialog();
+            dialog.IsFolderPicker = true;
+
+            if (dialog.ShowDialog() != CommonFileDialogResult.Ok) return;
+
+            saveFolderLocation.Text = dialog.FileName;
         }
     }
 }

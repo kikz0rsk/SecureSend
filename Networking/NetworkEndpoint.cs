@@ -22,6 +22,7 @@ namespace BP.Networking
         protected ConcurrentQueue<string> filesToSend = new ConcurrentQueue<string>();
         protected MainWindow mainWindow;
         protected volatile bool connected = false;
+        protected volatile bool isClient = false;
 
         protected void SendPacket(Packet packet)
         {

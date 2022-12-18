@@ -5,27 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BP"
         mc:Ignorable="d"
-        Title="SendFile" Width="662" Height="364" Loaded="OnWindowLoaded" Closing="onWindowClosing">
+        Title="SendFile" Width="662" Height="364" Loaded="OnWindowLoaded" Closing="onWindowClosing" SizeToContent="WidthAndHeight">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="21.997"/>
-            <RowDefinition/>
             <RowDefinition Height="20"/>
+            <RowDefinition/>
+            <RowDefinition Height="22"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Menu Width="Auto" Height="20" VerticalContentAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="5">
-            <MenuItem Header="Súbor"/>
+        <Menu Width="Auto" Height="20" VerticalContentAlignment="Center" VerticalAlignment="Top" Panel.ZIndex="5">
+            <MenuItem Header="Súbor" Height="20"/>
         </Menu>
 
-        <StatusBar Grid.Row="1" Margin="0,305,0,0" Grid.RowSpan="3" Height="20">
-            <StatusBarItem x:Name="statusText" Content="Status" Height="20" VerticalAlignment="Center" Width="500" RenderTransformOrigin="0.5,0.5"/>
-            <StatusBarItem x:Name="statusPortText" Content="Port" Height="2" VerticalAlignment="Center" Width="116" HorizontalAlignment="Left"/>
+        <StatusBar Grid.Row="1" Margin="0,305,0,0" Grid.RowSpan="3" Height="22" VerticalAlignment="Bottom">
+            <StatusBarItem x:Name="statusText" Content="Status" Height="22" VerticalAlignment="Top" Width="421" RenderTransformOrigin="0.5,0.5"/>
+            <StatusBarItem x:Name="statusPortText" Content="Port" Height="22" VerticalAlignment="Top" Width="236"/>
         </StatusBar>
         <Label x:Name="currentConnectionText" Content="Žiadne spojenie" HorizontalAlignment="Left" Margin="10,21,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" Padding="0,5,5,5" Grid.RowSpan="2" Height="37" Width="153"/>
         <TextBox x:Name="inputFilePath" HorizontalAlignment="Left" Margin="189,57,0,0" VerticalAlignment="Top" Width="379" Height="26" VerticalContentAlignment="Center" MaxLines="1" Grid.Row="1"/>
-        <TextBox x:Name="publicKeyText" Margin="9,57,0,0" VerticalAlignment="Top" Width="167" Height="49" MaxLines="15" MaxLength="5" HorizontalAlignment="Left" TextWrapping="Wrap" IsReadOnly="True" Grid.Row="1"/>
+        <TextBox x:Name="publicKeyText" Margin="10,57,0,0" VerticalAlignment="Top" Width="167" Height="49" MaxLines="15" MaxLength="5" HorizontalAlignment="Left" TextWrapping="Wrap" IsReadOnly="True" Grid.Row="1"/>
         <Label Content="Vaša identita (verejný kľúč)" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.015,0.618" Padding="0,5,5,5" Grid.Row="1" Height="26" Width="146"/>
         <Label Content="Cesta k súboru pre poslanie" HorizontalAlignment="Left" Margin="189,31,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.015,0.618" Padding="0,5,5,5" Grid.Row="1" Height="26" Width="152"/>
         <TextBox x:Name="saveFolderLocation" HorizontalAlignment="Left" Margin="189,118,0,0" VerticalAlignment="Top" Width="379" Height="26" VerticalContentAlignment="Center" MaxLines="1" Grid.Row="1"/>
@@ -34,9 +34,9 @@
         <ProgressBar x:Name="fileProgressBar" Height="23" Margin="20,247,20,0" VerticalAlignment="Top" Grid.Row="1"/>
         <TextBox x:Name="ipAddressInput" HorizontalAlignment="Left" Margin="10,122,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="108" Text="127.0.0.1" Grid.Row="1" Height="18"/>
         <TextBox x:Name="portInput" HorizontalAlignment="Left" Margin="122,122,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="54" Text="23488" Grid.Row="1" Height="18"/>
-        <Button x:Name="connectBtn" Content="Pripojiť sa" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Width="166" Click="connectBtn_Click" Grid.Row="1" Height="20"/>
-        <Button x:Name="sendFileExploreBtn" Content="Vybrať..." HorizontalAlignment="Left" Margin="580,57,0,0" VerticalAlignment="Top" Height="26" Width="62" Click="sendFileExploreBtn_Click" Grid.Row="1"/>
-        <Button x:Name="saveLocationExploreBtn" Content="Vybrať..." HorizontalAlignment="Left" Margin="580,118,0,0" VerticalAlignment="Top" Height="26" Width="62" Grid.Row="1" Click="saveLocationExploreBtn_Click"/>
+        <Button x:Name="connectBtn" Content="Pripojiť sa" HorizontalAlignment="Left" Margin="10,145,0,0" VerticalAlignment="Top" Width="166" Click="connectBtn_Click" Grid.Row="1" Height="20"/>
+        <Button x:Name="sendFileExploreBtn" Content="Vybrať..." HorizontalAlignment="Left" Margin="580,57,10,0" VerticalAlignment="Top" Height="26" Width="62" Click="sendFileExploreBtn_Click" Grid.Row="1"/>
+        <Button x:Name="saveLocationExploreBtn" Content="Vybrať..." HorizontalAlignment="Left" Margin="580,118,10,0" VerticalAlignment="Top" Height="26" Width="62" Grid.Row="1" Click="saveLocationExploreBtn_Click"/>
 
     </Grid>
 </Window>

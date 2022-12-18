@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using Packet = BP.Protocol.Packet;
 
@@ -39,13 +40,18 @@ namespace BP.Networking
             {
                 connection = new TcpClient();
                 connection.Connect(IPAddress.Parse(ipAddress), int.Parse(port));
+                this.isClient = true;
                 stream = connection.GetStream();
 
                 this.symmetricKey = EstablishTrust();
                 if (this.symmetricKey == null)
                 {
                     connection.Close();
-                    Application.Current.Dispatcher.Invoke(new Action(() => { mainWindow.statusText.Content = "Failed to establish trust"; }));
+                    Task.Run(() =>
+                    {
+                        MessageBox.Show("Nepodarilo sa nadviazať spoločný šifrovací kľúč.", "Chyba pri pripájaní k serveru",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    });
                     return;
                 }
 

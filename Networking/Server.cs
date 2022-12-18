@@ -53,7 +53,7 @@ namespace BP.Networking
             }
 
             port = ((IPEndPoint)serverSocket.LocalEndpoint).Port;
-            Application.Current.Dispatcher.Invoke(new Action(() => { mainWindow.statusPortText.Content = port.ToString(); }));
+            Application.Current.Dispatcher.Invoke(new Action(() => { mainWindow.statusPortText.Content = "Port pre pripojenie: " + port.ToString(); }));
 
             try
             {
@@ -62,6 +62,7 @@ namespace BP.Networking
                 {
                     SetConnected(false);
                     connection = serverSocket.AcceptTcpClient();
+                    this.isClient = false;
                     SetConnected(true);
                     stream = connection.GetStream();
 
@@ -69,6 +70,11 @@ namespace BP.Networking
                     if (this.symmetricKey == null)
                     {
                         connection.Close();
+                        Task.Run(() =>
+                        {
+                            MessageBox.Show("Nepodarilo sa nadviazať spoločný šifrovací kľúč.", "Chyba pri pripájaní klienta",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
                         continue;
                     }
 

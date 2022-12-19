@@ -68,7 +68,7 @@ namespace BP.Endpoint
 
                 IPEndPoint endpoint = connection.Client.RemoteEndPoint as IPEndPoint;
                 AcceptConnectionResult result = Application.Current.Dispatcher.Invoke(() => {
-                    AcceptConnection acceptConnection = new AcceptConnection(false,
+                    AcceptConnection acceptConnection = new AcceptConnection(true,
                     new DeviceId(endpoint.Address.ToString(), remoteEndpointPublicKey));
                     acceptConnection.ShowDialog();
                     return acceptConnection.Result;

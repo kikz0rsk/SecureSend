@@ -37,17 +37,24 @@ namespace BP.Endpoint
 
         protected void _Connect()
         {
+            filesToSend.Clear();
             try
             {
                 connection = new TcpClient();
                 connection.Connect(IPAddress.Parse(ipAddress), int.Parse(port));
+
+                SetConnected(true);
+                Application.Current.Dispatcher.Invoke(new Action(() => {
+                    mainWindow.currentConnectionText.Content = "Vytvára sa bezpečný kanál...";
+                }));
                 this.isClient = true;
+
                 stream = connection.GetStream();
 
                 this.symmetricKey = EstablishTrust();
                 if (this.symmetricKey == null)
                 {
-                    connection.Close();
+                    Disconnect();
                     Task.Run(() =>
                     {
                         MessageBox.Show("Nepodarilo sa nadviazať spoločný šifrovací kľúč.", "Chyba pri pripájaní k serveru",
@@ -56,7 +63,8 @@ namespace BP.Endpoint
                     return;
                 }
 
-                SetConnected(true);
+                Application.Current.Dispatcher.Invoke(new Action(() => {
+                    mainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa..."; }));
 
                 IPEndPoint endpoint = connection.Client.RemoteEndPoint as IPEndPoint;
                 AcceptConnectionResult result = Application.Current.Dispatcher.Invoke(() => {
@@ -94,6 +102,7 @@ namespace BP.Endpoint
                     return;
                 }
 
+                SetConnected(true);
                 CommunicationLoop();
             }
             catch (ThreadInterruptedException inter)

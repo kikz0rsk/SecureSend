@@ -35,7 +35,7 @@ namespace BP.Protocol
                     ulong fileSize = BitConverter.ToUInt64(fileSizeRaw, 0);
                     byte[] hash = packetBytes.Skip(9).Take(16).ToArray();
 
-                    string filename = UTF8Encoding.UTF8.GetString( packetBytes.Skip(27).ToArray() );
+                    string filename = UTF8Encoding.UTF8.GetString( packetBytes.Skip(25).ToArray() );
                     return new FileInfoPacket(filename, fileSize, hash);
                 case Type.DATA:
                     return new DataPacket(packetBytes.Skip(1).ToArray());

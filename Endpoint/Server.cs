@@ -64,14 +64,18 @@ namespace BP.Endpoint
                     // accepting loop
                     SetConnected(false);
                     connection = serverSocket.AcceptTcpClient();
-                    this.isClient = false;
                     SetConnected(true);
+                    Application.Current.Dispatcher.Invoke(new Action(() => {
+                        mainWindow.currentConnectionText.Content = "Vytvára sa bezpečný kanál...";
+                    }));
+                    this.isClient = false;
+
                     stream = connection.GetStream();
 
                     this.symmetricKey = EstablishTrust();
                     if (this.symmetricKey == null)
                     {
-                        connection.Close();
+                        Disconnect();
                         Task.Run(() =>
                         {
                             MessageBox.Show("Nepodarilo sa nadviazať spoločný šifrovací kľúč.", "Chyba pri pripájaní klienta",
@@ -79,6 +83,9 @@ namespace BP.Endpoint
                         });
                         continue;
                     }
+
+                    Application.Current.Dispatcher.Invoke(new Action(() => {
+                        mainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa..."; }));
 
                     IPEndPoint endpoint = connection.Client.RemoteEndPoint as IPEndPoint;
                     AcceptConnectionResult result = Application.Current.Dispatcher.Invoke(() =>
@@ -118,6 +125,7 @@ namespace BP.Endpoint
                         continue;
                     }
 
+                    SetConnected(true);
                     CommunicationLoop();
 
                 }

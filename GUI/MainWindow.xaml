@@ -22,7 +22,7 @@
         <StatusBar Grid.Row="1" Margin="0,0,0,0" Grid.RowSpan="3" Height="22" VerticalAlignment="Bottom">
             <StatusBarItem x:Name="statusPortText" Content="Port" Height="22" VerticalAlignment="Top" HorizontalAlignment="Left"/>
         </StatusBar>
-        <Label x:Name="currentConnectionText" Content="Žiadne spojenie" HorizontalAlignment="Left" Margin="10,21,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" Padding="0,5,5,5" Grid.RowSpan="2" Height="37" Width="153"/>
+        <Label x:Name="currentConnectionText" Content="Žiadne spojenie" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" Padding="0,5,5,5" Height="37" Grid.Row="1"/>
         <TextBox x:Name="inputFilePath" HorizontalAlignment="Left" Margin="189,57,0,0" VerticalAlignment="Top" Width="379" Height="26" VerticalContentAlignment="Center" MaxLines="1" Grid.Row="1"/>
         <TextBox x:Name="publicKeyText" Margin="10,57,0,0" VerticalAlignment="Top" Width="167" Height="49" MaxLines="15" MaxLength="5" HorizontalAlignment="Left" TextWrapping="Wrap" IsReadOnly="True" Grid.Row="1"/>
         <Label Content="Vaša identita (verejný kľúč)" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.015,0.618" Padding="0,5,5,5" Grid.Row="1" Height="26" Width="146"/>

@@ -89,7 +89,11 @@ namespace BP.Endpoint
 
             ulong totalBytes = fileInfo.GetFileSize();
 
-            string savePath = Path.Combine(mainWindow.saveFolderLocation.Text.Trim(), fileInfo.GetFileName());
+            string saveFolder = Application.Current.Dispatcher.Invoke(() => {
+                return mainWindow.saveFolderLocation.Text.Trim();
+            });
+
+            string savePath = Path.Combine(saveFolder, fileInfo.GetFileName());
 
             using (FileStream fileStream = new FileStream(savePath, FileMode.Create))
             {
@@ -197,7 +201,7 @@ namespace BP.Endpoint
             {
                 try
                 {
-                    if (connection.Client.Poll(-1, SelectMode.SelectRead))
+                    if (connection.Client.Poll(1000, SelectMode.SelectRead))
                     {
                         if(!stream.DataAvailable)
                         {

@@ -1,4 +1,5 @@
-﻿using BP.Protocol;
+﻿using BP.GUI;
+using BP.Protocol;
 using NSec.Cryptography;
 using Org.BouncyCastle.Bcpg;
 using System;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Packet = BP.Protocol.Packet;
 
-namespace BP.Networking
+namespace BP.Endpoint
 {
     internal class Client : NetworkEndpoint
     {
@@ -56,13 +57,54 @@ namespace BP.Networking
                 }
 
                 SetConnected(true);
+
+                IPEndPoint endpoint = connection.Client.RemoteEndPoint as IPEndPoint;
+                AcceptConnectionResult result = Application.Current.Dispatcher.Invoke(() => {
+                    AcceptConnection acceptConnection = new AcceptConnection(false,
+                    new DeviceId(endpoint.Address.ToString(), remoteEndpointPublicKey));
+                    acceptConnection.ShowDialog();
+                    return acceptConnection.Result;
+                });
+
+                if (result == AcceptConnectionResult.AcceptOnce ||
+                    result == AcceptConnectionResult.AcceptAndRemember)
+                {
+                    SendPacket(new AckPacket());
+                }
+                else
+                {
+                    Disconnect();
+                    return;
+                }
+
+                try
+                {
+                    Packet? packet = ReceivePacket();
+                    if (packet == null || packet.GetType() != Packet.Type.ACK)
+                    {
+                        throw new InvalidDataException();
+                    }
+                } catch(Exception ex)
+                {
+                    Task.Run(() =>
+                    {
+                        MessageBox.Show("Užívateľ odmietol žiadosť o pripojenie.", "Spojenie bolo odmietnuté",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    });
+                    return;
+                }
+
                 CommunicationLoop();
             }
             catch (ThreadInterruptedException inter)
             {
+                
+            } finally
+            {
+                filesToSend.Clear();
                 connection?.Close();
+                SetConnected(false);
             }
-            SetConnected(false);
         }
 
         public Thread? GetThread()

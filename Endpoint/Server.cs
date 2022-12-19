@@ -1,4 +1,5 @@
-﻿using BP.Protocol;
+﻿using BP.GUI;
+using BP.Protocol;
 using NSec.Cryptography;
 using System;
 using System.Collections.Concurrent;
@@ -15,7 +16,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using Path = System.IO.Path;
 
-namespace BP.Networking
+namespace BP.Endpoint
 {
     internal class Server : NetworkEndpoint
     {
@@ -55,11 +56,12 @@ namespace BP.Networking
             port = ((IPEndPoint)serverSocket.LocalEndpoint).Port;
             Application.Current.Dispatcher.Invoke(new Action(() => { mainWindow.statusPortText.Content = "Port pre pripojenie: " + port.ToString(); }));
 
-            try
+            while (!stopSignal)
             {
-                // accepting loop
-                while (!stopSignal)
+                try
                 {
+                    filesToSend.Clear();
+                    // accepting loop
                     SetConnected(false);
                     connection = serverSocket.AcceptTcpClient();
                     this.isClient = false;
@@ -78,27 +80,60 @@ namespace BP.Networking
                         continue;
                     }
 
-                    var result = MessageBox.Show("Klient žiada o pripojenie. Chcete povoliť tomuto zariadeniu sa pripojiť?", "Prichádzajúce pripojenie", MessageBoxButton.YesNo);
-                    if (result == MessageBoxResult.No)
+                    IPEndPoint endpoint = connection.Client.RemoteEndPoint as IPEndPoint;
+                    AcceptConnectionResult result = Application.Current.Dispatcher.Invoke(() =>
                     {
-                        connection.Close();
+                        AcceptConnection acceptConnection = new AcceptConnection(false,
+                        new DeviceId(endpoint.Address.ToString(), remoteEndpointPublicKey));
+                        acceptConnection.ShowDialog();
+                        return acceptConnection.Result;
+                    });
+
+                    if (result == AcceptConnectionResult.AcceptOnce ||
+                        result == AcceptConnectionResult.AcceptAndRemember)
+                    {
+                        SendPacket(new AckPacket());
+                    }
+                    else
+                    {
+                        Disconnect();
+                        continue;
+                    }
+
+                    try
+                    {
+                        Packet? packet = ReceivePacket();
+                        if (packet == null || packet.GetType() != Packet.Type.ACK)
+                        {
+                            throw new InvalidDataException();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Task.Run(() =>
+                        {
+                            MessageBox.Show("Užívateľ odmietol žiadosť o pripojenie.", "Spojenie bolo odmietnuté",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
                         continue;
                     }
 
                     CommunicationLoop();
-                }
-            }
-            catch (ThreadInterruptedException inter)
-            {
 
-            }
-            catch (SocketException ex)
-            {
+                }
+                catch (ThreadInterruptedException inter)
+                {
+                    throw inter;
+                }
+                catch (SocketException ex)
+                {
+                }
             }
         }
 
         public void StopServer()
         {
+            Disconnect();
             stopSignal = true;
             serverSocket?.Stop();
         }

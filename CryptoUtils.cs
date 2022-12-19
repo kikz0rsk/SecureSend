@@ -2,7 +2,9 @@
 using NSec.Cryptography;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,6 +32,17 @@ namespace BP
             byte[]? plaintext = AeadAlgorithm.Aes256Gcm.Decrypt(symmetricKey, nonce, null, ciphertext);
 
             return plaintext;
+        }
+
+        public static byte[] CalculateFileHash(string filePath)
+        {
+            using (var md5 = MD5.Create())
+            {
+                using (var stream = File.OpenRead(Path.GetFileName(filePath)))
+                {
+                    return md5.ComputeHash(stream);
+                }
+            }
         }
     }
 }

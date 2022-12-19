@@ -1,0 +1,21 @@
+﻿<Window x:Class="BP.GUI.AcceptConnection"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BP.GUI"
+        mc:Ignorable="d"
+        Title="AcceptConnection" Height="231" Width="396" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
+    <Grid>
+        <Label Content="Nové nedôveryhodné zariadenie" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" UseLayoutRounding="False"/>
+        <Label Content="IP Adresa" HorizontalAlignment="Left" Margin="10,59,0,0" VerticalAlignment="Top" Height="25"/>
+        <Label x:Name="ipAddr" Content="" HorizontalAlignment="Left" Margin="98,59,0,0" VerticalAlignment="Top"/>
+        <Label Content="Identita" HorizontalAlignment="Left" Margin="10,93,0,0" VerticalAlignment="Top" Height="25"/>
+        <Label x:Name="identity" Content="" HorizontalAlignment="Left" Margin="98,93,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="question" Content="Chcete povoliť tomuto zariadeniu sa pripojiť?" Margin="0,136,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="15"/>
+        <Button x:Name="acceptOnce" Content="Tentokrát akceptovať" HorizontalAlignment="Left" Margin="10,176,0,10" VerticalAlignment="Top" Height="25" Width="120" Click="acceptOnce_Click"/>
+        <Button x:Name="acceptRemember" Content="Akceptovať a zapamätať" HorizontalAlignment="Left" Margin="142,176,0,10" VerticalAlignment="Top" Height="25" Width="143" Click="acceptRemember_Click"/>
+        <Button x:Name="reject" Content="Nepovoliť" HorizontalAlignment="Left" Margin="295,176,10,10" VerticalAlignment="Top" Height="25" Width="91" Click="reject_Click"/>
+
+    </Grid>
+</Window>

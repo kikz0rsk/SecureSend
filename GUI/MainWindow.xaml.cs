@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows;
-using BP.Networking;
+using BP.Endpoint;
 using NSec.Cryptography;
 using Microsoft.WindowsAPICodePack.Dialogs;
 
@@ -85,6 +85,16 @@ namespace BP
         {
             currentConnectionText.Content = "Žiadne spojenie";
             connectBtn.Content = "Pripojiť sa";
+        }
+
+        public void SetBusy()
+        {
+            sendFileButton.IsEnabled = false;
+        }
+
+        public void SetReady()
+        {
+            sendFileButton.IsEnabled = false;
         }
 
         private void sendFileExploreBtn_Click(object sender, RoutedEventArgs e)

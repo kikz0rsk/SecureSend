@@ -8,20 +8,19 @@
         Title="SendFile" Width="662" Height="364" Loaded="OnWindowLoaded" Closing="onWindowClosing" SizeToContent="WidthAndHeight">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="20"/>
-            <RowDefinition/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="301.04"/>
             <RowDefinition Height="22"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Menu Width="Auto" Height="20" VerticalContentAlignment="Center" VerticalAlignment="Top" Panel.ZIndex="5">
-            <MenuItem Header="Súbor" Height="20"/>
+        <Menu Width="Auto" Height="25" VerticalContentAlignment="Center" VerticalAlignment="Top" Panel.ZIndex="5">
+            <MenuItem Header="Pripojiť sa" Height="25"/>
         </Menu>
 
-        <StatusBar Grid.Row="1" Margin="0,305,0,0" Grid.RowSpan="3" Height="22" VerticalAlignment="Bottom">
-            <StatusBarItem x:Name="statusText" Content="Status" Height="22" VerticalAlignment="Top" Width="421" RenderTransformOrigin="0.5,0.5"/>
-            <StatusBarItem x:Name="statusPortText" Content="Port" Height="22" VerticalAlignment="Top" Width="236"/>
+        <StatusBar Grid.Row="1" Margin="0,0,0,0" Grid.RowSpan="3" Height="22" VerticalAlignment="Bottom">
+            <StatusBarItem x:Name="statusPortText" Content="Port" Height="22" VerticalAlignment="Top" HorizontalAlignment="Left"/>
         </StatusBar>
         <Label x:Name="currentConnectionText" Content="Žiadne spojenie" HorizontalAlignment="Left" Margin="10,21,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" Padding="0,5,5,5" Grid.RowSpan="2" Height="37" Width="153"/>
         <TextBox x:Name="inputFilePath" HorizontalAlignment="Left" Margin="189,57,0,0" VerticalAlignment="Top" Width="379" Height="26" VerticalContentAlignment="Center" MaxLines="1" Grid.Row="1"/>
@@ -37,6 +36,8 @@
         <Button x:Name="connectBtn" Content="Pripojiť sa" HorizontalAlignment="Left" Margin="10,145,0,0" VerticalAlignment="Top" Width="166" Click="connectBtn_Click" Grid.Row="1" Height="20"/>
         <Button x:Name="sendFileExploreBtn" Content="Vybrať..." HorizontalAlignment="Left" Margin="580,57,10,0" VerticalAlignment="Top" Height="26" Width="62" Click="sendFileExploreBtn_Click" Grid.Row="1"/>
         <Button x:Name="saveLocationExploreBtn" Content="Vybrať..." HorizontalAlignment="Left" Margin="580,118,10,0" VerticalAlignment="Top" Height="26" Width="62" Grid.Row="1" Click="saveLocationExploreBtn_Click"/>
+        <Label Content="Stav: " HorizontalAlignment="Left" Margin="20,216,0,0" Grid.Row="1" VerticalAlignment="Top" Padding="0,5,5,5"/>
+        <Label x:Name="statusText" Content="" HorizontalAlignment="Left" Margin="63,216,0,0" Grid.Row="1" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

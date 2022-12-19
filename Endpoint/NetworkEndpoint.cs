@@ -5,14 +5,16 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using BP.Protocol;
 using NSec.Cryptography;
+using Org.BouncyCastle.Tls.Crypto.Impl.BC;
 
-namespace BP.Networking
+namespace BP.Endpoint
 {
     internal class NetworkEndpoint
     {
@@ -23,6 +25,7 @@ namespace BP.Networking
         protected MainWindow mainWindow;
         protected volatile bool connected = false;
         protected volatile bool isClient = false;
+        protected PublicKey remoteEndpointPublicKey;
 
         protected void SendPacket(Packet packet)
         {
@@ -64,10 +67,10 @@ namespace BP.Networking
             // get other endpoint's public key
             byte[] otherEndpointPublicKey = NetworkUtils.ReadExactlyBytes(stream, 32);
 
-            PublicKey serverPublicKey = PublicKey.Import(KeyAgreementAlgorithm.X25519, otherEndpointPublicKey, KeyBlobFormat.RawPublicKey);
+            remoteEndpointPublicKey = PublicKey.Import(KeyAgreementAlgorithm.X25519, otherEndpointPublicKey, KeyBlobFormat.RawPublicKey);
 
             // agree on shared secret
-            SharedSecret sharedSecret = KeyAgreementAlgorithm.X25519.Agree(mainWindow.ClientKeyPair, serverPublicKey);
+            SharedSecret sharedSecret = KeyAgreementAlgorithm.X25519.Agree(mainWindow.ClientKeyPair, remoteEndpointPublicKey);
 
             if (sharedSecret == null)
             {
@@ -80,12 +83,15 @@ namespace BP.Networking
         protected void ReceiveFile(FileInfoPacket fileInfo)
         {
             Application.Current.Dispatcher.Invoke(new Action(() => {
-                mainWindow.statusText.Content = "Incoming file: " + fileInfo.GetFileName();
+                mainWindow.statusText.Content = "Prichádzajúci súbor: " + fileInfo.GetFileName();
                 mainWindow.fileProgressBar.Value = 0;
             }));
 
             ulong totalBytes = fileInfo.GetFileSize();
-            using (FileStream fileStream = new FileStream(fileInfo.GetFileName(), FileMode.Create))
+
+            string savePath = Path.Combine(mainWindow.saveFolderLocation.Text.Trim(), fileInfo.GetFileName());
+
+            using (FileStream fileStream = new FileStream(savePath, FileMode.Create))
             {
                 ulong bytesWritten = 0;
                 while (bytesWritten < totalBytes)
@@ -101,38 +107,70 @@ namespace BP.Networking
 
                     fileStream.Write(data);
                     bytesWritten += (ulong)data.Length;
-                    Application.Current.Dispatcher.Invoke(new Action(() => {
+                    Application.Current.Dispatcher.InvokeAsync(new Action(() => {
                         mainWindow.fileProgressBar.Value = ((float)bytesWritten / totalBytes * 100);
                     }));
                 }
             }
 
+            try
+            {
+                byte[] hash = CryptoUtils.CalculateFileHash(savePath);
+
+                bool isValid = Enumerable.SequenceEqual(fileInfo.GetHash(), hash);
+                if(!isValid)
+                {
+                    Task.Run(() =>
+                    {
+                        MessageBox.Show("Kontrolný súčet sa nezhoduje! Súbor je poškodený.", "Súbor je poškodený",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    });
+                }
+            } catch(Exception ex) {
+                Task.Run(() =>
+                {
+                    MessageBox.Show("Integritu súboru sa nepodarilo overiť: " + ex.ToString(), "Chyba pri overovaní súboru",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                });
+            }
+
             Application.Current.Dispatcher.Invoke(new Action(() => {
                 mainWindow.fileProgressBar.Value = 100;
-                mainWindow.statusText.Content = "Pripravené";
+                mainWindow.statusText.Content = "Súbor bol prijatý";
             }));
         }
 
         protected void SendFile()
         {
-            string filepath;
-            if (!filesToSend.TryDequeue(out filepath))
+            string filePathString;
+            if (!filesToSend.TryDequeue(out filePathString))
             {
                 return;
             }
 
-            if (!File.Exists(filepath)) return;
+            if (!File.Exists(filePathString)) return;
 
             Application.Current.Dispatcher.Invoke(new Action(() => {
                 mainWindow.fileProgressBar.Value = 0;
             }));
 
-            ulong totalBytes = (ulong)new FileInfo(filepath).Length;
-            FileInfoPacket fileInfoPacket = new FileInfoPacket(Path.GetFileName(filepath), totalBytes);
+            ulong totalBytes = (ulong)new FileInfo(filePathString).Length;
+
+            Application.Current.Dispatcher.Invoke(new Action(() => {
+                mainWindow.statusText.Content = "Počíta sa hash súboru...";
+            }));
+
+            byte[] hash = CryptoUtils.CalculateFileHash(filePathString);
+
+            Application.Current.Dispatcher.Invoke(new Action(() => {
+                mainWindow.statusText.Content = "Odosiela sa súbor...";
+            }));
+
+            FileInfoPacket fileInfoPacket = new FileInfoPacket(Path.GetFileName(filePathString), totalBytes, hash);
             SendPacket(fileInfoPacket);
 
             ulong bytesSent = 0;
-            using (Stream fileStream = File.OpenRead(filepath))
+            using (Stream fileStream = File.OpenRead(filePathString))
             {
                 byte[] buffer = new byte[40_000];
                 int bytesRead;
@@ -141,36 +179,45 @@ namespace BP.Networking
                     DataPacket data = new DataPacket(buffer.Take(bytesRead).ToArray());
                     SendPacket(data);
                     bytesSent += (ulong)bytesRead;
-                    Application.Current.Dispatcher.Invoke(new Action(() => {
+                    Application.Current.Dispatcher.InvokeAsync(new Action(() => {
                         mainWindow.fileProgressBar.Value = ((float)bytesSent / totalBytes * 100);
                     }));
                 }
             }
+
+            Application.Current.Dispatcher.Invoke(new Action(() => {
+                mainWindow.fileProgressBar.Value = 100;
+                mainWindow.statusText.Content = "Súbor bol odoslaný";
+            }));
         }
 
         protected void CommunicationLoop()
         {
             while (connection.Connected)
             {
-                //connection.Client.Poll(-1, SelectMode.SelectRead);
-
                 try
                 {
-                    if (stream.DataAvailable)
+                    if (connection.Client.Poll(-1, SelectMode.SelectRead))
                     {
+                        if(!stream.DataAvailable)
+                        {
+                            return;
+                        }
+
                         Packet? packet = ReceivePacket();
 
                         if (packet == null)
                         {
+                            // TODO remove
                             throw new InvalidDataException("Data available in stream but failed to get packet");
                         }
 
-                        if (packet.GetType() != Packet.Type.FILE_INFO)
+                        if (packet.GetType() == Packet.Type.FILE_INFO)
                         {
-                            throw new InvalidDataException("Invalid packet type, expected file info");
+                            ReceiveFile((FileInfoPacket)packet);
                         }
 
-                        ReceiveFile((FileInfoPacket)packet);
+                        
                     }
                     else if (filesToSend.Count > 0)
                     {

@@ -11,12 +11,19 @@ namespace BP
     {
         public static byte[] ReadExactlyBytes(NetworkStream stream, uint howManyBytes)
         {
-            int read = 0;
+            int totalRead = 0;
             byte[] output = new byte[howManyBytes];
 
-            while(read < howManyBytes)
+            while(totalRead < howManyBytes)
             {
-                read += stream.Read(output, read, (int)howManyBytes - read);
+                int read = stream.Read(output, totalRead, (int)howManyBytes - totalRead);
+
+                if(read == 0)
+                {
+                    return new byte[0];
+                }
+
+                totalRead += read;
             }
 
             return output;

@@ -15,7 +15,7 @@ namespace BP.Protocol
             this.data = data;
         }
 
-        protected override byte[] SerializePayload()
+        protected override byte[] EncodePayload()
         {
             return data;
         }

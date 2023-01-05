@@ -11,7 +11,7 @@ namespace BP.Protocol
         public HeartbeatPacket() : base(Type.HEARTBEAT)
         { }
 
-        protected override byte[] SerializePayload()
+        protected override byte[] EncodePayload()
         {
             return new byte[0];
         }

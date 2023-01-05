@@ -11,7 +11,7 @@ namespace BP.Protocol
         public DisconnectPacket() : base(Type.DISCONNECT)
         { }
 
-        protected override byte[] SerializePayload()
+        protected override byte[] EncodePayload()
         {
             return new byte[0];
         }

@@ -11,7 +11,7 @@ namespace BP.Protocol
         public NackPacket() : base(Type.NACK)
         { }
 
-        protected override byte[] SerializePayload()
+        protected override byte[] EncodePayload()
         {
             return new byte[0];
         }

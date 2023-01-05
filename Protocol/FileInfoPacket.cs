@@ -19,12 +19,17 @@ namespace BP.Protocol
             this.hash = hash;
         }
 
-        protected override byte[] SerializePayload()
+        protected override byte[] EncodePayload()
         {
-            byte[] fileLengthBytes = BitConverter.GetBytes(fileSize);
-            NetworkUtils.EnsureCorrectEndianness(fileLengthBytes);
+            return EncodeULong(this.fileSize).Concat(hash).Concat(EncodeVarLengthString(fileName)).ToArray();
+        }
 
-            return fileLengthBytes.Concat(hash).Concat(UTF8Encoding.UTF8.GetBytes(fileName)).ToArray();
+        public static FileInfoPacket DecodeFromBytes(byte[] payloadBytes)
+        {
+            ulong fileSize = DecodeULong(payloadBytes.Take(8).ToArray());
+            byte[] hash = payloadBytes.Skip(8).Take(16).ToArray();
+            string filename = DecodeVarLengthString(payloadBytes.Skip(24).ToArray());
+            return new FileInfoPacket(filename, fileSize, hash);
         }
 
         public string GetFileName()

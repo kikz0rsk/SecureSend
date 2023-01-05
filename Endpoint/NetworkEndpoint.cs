@@ -29,9 +29,11 @@ namespace BP.Endpoint
 
         protected void SendPacket(Packet packet)
         {
+            byte[] serializedPacket = packet.BuildPacket();
+
             byte[] nonce;
-            byte[] serializedPacket = packet.Serialize();
             byte[] encryptedPayload = CryptoUtils.EncryptBytes(serializedPacket, symmetricKey, out nonce);
+
             byte[] packetLengthBytes = BitConverter.GetBytes(Convert.ToUInt16(encryptedPayload.Length + 12)); // Nonce is 12 bytes
             NetworkUtils.EnsureCorrectEndianness(packetLengthBytes);
             byte[] bytesToSend = packetLengthBytes.Concat(nonce).Concat(encryptedPayload).ToArray();

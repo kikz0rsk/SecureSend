@@ -127,7 +127,7 @@ namespace BP
             float percentage = ((float)bytesTransfered / totalBytes * 100);
             if (percentage < 0) { percentage = 0; } else if (percentage > 100) { percentage = 100; }
             this.fileProgressBar.Value = percentage;
-            this.progressPercentage.Content = percentage.ToString("F2") + "%";
+            this.progressPercentage.Content = percentage.ToString("F1") + "%";
         }
     }
 }

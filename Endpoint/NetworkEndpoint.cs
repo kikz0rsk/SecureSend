@@ -88,6 +88,7 @@ namespace BP.Endpoint
             Application.Current.Dispatcher.Invoke(new Action(() => {
                 mainWindow.statusText.Content = "Prichádzajúci súbor " + fileInfo.GetFileName();
                 mainWindow.fileProgressBar.Value = 0;
+                mainWindow.sendFileButton.IsEnabled = false;
             }));
 
             ulong totalBytes = fileInfo.GetFileSize();
@@ -120,6 +121,10 @@ namespace BP.Endpoint
                 }
             }
 
+            Application.Current.Dispatcher.Invoke(new Action(() => {
+                mainWindow.statusText.Content = "Overuje sa kontrolný súčet súboru...";
+            }));
+
             try
             {
                 byte[] hash = CryptoUtils.CalculateFileHash(savePath);
@@ -129,7 +134,7 @@ namespace BP.Endpoint
                 {
                     Task.Run(() =>
                     {
-                        MessageBox.Show("Kontrolný súčet sa nezhoduje! Súbor je poškodený.", "Súbor je poškodený",
+                        MessageBox.Show("Kontrolný súčet sa nezhoduje! Súbor je pravdepodobne poškodený. Zopakujte prenos.", "Súbor je poškodený",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     });
                 }
@@ -142,8 +147,9 @@ namespace BP.Endpoint
             }
 
             Application.Current.Dispatcher.Invoke(new Action(() => {
-                mainWindow.fileProgressBar.Value = 100;
+                mainWindow.SetProgress(0, 1);
                 mainWindow.statusText.Content = "Súbor bol prijatý";
+                mainWindow.sendFileButton.IsEnabled = true;
             }));
         }
 
@@ -159,12 +165,13 @@ namespace BP.Endpoint
 
             Application.Current.Dispatcher.Invoke(new Action(() => {
                 mainWindow.fileProgressBar.Value = 0;
+                mainWindow.sendFileButton.IsEnabled = false;
             }));
 
             ulong totalBytes = (ulong)new FileInfo(filePathString).Length;
 
             Application.Current.Dispatcher.Invoke(new Action(() => {
-                mainWindow.statusText.Content = "Počíta sa hash súboru...";
+                mainWindow.statusText.Content = "Počíta sa kontrolný súčet súboru...";
             }));
 
             byte[] hash = CryptoUtils.CalculateFileHash(filePathString);
@@ -193,8 +200,9 @@ namespace BP.Endpoint
             }
 
             Application.Current.Dispatcher.Invoke(new Action(() => {
-                mainWindow.fileProgressBar.Value = 100;
+                mainWindow.SetProgress(0, 1);
                 mainWindow.statusText.Content = "Súbor bol odoslaný";
+                mainWindow.sendFileButton.IsEnabled = true;
             }));
         }
 

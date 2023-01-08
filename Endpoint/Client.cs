@@ -116,6 +116,40 @@ namespace BP.Endpoint
             }
         }
 
+        protected override Key? EstablishTrust()
+        {
+
+            ClientHandshake clientHandshake = new ClientHandshake(
+                mainWindow.ClientKeyPair.PublicKey.Export(KeyBlobFormat.RawPublicKey), 0);
+
+            SendUnencryptedPacket(clientHandshake);
+
+            Packet? packet = ReceiveUnencryptedPacket();
+
+            if (packet == null) return null;
+
+            ServerHandshake serverHandshake;
+            try
+            {
+                serverHandshake = (ServerHandshake)packet;
+            } catch(InvalidCastException)
+            {
+                return null;
+            }
+
+            remoteEndpointPublicKey = PublicKey.Import(KeyAgreementAlgorithm.X25519, serverHandshake.PublicKey, KeyBlobFormat.RawPublicKey);
+
+            // agree on shared secret
+            SharedSecret? sharedSecret = KeyAgreementAlgorithm.X25519.Agree(mainWindow.ClientKeyPair, remoteEndpointPublicKey);
+
+            if (sharedSecret == null)
+            {
+                return null;
+            }
+
+            return KeyDerivationAlgorithm.HkdfSha512.DeriveKey(sharedSecret, serverHandshake.SessionId, null, AeadAlgorithm.Aes256Gcm, CryptoUtils.AllowExport());
+        }
+
         public Thread? GetThread()
         {
             return thread;

@@ -28,5 +28,9 @@ namespace BP.Protocol
         {
             return publicKey.Concat(sessionId).ToArray();
         }
+
+        public byte[] PublicKey { get { return publicKey; } }
+
+        public byte[] SessionId { get { return sessionId; } }
     }
 }

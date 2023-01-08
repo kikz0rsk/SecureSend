@@ -24,5 +24,9 @@ namespace BP.Protocol
         {
             return publicKey.Concat(new byte[] { encryptionAlgo }).ToArray();
         }
+
+        public byte[] PublicKey { get { return publicKey; } }
+
+        public byte EncryptionAlgo { get { return encryptionAlgo; } }
     }
 }

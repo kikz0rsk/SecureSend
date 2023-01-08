@@ -12,6 +12,8 @@ namespace BP
 {
     internal class CryptoUtils
     {
+        private static RandomNumberGenerator rng = RandomNumberGenerator.Create();
+
         public static KeyCreationParameters AllowExport()
         {
             KeyCreationParameters paramz = new KeyCreationParameters();
@@ -19,10 +21,15 @@ namespace BP
             return paramz;
         }
 
+        public static void FillWithRandomBytes(byte[] array)
+        {
+            rng.GetBytes(array);
+        }
+
         public static byte[] EncryptBytes(byte[] plaintext, Key symmetricKey, out byte[] nonce)
         {
             byte[] generatedNonce = new byte[12];
-            System.Random.Shared.NextBytes(generatedNonce);
+            rng.GetBytes(generatedNonce);
             nonce = generatedNonce;
             return AeadAlgorithm.Aes256Gcm.Encrypt(symmetricKey, generatedNonce, null, plaintext);
         }

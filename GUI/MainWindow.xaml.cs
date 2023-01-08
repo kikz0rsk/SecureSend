@@ -33,19 +33,22 @@ namespace BP
             statusText.Content = "Pripravené";
         }
 
-        public NSec.Cryptography.Key? ClientKeyPair { 
+        public NSec.Cryptography.Key? ClientKeyPair
+        {
             get { return clientKeyPair; }
         }
 
         private void connectBtn_Click(object sender, RoutedEventArgs e)
         {
-            if(client.IsConnected())
+            if (client.IsConnected())
             {
                 client.Disconnect();
-            } else if (server.IsConnected())
+            }
+            else if (server.IsConnected())
             {
                 server.Disconnect();
-            } else
+            }
+            else
             {
                 client.Connect(ipAddressInput.Text, portInput.Text);
             }
@@ -57,7 +60,7 @@ namespace BP
             client.GetThread()?.Interrupt();
 
             server.StopServer();
-            server.GetThread()?.Join();
+            server.ServerThread?.Join();
         }
 
         private void sendFileButton_Click(object sender, RoutedEventArgs e)
@@ -72,7 +75,7 @@ namespace BP
             {
                 server.GetFilesToSend().Enqueue(inputFilePath.Text.Trim());
             }
-            
+
         }
 
         public void SetConnected()
@@ -117,6 +120,14 @@ namespace BP
             if (dialog.ShowDialog() != CommonFileDialogResult.Ok) return;
 
             saveFolderLocation.Text = dialog.FileName;
+        }
+
+        public void SetProgress(ulong bytesTransfered, ulong totalBytes)
+        {
+            float percentage = ((float)bytesTransfered / totalBytes * 100);
+            if (percentage < 0) { percentage = 0; } else if (percentage > 100) { percentage = 100; }
+            this.fileProgressBar.Value = percentage;
+            this.progressPercentage.Content = percentage.ToString("F2") + "%";
         }
     }
 }

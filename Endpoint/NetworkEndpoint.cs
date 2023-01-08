@@ -16,7 +16,7 @@ using Org.BouncyCastle.Tls.Crypto.Impl.BC;
 
 namespace BP.Endpoint
 {
-    internal class NetworkEndpoint
+    internal abstract class NetworkEndpoint
     {
         protected Key? symmetricKey;
         protected NetworkStream stream;
@@ -26,6 +26,26 @@ namespace BP.Endpoint
         protected volatile bool connected = false;
         protected volatile bool isClient = false;
         protected PublicKey remoteEndpointPublicKey;
+
+        protected void SendUnencryptedPacket(Packet packet)
+        {
+            byte[] serializedPacket = packet.BuildPacket();
+
+            byte[] bytesToSend = Packet.EncodeUShort(Convert.ToUInt16(serializedPacket.Length)).Concat(serializedPacket).ToArray();
+            stream.Write(bytesToSend, 0, bytesToSend.Length);
+        }
+
+        protected Packet? ReceiveUnencryptedPacket()
+        {
+            uint packetLength = Packet.DecodeUShort(NetworkUtils.ReadExactlyBytes(stream, 2));
+            byte[] packetBytes = NetworkUtils.ReadExactlyBytes(stream, packetLength);
+
+            Packet? packet = Packet.Deserialize(packetBytes);
+
+            if (packet == null) throw new InvalidDataException("Could not deserialize packet");
+
+            return packet;
+        }
 
         protected void SendPacket(Packet packet)
         {
@@ -61,31 +81,12 @@ namespace BP.Endpoint
             return packet;
         }
 
-        protected Key? EstablishTrust()
-        {
-            // send public key
-            stream.Write(mainWindow.ClientKeyPair.PublicKey.Export(KeyBlobFormat.RawPublicKey), 0, 32);
-
-            // get other endpoint's public key
-            byte[] otherEndpointPublicKey = NetworkUtils.ReadExactlyBytes(stream, 32);
-
-            remoteEndpointPublicKey = PublicKey.Import(KeyAgreementAlgorithm.X25519, otherEndpointPublicKey, KeyBlobFormat.RawPublicKey);
-
-            // agree on shared secret
-            SharedSecret sharedSecret = KeyAgreementAlgorithm.X25519.Agree(mainWindow.ClientKeyPair, remoteEndpointPublicKey);
-
-            if (sharedSecret == null)
-            {
-                return null;
-            }
-
-            return KeyDerivationAlgorithm.HkdfSha512.DeriveKey(sharedSecret, null, null, AeadAlgorithm.Aes256Gcm, CryptoUtils.AllowExport());
-        }
+        protected abstract Key? EstablishTrust();
 
         protected void ReceiveFile(FileInfoPacket fileInfo)
         {
             Application.Current.Dispatcher.Invoke(new Action(() => {
-                mainWindow.statusText.Content = "Prichádzajúci súbor: " + fileInfo.GetFileName();
+                mainWindow.statusText.Content = "Prichádzajúci súbor " + fileInfo.GetFileName();
                 mainWindow.fileProgressBar.Value = 0;
             }));
 
@@ -114,7 +115,7 @@ namespace BP.Endpoint
                     fileStream.Write(data);
                     bytesWritten += (ulong)data.Length;
                     Application.Current.Dispatcher.InvokeAsync(new Action(() => {
-                        mainWindow.fileProgressBar.Value = ((float)bytesWritten / totalBytes * 100);
+                        mainWindow.SetProgress(bytesWritten, totalBytes);
                     }));
                 }
             }

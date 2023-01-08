@@ -67,6 +67,20 @@ namespace BP.Protocol
             return BitConverter.ToInt32(bytes, 0);
         }
 
+        public static byte[] EncodeUShort(ushort number)
+        {
+            byte[] numberBytes = BitConverter.GetBytes(number);
+            NetworkUtils.EnsureCorrectEndianness(numberBytes);
+            return numberBytes;
+        }
+
+        public static ushort DecodeUShort(byte[] bytes)
+        {
+            bytes = bytes.Take(2).ToArray();
+            NetworkUtils.EnsureCorrectEndianness(bytes);
+            return BitConverter.ToUInt16(bytes, 0);
+        }
+
         public static byte[] EncodeULong(ulong number)
         {
             byte[] numberBytes = BitConverter.GetBytes(number);

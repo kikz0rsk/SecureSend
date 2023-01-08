@@ -65,7 +65,8 @@ namespace BP.Endpoint
                     SetConnected(false);
                     connection = serverSocket.AcceptTcpClient();
                     SetConnected(true);
-                    Application.Current.Dispatcher.Invoke(new Action(() => {
+                    Application.Current.Dispatcher.Invoke(new Action(() =>
+                    {
                         mainWindow.currentConnectionText.Content = "Vytvára sa bezpečný kanál...";
                     }));
                     this.isClient = false;
@@ -84,8 +85,10 @@ namespace BP.Endpoint
                         continue;
                     }
 
-                    Application.Current.Dispatcher.Invoke(new Action(() => {
-                        mainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa..."; }));
+                    Application.Current.Dispatcher.Invoke(new Action(() =>
+                    {
+                        mainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa...";
+                    }));
 
                     IPEndPoint endpoint = connection.Client.RemoteEndPoint as IPEndPoint;
                     AcceptConnectionResult result = Application.Current.Dispatcher.Invoke(() =>
@@ -139,6 +142,43 @@ namespace BP.Endpoint
             }
         }
 
+        protected override Key? EstablishTrust()
+        {
+            byte[] sessionId = new byte[64];
+            CryptoUtils.FillWithRandomBytes(sessionId);
+
+            ServerHandshake serverHandshake = new ServerHandshake(
+                mainWindow.ClientKeyPair.PublicKey.Export(KeyBlobFormat.RawPublicKey), sessionId);
+
+            SendUnencryptedPacket(serverHandshake);
+
+            Packet? packet = ReceiveUnencryptedPacket();
+
+            if (packet == null) return null;
+
+            ClientHandshake clientHandshake;
+            try
+            {
+                clientHandshake = (ClientHandshake)packet;
+            }
+            catch (InvalidCastException)
+            {
+                return null;
+            }
+
+            remoteEndpointPublicKey = PublicKey.Import(KeyAgreementAlgorithm.X25519, clientHandshake.PublicKey, KeyBlobFormat.RawPublicKey);
+
+            // agree on shared secret
+            SharedSecret? sharedSecret = KeyAgreementAlgorithm.X25519.Agree(mainWindow.ClientKeyPair, remoteEndpointPublicKey);
+
+            if (sharedSecret == null)
+            {
+                return null;
+            }
+
+            return KeyDerivationAlgorithm.HkdfSha512.DeriveKey(sharedSecret, sessionId, null, AeadAlgorithm.Aes256Gcm, CryptoUtils.AllowExport());
+        }
+
         public void StopServer()
         {
             Disconnect();
@@ -148,9 +188,9 @@ namespace BP.Endpoint
 
         public int? Port { get { return port; } }
 
-        public Thread? GetThread()
+        public Thread? ServerThread
         {
-            return thread;
+            get { return thread; }
         }
     }
 }

@@ -187,7 +187,7 @@ namespace BP.Endpoint
                     SendPacket(data);
                     bytesSent += (ulong)bytesRead;
                     Application.Current.Dispatcher.InvokeAsync(new Action(() => {
-                        mainWindow.fileProgressBar.Value = ((float)bytesSent / totalBytes * 100);
+                        mainWindow.SetProgress(bytesSent, totalBytes);
                     }));
                 }
             }

@@ -1,0 +1,17 @@
+﻿<Window x:Class="BP.GUI.ConnectWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BP.GUI"
+        mc:Ignorable="d"
+        Title="Pripojiť sa na server" Height="142" Width="320" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
+    <Grid Margin="10,10,10,10">
+        <TextBox x:Name="ipAddress" HorizontalAlignment="Left" Margin="86,1,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="211" Height="24" VerticalContentAlignment="Center"/>
+        <Label Content="IP Adresa" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <TextBox x:Name="port" HorizontalAlignment="Left" Margin="86,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" Width="211" Height="24" Text="23488" VerticalContentAlignment="Center"/>
+        <Label Content="Port" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        <Button x:Name="connectBtn" Content="Pripojiť sa" HorizontalAlignment="Center" Margin="0,84,0,0" VerticalAlignment="Top" Height="22" Width="116" Click="connectBtn_Click"/>
+
+    </Grid>
+</Window>

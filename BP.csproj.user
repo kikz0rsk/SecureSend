@@ -10,9 +10,15 @@
     <Compile Update="GUI\AcceptConnection.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="GUI\ConnectWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="GUI\AcceptConnection.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="GUI\ConnectWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="GUI\MainWindow.xaml">

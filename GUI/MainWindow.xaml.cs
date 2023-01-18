@@ -3,6 +3,7 @@ using System.Windows;
 using BP.Endpoint;
 using NSec.Cryptography;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using BP.GUI;
 
 namespace BP
 {
@@ -38,20 +39,37 @@ namespace BP
             get { return clientKeyPair; }
         }
 
-        private void connectBtn_Click(object sender, RoutedEventArgs e)
+        protected void disconnctBtn_Click(object sender, RoutedEventArgs e)
         {
             if (client.IsConnected())
             {
                 client.Disconnect();
+                return;
             }
-            else if (server.IsConnected())
+
+            if(client.IsConnected())
             {
                 server.Disconnect();
+                return;
             }
-            else
+        }
+
+        private void connectBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (client.IsConnected() || server.IsConnected())
             {
-                client.Connect(ipAddressInput.Text, portInput.Text);
+                return;
             }
+
+            ConnectWindow connectWindow = new ConnectWindow();
+            connectWindow.ShowDialog();
+
+            if(connectWindow.IpAddress == null || connectWindow.Port == null)
+            {
+                return;
+            }
+
+            client.Connect(connectWindow.IpAddress, connectWindow.Port);
         }
 
         private void onWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -81,13 +99,13 @@ namespace BP
         public void SetConnected()
         {
             currentConnectionText.Content = "Pripojené";
-            connectBtn.Content = "Odpojiť sa";
+            disconnectBtn.IsEnabled = true;
         }
 
         public void SetDisconnected()
         {
             currentConnectionText.Content = "Žiadne spojenie";
-            connectBtn.Content = "Pripojiť sa";
+            disconnectBtn.IsEnabled = false;
         }
 
         public void SetBusy()
@@ -129,5 +147,6 @@ namespace BP
             this.fileProgressBar.Value = percentage;
             this.progressPercentage.Content = percentage.ToString("F1") + "%";
         }
+
     }
 }

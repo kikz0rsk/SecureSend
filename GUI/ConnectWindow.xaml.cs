@@ -13,7 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace BP.GUI
+namespace SecureSend.GUI
 {
     /// <summary>
     /// Interaction logic for ConnectForm.xaml

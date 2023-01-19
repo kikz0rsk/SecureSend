@@ -1,4 +1,5 @@
 ﻿using Org.BouncyCastle.Utilities;
+using SecureSend.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BP.Protocol
+namespace SecureSend.Protocol
 {
     internal abstract class Packet
     {

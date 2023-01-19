@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Windows;
-using BP.Endpoint;
+using SecureSend.Endpoint;
 using NSec.Cryptography;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using BP.GUI;
+using SecureSend.GUI;
+using SecureSend.Utils;
 
-namespace BP
+namespace SecureSend
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -19,8 +20,11 @@ namespace BP
         public MainWindow()
         {
             InitializeComponent();
+            SecureSendMain.Instance.MainWindow = this;
             server = new Server(this);
+            SecureSendMain.Instance.Server = server;
             client = new Client(this);
+            SecureSendMain.Instance.Client = client;
         }
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
@@ -148,5 +152,10 @@ namespace BP
             this.progressPercentage.Content = percentage.ToString("F1") + "%";
         }
 
+        private void identityMngrBtn_Click(object sender, RoutedEventArgs e)
+        {
+            IdentityManagerWindow window = new IdentityManagerWindow();
+            window.Show();
+        }
     }
 }

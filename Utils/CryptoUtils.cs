@@ -1,4 +1,4 @@
-﻿using BP.Protocol;
+﻿using SecureSend.Protocol;
 using NSec.Cryptography;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BP
+namespace SecureSend.Utils
 {
     internal class CryptoUtils
     {

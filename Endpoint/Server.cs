@@ -1,5 +1,5 @@
-﻿using BP.GUI;
-using BP.Protocol;
+﻿using SecureSend.GUI;
+using SecureSend.Protocol;
 using NSec.Cryptography;
 using System;
 using System.Collections.Concurrent;
@@ -15,8 +15,9 @@ using System.Windows;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using Path = System.IO.Path;
+using SecureSend.Utils;
 
-namespace BP.Endpoint
+namespace SecureSend.Endpoint
 {
     internal class Server : NetworkEndpoint
     {

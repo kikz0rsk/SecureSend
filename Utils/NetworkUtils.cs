@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BP
+namespace SecureSend.Utils
 {
     internal class NetworkUtils
     {
@@ -14,11 +14,11 @@ namespace BP
             int totalRead = 0;
             byte[] output = new byte[howManyBytes];
 
-            while(totalRead < howManyBytes)
+            while (totalRead < howManyBytes)
             {
                 int read = stream.Read(output, totalRead, (int)howManyBytes - totalRead);
 
-                if(read == 0)
+                if (read == 0)
                 {
                     return new byte[0];
                 }

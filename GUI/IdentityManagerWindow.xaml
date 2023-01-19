@@ -1,0 +1,22 @@
+﻿<Window x:Class="SecureSend.GUI.IdentityManagerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SecureSend.GUI"
+        mc:Ignorable="d"
+        Title="Správa dôveryhodných zariadení" Height="450" Width="800" SizeToContent="WidthAndHeight" Loaded="Window_Loaded" MinHeight="400">
+    <Grid Margin="0,0,0,-6">
+        <ListView x:Name="list" Margin="0,0,0,47" SelectionMode="Single">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Jednoznačný identifikátor zariadenia" Width="300" DisplayMemberBinding="{Binding DeviceFingerprintString}" />
+                    <GridViewColumn Header="Verejný kľúč" Width="300" DisplayMemberBinding="{Binding PublicKeyString}" />
+                </GridView>
+
+            </ListView.View>
+        </ListView>
+        <Button Content="Odstrániť" HorizontalAlignment="Left" Margin="10,0,0,12" VerticalAlignment="Bottom" Height="26" Width="93"/>
+
+    </Grid>
+</Window>

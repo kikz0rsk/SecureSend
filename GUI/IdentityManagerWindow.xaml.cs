@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SecureSend.Base;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,16 +13,25 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace BP.GUI
+namespace SecureSend.GUI
 {
     /// <summary>
     /// Interaction logic for IdentityManager.xaml
     /// </summary>
-    public partial class IdentityManager : Window
+    public partial class IdentityManagerWindow : Window
     {
-        public IdentityManager()
+
+        public IdentityManagerWindow()
         {
             InitializeComponent();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            foreach(Identity identity in IdentityManager.Instance.Identities)
+            {
+                list.Items.Add(identity);
+            }
         }
     }
 }

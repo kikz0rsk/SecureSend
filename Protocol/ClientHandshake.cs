@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BP.Protocol
+namespace SecureSend.Protocol
 {
     internal class ClientHandshake : Packet
     {

@@ -10,11 +10,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using BP.Protocol;
+using SecureSend.Protocol;
 using NSec.Cryptography;
 using Org.BouncyCastle.Tls.Crypto.Impl.BC;
+using SecureSend.Utils;
 
-namespace BP.Endpoint
+namespace SecureSend.Endpoint
 {
     internal abstract class NetworkEndpoint
     {

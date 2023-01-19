@@ -1,5 +1,5 @@
-﻿using BP.GUI;
-using BP.Protocol;
+﻿using SecureSend.GUI;
+using SecureSend.Protocol;
 using NSec.Cryptography;
 using Org.BouncyCastle.Bcpg;
 using System;
@@ -11,9 +11,10 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using Packet = BP.Protocol.Packet;
+using Packet = SecureSend.Protocol.Packet;
+using SecureSend.Utils;
 
-namespace BP.Endpoint
+namespace SecureSend.Endpoint
 {
     internal class Client : NetworkEndpoint
     {

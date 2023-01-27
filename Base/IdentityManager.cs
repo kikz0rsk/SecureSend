@@ -1,20 +1,19 @@
-﻿using System;
+﻿using NSec.Cryptography;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using SecureSend.Protocol;
+using SecureSend.Utils;
 
 namespace SecureSend.Base
 {
-    class IdentityManager
+    internal class IdentityManager
     {
-        public const string KNOWN_HOSTS_FILENAME = ".known";
-
         private static IdentityManager instance;
 
-        public List<Identity> Identities { get; protected set; }
+        private Key key;
 
         public static IdentityManager Instance
         {
@@ -26,49 +25,47 @@ namespace SecureSend.Base
                 }
                 return instance;
             }
+            
+            private set { }
         }
 
-        public IdentityManager()
+        private IdentityManager()
+        { }
+
+        public void LoadKey()
         {
-            Load();
-        }
-
-        public void Load()
-        {
-            Identities = new List<Identity>();
-
-            if (!File.Exists(KNOWN_HOSTS_FILENAME))
+            if(File.Exists(".id"))
             {
-                return;
-            }
-
-            byte[] bytes = File.ReadAllBytes(KNOWN_HOSTS_FILENAME);
-            string entries = UTF8Encoding.UTF8.GetString(bytes, 0, bytes.Length).Trim();
-            foreach (string row in entries.Split('\n'))
-            {
-                string[] parts = row.Trim().Split(':');
-
-                // first part device id
-                byte[] deviceFingerprint = Convert.FromHexString(parts[0]);
-
-                // second part public key
-                byte[] pubKey = Convert.FromHexString(parts[1]);
-
-                Identities.Append(new Identity(deviceFingerprint, pubKey));
-            }
-        }
-
-        public void Save() {
-            using (StreamWriter fileStream = new StreamWriter(KNOWN_HOSTS_FILENAME, false))
-            {
-                foreach (Identity identity in Identities)
+                byte[] key = File.ReadAllBytes(".id");
+                try
                 {
-                    string devFingerprint = Convert.ToHexString(identity.DeviceFingerprint);
-                    string pubKey = Convert.ToHexString(identity.PublicKey);
-                    fileStream.WriteLine(devFingerprint + ':' + pubKey);
-                }
+                    this.key = Key.Import(KeyAgreementAlgorithm.X25519, key, KeyBlobFormat.RawPrivateKey, CryptoUtils.AllowExport());
+                    return;
+                } catch(Exception)
+                { }
+            }
+
+            key = Key.Create(KeyAgreementAlgorithm.X25519, CryptoUtils.AllowExport());
+            SaveKey();
+        }
+
+        public void SaveKey()
+        {
+            using (FileStream fs = new FileStream(".id", FileMode.Create))
+            {
+                byte[] keyBytes = key.Export(KeyBlobFormat.RawPrivateKey);
+                fs.Write(keyBytes, 0, keyBytes.Length);
             }
         }
 
+        public Key GetKey()
+        {
+            if(key == null)
+            {
+                LoadKey();
+            }
+
+            return key;
+        }
     }
 }

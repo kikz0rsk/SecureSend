@@ -5,6 +5,7 @@ using NSec.Cryptography;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using SecureSend.GUI;
 using SecureSend.Utils;
+using SecureSend.Base;
 
 namespace SecureSend
 {
@@ -29,18 +30,13 @@ namespace SecureSend
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
-            statusText.Content = "Vytváranie kľúčov...";
-            clientKeyPair = NSec.Cryptography.Key.Create(KeyAgreementAlgorithm.X25519, CryptoUtils.AllowExport());
+            statusText.Content = "Načítavanie kľúča...";
+            clientKeyPair = IdentityManager.Instance.GetKey();
             publicKeyText.Text = Convert.ToBase64String(clientKeyPair.PublicKey.Export(KeyBlobFormat.RawPublicKey));
 
             statusText.Content = "Štart servera...";
             server.StartServer();
             statusText.Content = "Pripravené";
-        }
-
-        public NSec.Cryptography.Key? ClientKeyPair
-        {
-            get { return clientKeyPair; }
         }
 
         protected void disconnctBtn_Click(object sender, RoutedEventArgs e)
@@ -51,7 +47,7 @@ namespace SecureSend
                 return;
             }
 
-            if(client.IsConnected())
+            if (server.IsConnected())
             {
                 server.Disconnect();
                 return;
@@ -154,7 +150,7 @@ namespace SecureSend
 
         private void identityMngrBtn_Click(object sender, RoutedEventArgs e)
         {
-            IdentityManagerWindow window = new IdentityManagerWindow();
+            TrustedEndpointsWindow window = new TrustedEndpointsWindow();
             window.Show();
         }
     }

@@ -26,6 +26,5 @@ namespace SecureSend.Base
         public byte[] PublicKey { get { return publicKey; } }
         public string DeviceFingerprintString { get { return deviceFingerprintString; } }
         public string PublicKeyString { get { return publicKeyString; } }
-
     }
 }

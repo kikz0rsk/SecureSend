@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Packet = SecureSend.Protocol.Packet;
 using SecureSend.Utils;
+using SecureSend.Base;
 
 namespace SecureSend.Endpoint
 {
@@ -42,13 +43,28 @@ namespace SecureSend.Endpoint
             try
             {
                 connection = new TcpClient();
-                connection.Connect(IPAddress.Parse(ipAddress), int.Parse(port));
+                try
+                {
+                    connection.Connect(IPAddress.Parse(ipAddress), int.Parse(port));
+                }
+                catch (FormatException)
+                {
+                    MessageBox.Show("Nesprávne zadané parametre.", "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                } catch(SocketException ex)
+                {
+                    MessageBox.Show("Chyba pri pripájaní. Podrobnosti: " + ex.ToString(), "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
                 SetConnected(true);
-                Application.Current.Dispatcher.Invoke(new Action(() => {
+                this.isClient = true;
+
+                Application.Current.Dispatcher.Invoke(new Action(() =>
+                {
                     mainWindow.currentConnectionText.Content = "Vytvára sa bezpečný kanál...";
                 }));
-                this.isClient = true;
+                
 
                 stream = connection.GetStream();
 
@@ -64,27 +80,36 @@ namespace SecureSend.Endpoint
                     return;
                 }
 
-                Application.Current.Dispatcher.Invoke(new Action(() => {
-                    mainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa..."; }));
-
-                IPEndPoint endpoint = connection.Client.RemoteEndPoint as IPEndPoint;
-                AcceptConnectionResult result = Application.Current.Dispatcher.Invoke(() => {
-                    AcceptConnection acceptConnection = new AcceptConnection(true,
-                    new DeviceId(endpoint.Address.ToString(), remoteEndpointPublicKey));
-                    acceptConnection.ShowDialog();
-                    return acceptConnection.Result;
-                });
-
-                if (result == AcceptConnectionResult.AcceptOnce ||
-                    result == AcceptConnectionResult.AcceptAndRemember)
+                Application.Current.Dispatcher.Invoke(new Action(() =>
                 {
-                    SendPacket(new AckPacket());
-                }
-                else
+                    mainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa...";
+                }));
+
+                if (!TrustedEndpointsManager.Instance.Lookup(deviceFingerprint, remoteEndpointPublicKey.Export(KeyBlobFormat.RawPublicKey)))
                 {
-                    Disconnect();
-                    return;
+                    IPEndPoint endpoint = connection.Client.RemoteEndPoint as IPEndPoint;
+                    AcceptConnectionResult result = Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        AcceptConnection acceptConnection = new AcceptConnection(
+                            true, endpoint.Address.ToString(), deviceFingerprint, remoteEndpointPublicKey.Export(KeyBlobFormat.RawPublicKey));
+                        acceptConnection.Owner = SecureSendMain.Instance.MainWindow;
+                        acceptConnection.ShowDialog();
+                        return acceptConnection.Result;
+                    });
+
+                    if (result == AcceptConnectionResult.Reject)
+                    {
+                        Disconnect();
+                        return;
+                    }
+
+                    if (result == AcceptConnectionResult.AcceptAndRemember)
+                    {
+                        TrustedEndpointsManager.Instance.Add(deviceFingerprint, remoteEndpointPublicKey.Export(KeyBlobFormat.RawPublicKey));
+                    }
                 }
+
+                SendPacket(new AckPacket());
 
                 try
                 {
@@ -93,7 +118,8 @@ namespace SecureSend.Endpoint
                     {
                         throw new InvalidDataException();
                     }
-                } catch(Exception ex)
+                }
+                catch (Exception ex)
                 {
                     Task.Run(() =>
                     {
@@ -108,8 +134,9 @@ namespace SecureSend.Endpoint
             }
             catch (ThreadInterruptedException inter)
             {
-                
-            } finally
+
+            }
+            finally
             {
                 filesToSend.Clear();
                 connection?.Close();
@@ -121,7 +148,8 @@ namespace SecureSend.Endpoint
         {
 
             ClientHandshake clientHandshake = new ClientHandshake(
-                mainWindow.ClientKeyPair.PublicKey.Export(KeyBlobFormat.RawPublicKey), 0);
+                IdentityManager.Instance.GetKey().PublicKey.Export(
+                    KeyBlobFormat.RawPublicKey), 0, TrustedEndpointsManager.GetDeviceFingerprint());
 
             SendUnencryptedPacket(clientHandshake);
 
@@ -133,22 +161,25 @@ namespace SecureSend.Endpoint
             try
             {
                 serverHandshake = (ServerHandshake)packet;
-            } catch(InvalidCastException)
+            }
+            catch (InvalidCastException)
             {
                 return null;
             }
 
+            deviceFingerprint = serverHandshake.DeviceFingerprint;
             remoteEndpointPublicKey = PublicKey.Import(KeyAgreementAlgorithm.X25519, serverHandshake.PublicKey, KeyBlobFormat.RawPublicKey);
 
             // agree on shared secret
-            SharedSecret? sharedSecret = KeyAgreementAlgorithm.X25519.Agree(mainWindow.ClientKeyPair, remoteEndpointPublicKey);
+            SharedSecret? sharedSecret = KeyAgreementAlgorithm.X25519.Agree(IdentityManager.Instance.GetKey(), remoteEndpointPublicKey);
 
             if (sharedSecret == null)
             {
                 return null;
             }
 
-            return KeyDerivationAlgorithm.HkdfSha512.DeriveKey(sharedSecret, serverHandshake.SessionId, null, AeadAlgorithm.Aes256Gcm, CryptoUtils.AllowExport());
+            return KeyDerivationAlgorithm.HkdfSha512.DeriveKey(sharedSecret,
+                serverHandshake.SessionId, null, AeadAlgorithm.Aes256Gcm, CryptoUtils.AllowExport());
         }
 
         public Thread? GetThread()

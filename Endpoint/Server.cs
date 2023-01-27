@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using Path = System.IO.Path;
 using SecureSend.Utils;
+using SecureSend.Base;
 
 namespace SecureSend.Endpoint
 {
@@ -55,7 +56,8 @@ namespace SecureSend.Endpoint
             }
 
             port = ((IPEndPoint)serverSocket.LocalEndpoint).Port;
-            Application.Current.Dispatcher.Invoke(new Action(() => { mainWindow.statusPortText.Content = "Port pre pripojenie: " + port.ToString(); }));
+            Application.Current.Dispatcher.Invoke(new Action(() => {
+                mainWindow.statusPortText.Content = "Port pre pripojenie: " + port.ToString(); }));
 
             while (!stopSignal)
             {
@@ -66,12 +68,13 @@ namespace SecureSend.Endpoint
                     SetConnected(false);
                     connection = serverSocket.AcceptTcpClient();
                     SetConnected(true);
+                    this.isClient = false;
+
                     Application.Current.Dispatcher.Invoke(new Action(() =>
                     {
                         mainWindow.currentConnectionText.Content = "Vytvára sa bezpečný kanál...";
                     }));
-                    this.isClient = false;
-
+                    
                     stream = connection.GetStream();
 
                     this.symmetricKey = EstablishTrust();
@@ -91,25 +94,33 @@ namespace SecureSend.Endpoint
                         mainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa...";
                     }));
 
-                    IPEndPoint endpoint = connection.Client.RemoteEndPoint as IPEndPoint;
-                    AcceptConnectionResult result = Application.Current.Dispatcher.Invoke(() =>
+                    if (!TrustedEndpointsManager.Instance.Lookup(deviceFingerprint,
+                        remoteEndpointPublicKey.Export(KeyBlobFormat.RawPublicKey)))
                     {
-                        AcceptConnection acceptConnection = new AcceptConnection(false,
-                        new DeviceId(endpoint.Address.ToString(), remoteEndpointPublicKey));
-                        acceptConnection.ShowDialog();
-                        return acceptConnection.Result;
-                    });
+                        IPEndPoint endpoint = connection.Client.RemoteEndPoint as IPEndPoint;
+                        AcceptConnectionResult result = Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            AcceptConnection acceptConnection = new AcceptConnection(
+                                false, endpoint.Address.ToString(), deviceFingerprint, remoteEndpointPublicKey.Export(KeyBlobFormat.RawPublicKey));
+                            acceptConnection.Owner = SecureSendMain.Instance.MainWindow;
+                            acceptConnection.ShowDialog();
+                            return acceptConnection.Result;
+                        });
 
-                    if (result == AcceptConnectionResult.AcceptOnce ||
-                        result == AcceptConnectionResult.AcceptAndRemember)
-                    {
-                        SendPacket(new AckPacket());
+                        if (result == AcceptConnectionResult.Reject)
+                        {
+                            Disconnect();
+                            continue;
+                        }
+
+                        if (result == AcceptConnectionResult.AcceptAndRemember)
+                        {
+                            TrustedEndpointsManager.Instance.Add(deviceFingerprint,
+                                remoteEndpointPublicKey.Export(KeyBlobFormat.RawPublicKey));
+                        }
                     }
-                    else
-                    {
-                        Disconnect();
-                        continue;
-                    }
+
+                    SendPacket(new AckPacket());
 
                     try
                     {
@@ -149,7 +160,8 @@ namespace SecureSend.Endpoint
             CryptoUtils.FillWithRandomBytes(sessionId);
 
             ServerHandshake serverHandshake = new ServerHandshake(
-                mainWindow.ClientKeyPair.PublicKey.Export(KeyBlobFormat.RawPublicKey), sessionId);
+                IdentityManager.Instance.GetKey().PublicKey.Export(
+                    KeyBlobFormat.RawPublicKey), sessionId, TrustedEndpointsManager.GetDeviceFingerprint());
 
             SendUnencryptedPacket(serverHandshake);
 
@@ -167,10 +179,11 @@ namespace SecureSend.Endpoint
                 return null;
             }
 
+            deviceFingerprint = clientHandshake.DeviceFingerprint;
             remoteEndpointPublicKey = PublicKey.Import(KeyAgreementAlgorithm.X25519, clientHandshake.PublicKey, KeyBlobFormat.RawPublicKey);
 
             // agree on shared secret
-            SharedSecret? sharedSecret = KeyAgreementAlgorithm.X25519.Agree(mainWindow.ClientKeyPair, remoteEndpointPublicKey);
+            SharedSecret? sharedSecret = KeyAgreementAlgorithm.X25519.Agree(IdentityManager.Instance.GetKey(), remoteEndpointPublicKey);
 
             if (sharedSecret == null)
             {

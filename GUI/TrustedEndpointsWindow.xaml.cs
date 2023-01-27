@@ -18,17 +18,17 @@ namespace SecureSend.GUI
     /// <summary>
     /// Interaction logic for IdentityManager.xaml
     /// </summary>
-    public partial class IdentityManagerWindow : Window
+    public partial class TrustedEndpointsWindow : Window
     {
 
-        public IdentityManagerWindow()
+        public TrustedEndpointsWindow()
         {
             InitializeComponent();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            foreach(Identity identity in IdentityManager.Instance.Identities)
+            foreach(Identity identity in TrustedEndpointsManager.Instance.Identities)
             {
                 list.Items.Add(identity);
             }

@@ -5,18 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SecureSend.GUI"
         mc:Ignorable="d"
-        Title="AcceptConnection" Height="231" Width="396" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
+        Title="AcceptConnection" Height="296" Width="520" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
     <Grid>
-        <Label Content="Nové nedôveryhodné zariadenie" HorizontalAlignment="Left" Margin="11,10,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" UseLayoutRounding="False"/>
-        <Label Content="IP Adresa" HorizontalAlignment="Left" Margin="11,74,0,0" VerticalAlignment="Top" Height="25"/>
-        <Label x:Name="ipAddr" Content="" HorizontalAlignment="Left" Margin="87,74,0,0" VerticalAlignment="Top"/>
-        <Label Content="Identita" HorizontalAlignment="Left" Margin="11,108,0,0" VerticalAlignment="Top" Height="25"/>
-        <Label x:Name="identity" Content="" HorizontalAlignment="Left" Margin="87,108,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="question" Content="Chcete povoliť tomuto zariadeniu sa pripojiť?" Margin="10,138,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="15"/>
-        <Button x:Name="acceptOnce" Content="Tentokrát povoliť" HorizontalAlignment="Left" Margin="10,176,0,10" VerticalAlignment="Top" Height="25" Width="120" Click="acceptOnce_Click"/>
-        <Button x:Name="acceptRemember" Content="Povoliť a zapamätať" HorizontalAlignment="Left" Margin="142,176,0,10" VerticalAlignment="Top" Height="25" Width="143" Click="acceptRemember_Click"/>
-        <Button x:Name="reject" Content="Nepovoliť" HorizontalAlignment="Left" Margin="295,176,10,10" VerticalAlignment="Top" Height="25" Width="91" Click="reject_Click"/>
-        <Label Content="Toto zariadenie nie je v zozname dôveryhodných zariadení." HorizontalAlignment="Left" Margin="11,47,0,0" VerticalAlignment="Top"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="520"/>
+            <ColumnDefinition Width="0*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="243.035"/>
+            <RowDefinition Height="37.005"/>
+        </Grid.RowDefinitions>
+        <Label Content="Nové nedôveryhodné zariadenie" HorizontalAlignment="Left" Margin="11,10,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" UseLayoutRounding="False" Height="37" Width="315"/>
+        <Label Content="IP Adresa" HorizontalAlignment="Left" Margin="11,89,0,0" VerticalAlignment="Top" Height="25" Width="60"/>
+        <Label x:Name="ipAddr" Content="" HorizontalAlignment="Left" Margin="124,89,0,0" VerticalAlignment="Top" Height="25"/>
+        <Label Content="Identifikátor&#xD;&#xA;zariadenia" HorizontalAlignment="Left" Margin="11,119,0,0" VerticalAlignment="Top" Height="42" Width="74"/>
+        <Label x:Name="deviceIdentification" Content="" HorizontalAlignment="Left" Margin="124,130,0,0" VerticalAlignment="Top" Height="25"/>
+        <Label x:Name="question" Content="Chcete povoliť tomuto zariadeniu sa pripojiť?" Margin="0,212,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="15" Height="30" Width="310"/>
+        <Button x:Name="acceptOnce" Content="Tentokrát povoliť" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Height="25" Width="150" Click="acceptOnce_Click" Grid.Row="1"/>
+        <Button x:Name="acceptRemember" Content="Povoliť a zapamätať" HorizontalAlignment="Left" Margin="188,0,0,0" VerticalAlignment="Center" Height="25" Width="150" Click="acceptRemember_Click" Grid.Row="1"/>
+        <Button x:Name="reject" Content="Nepovoliť" HorizontalAlignment="Left" Margin="360,0,0,0" VerticalAlignment="Center" Height="25" Width="150" Click="reject_Click" Grid.Row="1"/>
+        <Label Content="Identita&#xD;&#xA;(verejný kľúč)" HorizontalAlignment="Left" Margin="11,165,0,0" VerticalAlignment="Top" Height="42" Width="80"/>
+        <Label x:Name="identity" Content="" HorizontalAlignment="Left" Margin="124,175,0,0" VerticalAlignment="Top" Height="25"/>
+        <TextBlock HorizontalAlignment="Left" Margin="16,47,0,0" TextWrapping="Wrap" Text="Táto kombinácia identifikátora zariadenia a identity sa nenachádza v zozname dôveryhodných zariadení." VerticalAlignment="Top" Height="32" Width="495"/>
 
     </Grid>
 </Window>

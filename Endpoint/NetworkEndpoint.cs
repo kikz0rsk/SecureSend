@@ -26,7 +26,9 @@ namespace SecureSend.Endpoint
         protected MainWindow mainWindow;
         protected volatile bool connected = false;
         protected volatile bool isClient = false;
+
         protected PublicKey remoteEndpointPublicKey;
+        protected byte[] deviceFingerprint;
 
         protected void SendUnencryptedPacket(Packet packet)
         {
@@ -38,7 +40,7 @@ namespace SecureSend.Endpoint
 
         protected Packet? ReceiveUnencryptedPacket()
         {
-            uint packetLength = Packet.DecodeUShort(NetworkUtils.ReadExactlyBytes(stream, 2));
+            ushort packetLength = Packet.DecodeUShort(NetworkUtils.ReadExactlyBytes(stream, 2));
             byte[] packetBytes = NetworkUtils.ReadExactlyBytes(stream, packetLength);
 
             Packet? packet = Packet.Deserialize(packetBytes);
@@ -55,17 +57,14 @@ namespace SecureSend.Endpoint
             byte[] nonce;
             byte[] encryptedPayload = CryptoUtils.EncryptBytes(serializedPacket, symmetricKey, out nonce);
 
-            byte[] packetLengthBytes = BitConverter.GetBytes(Convert.ToUInt16(encryptedPayload.Length + 12)); // Nonce is 12 bytes
-            NetworkUtils.EnsureCorrectEndianness(packetLengthBytes);
+            byte[] packetLengthBytes = Packet.EncodeUShort(Convert.ToUInt16(encryptedPayload.Length + 12)); // Nonce is 12 bytes
             byte[] bytesToSend = packetLengthBytes.Concat(nonce).Concat(encryptedPayload).ToArray();
             stream.Write(bytesToSend, 0, bytesToSend.Length);
         }
 
         protected Packet? ReceivePacket()
         {
-            byte[] packetLengthRaw = NetworkUtils.ReadExactlyBytes(stream, 2);
-            NetworkUtils.EnsureCorrectEndianness(packetLengthRaw);
-            uint packetLength = BitConverter.ToUInt16(packetLengthRaw, 0);
+            ushort packetLength = Packet.DecodeUShort(NetworkUtils.ReadExactlyBytes(stream, 2));
 
             byte[] encryptedPacket = NetworkUtils.ReadExactlyBytes(stream, packetLength);
 

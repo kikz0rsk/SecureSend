@@ -49,6 +49,10 @@ namespace SecureSend.Protocol
                     return ServerHandshake.DecodeFromBytes(payload.ToArray());
                 case Type.CLIENT_HANDSHAKE:
                     return ClientHandshake.DecodeFromBytes(payload.ToArray());
+                case Type.PASSWORD_AUTH_REQ:
+                    return new PasswordAuthRequestPacket();
+                case Type.PASSWORD_AUTH_RESP:
+                    return PasswordAuthPacket.DecodeFromBytes(payload.ToArray());
                 default:
                     return null;
             }
@@ -102,9 +106,10 @@ namespace SecureSend.Protocol
             return encodedLength.Concat(bytes).ToArray();
         }
 
-        public static byte[] DecodeVarLengthBytes(byte[] bytes)
+        public static byte[] DecodeVarLengthBytes(byte[] bytes, out int skipBytes)
         {
             int length = DecodeInteger(bytes.Take(4).ToArray());
+            skipBytes = 4 + length;
             return bytes.Skip(4).Take(length).ToArray();
         }
 
@@ -137,7 +142,9 @@ namespace SecureSend.Protocol
             ACK = 5,
             NACK = 6,
             DISCONNECT = 7,
-            STOP = 8
+            STOP = 8,
+            PASSWORD_AUTH_REQ = 9,
+            PASSWORD_AUTH_RESP = 10,
         }
 
         public Type GetType()

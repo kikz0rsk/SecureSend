@@ -153,5 +153,11 @@ namespace SecureSend
             TrustedEndpointsWindow window = new TrustedEndpointsWindow();
             window.Show();
         }
+
+        private void changeLoginCredentials_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new PasswordAuthWindow("test");
+            window.Show();
+        }
     }
 }

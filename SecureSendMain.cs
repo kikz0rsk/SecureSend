@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,5 +34,11 @@ namespace SecureSend
         public Client Client { get; set; }
 
         public MainWindow MainWindow { get; set; }
+
+        public bool PasswordAuthEnabled { get; set; }
+
+        public string Username { get; set; }
+
+        public SecureString Password { get; set; }
     }
 }

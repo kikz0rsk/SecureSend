@@ -12,7 +12,8 @@ namespace SecureSend.Utils
 {
     internal class CryptoUtils
     {
-        private static RandomNumberGenerator rng = RandomNumberGenerator.Create();
+        private static RandomNumberGenerator secureRng = RandomNumberGenerator.Create();
+        private static Random rng = new Random();
 
         public static KeyCreationParameters AllowExport()
         {
@@ -23,13 +24,13 @@ namespace SecureSend.Utils
 
         public static void FillWithRandomBytes(byte[] array)
         {
-            rng.GetBytes(array);
+            secureRng.GetBytes(array);
         }
 
         public static byte[] EncryptBytes(byte[] plaintext, Key symmetricKey, out byte[] nonce)
         {
             byte[] generatedNonce = new byte[12];
-            rng.GetBytes(generatedNonce);
+            secureRng.GetBytes(generatedNonce);
             nonce = generatedNonce;
             return AeadAlgorithm.Aes256Gcm.Encrypt(symmetricKey, generatedNonce, null, plaintext);
         }
@@ -50,6 +51,19 @@ namespace SecureSend.Utils
                     return md5.ComputeHash(stream);
                 }
             }
+        }
+
+        public static string CreateString(int length)
+        {
+            const string chars = "abcdefghijkmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            char[] salt = new char[length];
+
+            for (int i = 0; i < length; i++)
+            {
+                salt[i] = chars[rng.Next(0, chars.Length)];
+            }
+
+            return new string(salt);
         }
     }
 }

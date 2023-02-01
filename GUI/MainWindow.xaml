@@ -18,6 +18,10 @@
         <Menu Width="Auto" Height="25" VerticalContentAlignment="Center" VerticalAlignment="Top" Panel.ZIndex="5">
             <MenuItem x:Name="connectBtn" Header="Pripojiť sa" Height="25" Click="connectBtn_Click"/>
             <MenuItem x:Name="identityMngrBtn" Header="Dôveryhodné zariadenia" Height="25" Click="identityMngrBtn_Click"/>
+            <MenuItem Header="Autentifikácia" Height="25">
+                <MenuItem Header="Požadovať overenie menom a heslom" Height="25" IsCheckable="True" />
+                <MenuItem Header="Nastaviť meno a heslo" Height="25" Click="changeLoginCredentials_Click"/>
+            </MenuItem>
         </Menu>
 
         <StatusBar Grid.Row="1" Margin="0,0,0,0" Grid.RowSpan="3" Height="22" VerticalAlignment="Bottom">

@@ -162,6 +162,7 @@ namespace SecureSend
 
             SecureSendMain.Instance.Username = window.Username;
             SecureSendMain.Instance.Password = window.Password;
+            SecureSendMain.Instance.PasswordAuthEnabled = true;
         }
     }
 }

@@ -14,6 +14,9 @@ using SecureSend.Protocol;
 using NSec.Cryptography;
 using Org.BouncyCastle.Tls.Crypto.Impl.BC;
 using SecureSend.Utils;
+using SecureSend.Base;
+using SecureSend.GUI;
+using System.Net;
 
 namespace SecureSend.Endpoint
 {
@@ -204,6 +207,38 @@ namespace SecureSend.Endpoint
                 mainWindow.statusText.Content = "Súbor bol odoslaný";
                 mainWindow.sendFileButton.IsEnabled = true;
             }));
+        }
+
+        protected bool AuthorizeAccess()
+        {
+            byte[] rawPublicKey = remoteEndpointPublicKey.Export(KeyBlobFormat.RawPublicKey);
+            if (TrustedEndpointsManager.Instance.Lookup(deviceFingerprint, rawPublicKey))
+            {
+                return true;
+            }
+
+            IPEndPoint endpoint = connection.Client.RemoteEndPoint as IPEndPoint;
+            AcceptConnectionResult result = Application.Current.Dispatcher.Invoke(() =>
+            {
+                AcceptConnection acceptConnection = new AcceptConnection(
+                    false, endpoint.Address.ToString(), deviceFingerprint, rawPublicKey);
+                acceptConnection.Owner = SecureSendMain.Instance.MainWindow;
+                acceptConnection.ShowDialog();
+                return acceptConnection.Result;
+            });
+
+            if (result == AcceptConnectionResult.Reject)
+            {
+                return false;
+            }
+
+            if (result == AcceptConnectionResult.AcceptAndRemember)
+            {
+                TrustedEndpointsManager.Instance.Add(deviceFingerprint,
+                    rawPublicKey);
+            }
+
+            return true;
         }
 
         protected void CommunicationLoop()

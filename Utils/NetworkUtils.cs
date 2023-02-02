@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SecureSend.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -20,7 +21,7 @@ namespace SecureSend.Utils
 
                 if (read == 0)
                 {
-                    return new byte[0];
+                    throw new ConnectionClosedException();
                 }
 
                 totalRead += read;

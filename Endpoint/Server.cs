@@ -17,6 +17,7 @@ using System.Windows.Threading;
 using Path = System.IO.Path;
 using SecureSend.Utils;
 using SecureSend.Base;
+using SecureSend.Exceptions;
 
 namespace SecureSend.Endpoint
 {
@@ -94,30 +95,13 @@ namespace SecureSend.Endpoint
                         mainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa...";
                     }));
 
-                    if (!TrustedEndpointsManager.Instance.Lookup(deviceFingerprint,
-                        remoteEndpointPublicKey.Export(KeyBlobFormat.RawPublicKey)))
+                    bool authorized = AuthorizeAccess();
+
+                    if(!authorized)
                     {
-                        IPEndPoint endpoint = connection.Client.RemoteEndPoint as IPEndPoint;
-                        AcceptConnectionResult result = Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            AcceptConnection acceptConnection = new AcceptConnection(
-                                false, endpoint.Address.ToString(), deviceFingerprint, remoteEndpointPublicKey.Export(KeyBlobFormat.RawPublicKey));
-                            acceptConnection.Owner = SecureSendMain.Instance.MainWindow;
-                            acceptConnection.ShowDialog();
-                            return acceptConnection.Result;
-                        });
-
-                        if (result == AcceptConnectionResult.Reject)
-                        {
-                            Disconnect();
-                            continue;
-                        }
-
-                        if (result == AcceptConnectionResult.AcceptAndRemember)
-                        {
-                            TrustedEndpointsManager.Instance.Add(deviceFingerprint,
-                                remoteEndpointPublicKey.Export(KeyBlobFormat.RawPublicKey));
-                        }
+                        SendPacket(new NackPacket());
+                        Disconnect();
+                        continue;
                     }
 
                     SendPacket(new AckPacket());
@@ -140,36 +124,44 @@ namespace SecureSend.Endpoint
                         continue;
                     }
 
-                    SendPacket(new PasswordAuthRequestPacket());
-
-                    try
+                    if(SecureSendMain.Instance.PasswordAuthEnabled)
                     {
-                        Packet? packet = ReceivePacket();
-                        if (packet == null || packet.GetType() != PacketType.PASSWORD_AUTH_RESP)
+                        SendPacket(new PasswordAuthRequestPacket());
+
+                        try
                         {
-                            throw new InvalidDataException();
+                            Packet? packet = ReceivePacket();
+                            if (packet == null || packet.GetType() != PacketType.PASSWORD_AUTH_RESP)
+                            {
+                                throw new InvalidDataException();
+                            }
+
+                            PasswordAuthPacket pass = (PasswordAuthPacket)packet;
+
+                            // Prevent timing attacks, we do password hashing first
+                            byte[] hash = HashAlgorithm.Sha512.Hash(
+                                    UTF8Encoding.UTF8.GetBytes(SecureSendMain.Instance.Password + pass.Salt));
+                            bool correct = Enumerable.SequenceEqual(hash, pass.PasswordHash) &&
+                                pass.Username.Equals(SecureSendMain.Instance.Username);
+
+                            if (correct)
+                            {
+                                SendPacket(new AckPacket());
+                            }
+                            else
+                            {
+                                SendPacket(new NackPacket());
+                                Disconnect();
+                                continue;
+                            }
                         }
-
-                        PasswordAuthPacket pass = (PasswordAuthPacket)packet;
-
-                        // Prevent timing attacks, we do password hashing first
-                        byte[] hash = HashAlgorithm.Sha512.Hash(
-                                UTF8Encoding.UTF8.GetBytes(SecureSendMain.Instance.Password + pass.Salt));
-                        bool correct = Enumerable.SequenceEqual(hash, pass.PasswordHash) &&
-                            pass.Username.Equals(SecureSendMain.Instance.Username);
-
-                        if (correct)
+                        catch (Exception ex)
                         {
-                            SendPacket(new AckPacket());
-                        } else
-                        {
-                            SendPacket(new NackPacket());
-                            Disconnect();
                             continue;
                         }
-                    } catch(Exception ex)
+                    } else
                     {
-                        continue;
+                        SendPacket(new AckPacket());
                     }
 
                     SetConnected(true);
@@ -180,11 +172,15 @@ namespace SecureSend.Endpoint
                 {
                     throw inter;
                 }
-                catch (SocketException ex)
-                {
+                catch (SocketException ex) { }
+                catch(ConnectionClosedException) { }
+                catch(IOException ex) {
+                    MessageBox.Show("Spojenie zlyhalo.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
+
+        
 
         protected override Key? EstablishTrust()
         {

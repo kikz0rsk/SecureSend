@@ -15,6 +15,7 @@ using Packet = SecureSend.Protocol.Packet;
 using SecureSend.Utils;
 using SecureSend.Base;
 using System.Text;
+using SecureSend.Exceptions;
 
 namespace SecureSend.Endpoint
 {
@@ -86,28 +87,12 @@ namespace SecureSend.Endpoint
                     mainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa...";
                 }));
 
-                if (!TrustedEndpointsManager.Instance.Lookup(deviceFingerprint, remoteEndpointPublicKey.Export(KeyBlobFormat.RawPublicKey)))
+                bool authorized = AuthorizeAccess();
+                if (!authorized)
                 {
-                    IPEndPoint endpoint = connection.Client.RemoteEndPoint as IPEndPoint;
-                    AcceptConnectionResult result = Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        AcceptConnection acceptConnection = new AcceptConnection(
-                            true, endpoint.Address.ToString(), deviceFingerprint, remoteEndpointPublicKey.Export(KeyBlobFormat.RawPublicKey));
-                        acceptConnection.Owner = SecureSendMain.Instance.MainWindow;
-                        acceptConnection.ShowDialog();
-                        return acceptConnection.Result;
-                    });
-
-                    if (result == AcceptConnectionResult.Reject)
-                    {
-                        Disconnect();
-                        return;
-                    }
-
-                    if (result == AcceptConnectionResult.AcceptAndRemember)
-                    {
-                        TrustedEndpointsManager.Instance.Add(deviceFingerprint, remoteEndpointPublicKey.Export(KeyBlobFormat.RawPublicKey));
-                    }
+                    SendPacket(new NackPacket());
+                    Disconnect();
+                    return;
                 }
 
                 SendPacket(new AckPacket());
@@ -182,8 +167,12 @@ namespace SecureSend.Endpoint
                 CommunicationLoop();
             }
             catch (ThreadInterruptedException inter)
+            { }
+            catch (ConnectionClosedException)
+            { }
+            catch(IOException ex)
             {
-
+                MessageBox.Show("Spojenie zlyhalo.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {

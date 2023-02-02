@@ -25,7 +25,9 @@ namespace SecureSend
         }
 
         private SecureSendMain()
-        { }
+        {
+            PasswordAuthEnabled = false;
+        }
 
         public NSec.Cryptography.Key? Key { get; set; }
 

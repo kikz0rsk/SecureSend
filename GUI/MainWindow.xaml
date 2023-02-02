@@ -9,13 +9,13 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
-            <RowDefinition Height="301.04"/>
+            <RowDefinition/>
             <RowDefinition Height="22"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Menu Width="Auto" Height="25" VerticalContentAlignment="Center" VerticalAlignment="Top" Panel.ZIndex="5">
+        <Menu Grid.Row="0" Width="Auto" Height="25" VerticalContentAlignment="Center" VerticalAlignment="Top" Panel.ZIndex="5">
             <MenuItem x:Name="connectBtn" Header="Pripojiť sa" Height="25" Click="connectBtn_Click"/>
             <MenuItem x:Name="identityMngrBtn" Header="Dôveryhodné zariadenia" Height="25" Click="identityMngrBtn_Click"/>
             <MenuItem Header="Autentifikácia" Height="25">
@@ -24,7 +24,7 @@
             </MenuItem>
         </Menu>
 
-        <StatusBar Grid.Row="1" Margin="0,0,0,0" Grid.RowSpan="3" Height="22" VerticalAlignment="Bottom">
+        <StatusBar Grid.Row="2" Margin="0,0,0,0" Grid.RowSpan="3" Height="22" VerticalAlignment="Bottom">
             <StatusBarItem x:Name="statusPortText" Content="Port" Height="22" VerticalAlignment="Top" HorizontalAlignment="Left"/>
         </StatusBar>
         <Label x:Name="currentConnectionText" Content="Žiadne spojenie" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" Padding="0,5,5,5" Height="37" Grid.Row="1"/>
@@ -35,13 +35,13 @@
         <TextBox x:Name="saveFolderLocation" HorizontalAlignment="Left" Margin="189,118,0,0" VerticalAlignment="Top" Width="379" Height="26" VerticalContentAlignment="Center" MaxLines="1" Grid.Row="1"/>
         <Label Content="Ukladať súbory do priečinka" HorizontalAlignment="Left" Margin="189,93,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.015,0.618" Padding="0,5,5,5" Grid.Row="1" Height="26" Width="154"/>
         <Button x:Name="sendFileButton" Content="Odoslať súbor" HorizontalAlignment="Left" Margin="361,160,0,0" VerticalAlignment="Top" Width="98" Click="sendFileButton_Click" Grid.Row="1" Height="20"/>
-        <ProgressBar x:Name="fileProgressBar" Height="23" Margin="20,247,60,0" VerticalAlignment="Top" Grid.Row="1"/>
+        <ProgressBar x:Name="fileProgressBar" Height="23" Margin="20,247,60,10" VerticalAlignment="Top" Grid.Row="1"/>
         <Button x:Name="disconnectBtn" Content="Odpojiť sa" HorizontalAlignment="Left" Margin="10,121,0,0" VerticalAlignment="Top" Width="166" Click="disconnctBtn_Click" Grid.Row="1" Height="20" IsEnabled="False"/>
         <Button x:Name="sendFileExploreBtn" Content="Vybrať..." HorizontalAlignment="Left" Margin="580,57,10,0" VerticalAlignment="Top" Height="26" Width="62" Click="sendFileExploreBtn_Click" Grid.Row="1"/>
         <Button x:Name="saveLocationExploreBtn" Content="Vybrať..." HorizontalAlignment="Left" Margin="580,118,10,0" VerticalAlignment="Top" Height="26" Width="62" Grid.Row="1" Click="saveLocationExploreBtn_Click"/>
         <Label Content="Stav: " HorizontalAlignment="Left" Margin="20,216,0,0" Grid.Row="1" VerticalAlignment="Top" Padding="0,5,5,5"/>
         <Label x:Name="statusText" Content="" HorizontalAlignment="Left" Margin="63,216,0,0" Grid.Row="1" VerticalAlignment="Top"/>
-        <Label x:Name="progressPercentage" Content="0.0%" HorizontalAlignment="Left" Margin="607,246,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <Label x:Name="progressPercentage" Content="0.0%" HorizontalAlignment="Right" Margin="0,246,16,0" Grid.Row="1" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

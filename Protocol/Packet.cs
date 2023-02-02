@@ -27,10 +27,10 @@ namespace SecureSend.Protocol
 
         protected abstract byte[] EncodePayload();
 
-        public static Packet? Deserialize(byte[] packetBytes) {
+        public static Packet? Deserialize(ReadOnlySpan<byte> packetBytes) {
             PacketType? typeCode = (PacketType)packetBytes[0];
 
-            var payload = packetBytes.Skip(1);
+            var payload = packetBytes.Slice(1);
             switch (typeCode)
             {
                 case PacketType.DATA:
@@ -46,13 +46,13 @@ namespace SecureSend.Protocol
                 case PacketType.DISCONNECT:
                     return new DisconnectPacket();
                 case PacketType.SERVER_HANDSHAKE:
-                    return ServerHandshake.DecodeFromBytes(payload.ToArray());
+                    return ServerHandshake.DecodeFromBytes(payload);
                 case PacketType.CLIENT_HANDSHAKE:
-                    return ClientHandshake.DecodeFromBytes(payload.ToArray());
+                    return ClientHandshake.DecodeFromBytes(payload);
                 case PacketType.PASSWORD_AUTH_REQ:
                     return new PasswordAuthRequestPacket();
                 case PacketType.PASSWORD_AUTH_RESP:
-                    return PasswordAuthPacket.DecodeFromBytes(payload.ToArray());
+                    return PasswordAuthPacket.DecodeFromBytes(payload);
                 default:
                     return null;
             }
@@ -65,9 +65,9 @@ namespace SecureSend.Protocol
             return numberBytes;
         }
 
-        public static int DecodeInteger(byte[] bytes)
+        public static int DecodeInteger(ReadOnlySpan<byte> input)
         {
-            bytes = bytes.Take(4).ToArray();
+            byte[] bytes = input.Slice(0, 4).ToArray();
             NetworkUtils.EnsureCorrectEndianness(bytes);
             return BitConverter.ToInt32(bytes, 0);
         }
@@ -79,9 +79,9 @@ namespace SecureSend.Protocol
             return numberBytes;
         }
 
-        public static ushort DecodeUShort(byte[] bytes)
+        public static ushort DecodeUShort(ReadOnlySpan<byte> input)
         {
-            bytes = bytes.Take(2).ToArray();
+            byte[] bytes = input.Slice(0, 2).ToArray();
             NetworkUtils.EnsureCorrectEndianness(bytes);
             return BitConverter.ToUInt16(bytes, 0);
         }
@@ -93,9 +93,9 @@ namespace SecureSend.Protocol
             return numberBytes;
         }
 
-        public static ulong DecodeULong(byte[] bytes)
+        public static ulong DecodeULong(ReadOnlySpan<byte> input)
         {
-            bytes = bytes.Take(8).ToArray();
+            byte[] bytes = input.Slice(0, 8).ToArray();
             NetworkUtils.EnsureCorrectEndianness(bytes);
             return BitConverter.ToUInt64(bytes, 0);
         }
@@ -106,11 +106,11 @@ namespace SecureSend.Protocol
             return encodedLength.Concat(bytes).ToArray();
         }
 
-        public static byte[] DecodeVarLengthBytes(byte[] bytes, out int skipBytes)
+        public static byte[] DecodeVarLengthBytes(ReadOnlySpan<byte> input, out int skipBytes)
         {
-            int length = DecodeInteger(bytes.Take(4).ToArray());
+            int length = DecodeInteger(input);
             skipBytes = 4 + length;
-            return bytes.Skip(4).Take(length).ToArray();
+            return input.Slice(4, length).ToArray();
         }
 
         public static byte[] EncodeVarLengthString(string str)
@@ -119,17 +119,17 @@ namespace SecureSend.Protocol
             return encodedLength.Concat(UTF8Encoding.UTF8.GetBytes(str)).ToArray();
         }
 
-        public static string DecodeVarLengthString(byte[] bytes, out int skipBytes)
+        public static string DecodeVarLengthString(ReadOnlySpan<byte> input, out int skipBytes)
         {
-            int length = DecodeInteger(bytes.Take(4).ToArray());
+            int length = DecodeInteger(input);
             skipBytes = 4 + length;
-            return UTF8Encoding.UTF8.GetString(bytes.Skip(4).Take(length).ToArray());
+            return UTF8Encoding.UTF8.GetString(input.Slice(4, length));
         }
 
-        public static string DecodeVarLengthString(byte[] bytes)
+        public static string DecodeVarLengthString(ReadOnlySpan<byte> input)
         {
-            int length = DecodeInteger(bytes.Take(4).ToArray());
-            return UTF8Encoding.UTF8.GetString(bytes.Skip(4).Take(length).ToArray());
+            int length = DecodeInteger(input);
+            return UTF8Encoding.UTF8.GetString(input.Slice(4, length));
         }
 
         public PacketType GetType()

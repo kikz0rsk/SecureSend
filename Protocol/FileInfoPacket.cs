@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Org.BouncyCastle.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,11 +25,11 @@ namespace SecureSend.Protocol
             return EncodeULong(this.fileSize).Concat(hash).Concat(EncodeVarLengthString(fileName)).ToArray();
         }
 
-        public static FileInfoPacket DecodeFromBytes(byte[] payloadBytes)
+        public static FileInfoPacket DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
         {
-            ulong fileSize = DecodeULong(payloadBytes.Take(8).ToArray());
-            byte[] hash = payloadBytes.Skip(8).Take(16).ToArray();
-            string filename = DecodeVarLengthString(payloadBytes.Skip(24).ToArray());
+            ulong fileSize = DecodeULong(payloadBytes.Slice(0, 8).ToArray());
+            byte[] hash = payloadBytes.Slice(8, 16).ToArray();
+            string filename = DecodeVarLengthString(payloadBytes.Slice(24).ToArray());
             return new FileInfoPacket(filename, fileSize, hash);
         }
 

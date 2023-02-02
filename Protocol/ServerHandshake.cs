@@ -19,11 +19,11 @@ namespace SecureSend.Protocol
             this.deviceFingerprint = deviceFingerprint;
         }
 
-        public static ServerHandshake DecodeFromBytes(byte[] payloadBytes)
+        public static ServerHandshake DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
         {
-            byte[] publicKey = payloadBytes.Take(32).ToArray();
-            byte[] sessionId = payloadBytes.Skip(32).Take(64).ToArray();
-            byte[] deviceFingerprint = payloadBytes.Skip(96).ToArray();
+            byte[] publicKey = payloadBytes.Slice(0, 32).ToArray();
+            byte[] sessionId = payloadBytes.Slice(32, 64).ToArray();
+            byte[] deviceFingerprint = payloadBytes.Slice(96).ToArray();
             return new ServerHandshake(publicKey, sessionId, deviceFingerprint);
         }
 

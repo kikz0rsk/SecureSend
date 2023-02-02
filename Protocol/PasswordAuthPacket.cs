@@ -26,7 +26,7 @@ namespace SecureSend.Protocol
                 .Concat(EncodeVarLengthString(this.salt)).ToArray();
         }
 
-        public static PasswordAuthPacket DecodeFromBytes(byte[] payloadBytes)
+        public static PasswordAuthPacket DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
         {
             int totalSkip = 0;
             int skip;

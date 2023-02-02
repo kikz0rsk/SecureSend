@@ -18,9 +18,9 @@ namespace SecureSend.Protocol
             this.deviceFingerprint = deviceFingerprint;
         }
 
-        public static ClientHandshake DecodeFromBytes(byte[] payloadBytes)
+        public static ClientHandshake DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
         {
-            return new ClientHandshake(payloadBytes.Take(32).ToArray(), 0, payloadBytes.Skip(33).ToArray());
+            return new ClientHandshake(payloadBytes.Slice(0, 32).ToArray(), 0, payloadBytes.Slice(33).ToArray());
         }
 
         protected override byte[] EncodePayload()

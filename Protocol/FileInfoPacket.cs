@@ -12,7 +12,7 @@ namespace SecureSend.Protocol
         ulong fileSize;
         byte[] hash;
 
-        public FileInfoPacket(string fileName, ulong fileSize, byte[] hash) : base(Type.FILE_INFO)
+        public FileInfoPacket(string fileName, ulong fileSize, byte[] hash) : base(PacketType.FILE_INFO)
         {
             this.fileName = fileName;
             this.fileSize = fileSize;

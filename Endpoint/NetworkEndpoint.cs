@@ -106,7 +106,7 @@ namespace SecureSend.Endpoint
                 {
                     Packet? dataPacket = ReceivePacket();
 
-                    if (dataPacket == null || dataPacket.GetType() != Packet.Type.DATA)
+                    if (dataPacket == null || dataPacket.GetType() != PacketType.DATA)
                     {
                         throw new InvalidDataException("GetFile() received invalid packet");
                     }
@@ -227,7 +227,7 @@ namespace SecureSend.Endpoint
                             throw new InvalidDataException("Data available in stream but failed to get packet");
                         }
 
-                        if (packet.GetType() == Packet.Type.FILE_INFO)
+                        if (packet.GetType() == PacketType.FILE_INFO)
                         {
                             ReceiveFile((FileInfoPacket)packet);
                         }

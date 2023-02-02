@@ -8,7 +8,7 @@ namespace SecureSend.Protocol
 {
     internal class NackPacket : Packet
     {
-        public NackPacket() : base(Type.NACK)
+        public NackPacket() : base(PacketType.NACK)
         { }
 
         protected override byte[] EncodePayload()

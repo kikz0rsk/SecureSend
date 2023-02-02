@@ -11,7 +11,7 @@ namespace SecureSend.Protocol
         byte[] deviceFingerprint;
 
         public ClientHandshake(byte[] publicKey, byte encryptionAlgo,
-            byte[] deviceFingerprint) : base(Type.CLIENT_HANDSHAKE)
+            byte[] deviceFingerprint) : base(PacketType.CLIENT_HANDSHAKE)
         {
             this.publicKey = publicKey;
             this.encryptionAlgo = encryptionAlgo;

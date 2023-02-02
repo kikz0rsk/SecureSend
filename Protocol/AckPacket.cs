@@ -8,7 +8,7 @@ namespace SecureSend.Protocol
 {
     internal class AckPacket : Packet
     {
-        public AckPacket() : base(Type.ACK)
+        public AckPacket() : base(PacketType.ACK)
         { }
 
         protected override byte[] EncodePayload()

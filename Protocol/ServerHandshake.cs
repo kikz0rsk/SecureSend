@@ -12,7 +12,7 @@ namespace SecureSend.Protocol
         protected byte[] sessionId;
         protected byte[] deviceFingerprint;
 
-        public ServerHandshake(byte[] publicKey, byte[] sessionId, byte[] deviceFingerprint) : base(Type.SERVER_HANDSHAKE)
+        public ServerHandshake(byte[] publicKey, byte[] sessionId, byte[] deviceFingerprint) : base(PacketType.SERVER_HANDSHAKE)
         {
             this.publicKey = publicKey;
             this.sessionId = sessionId;

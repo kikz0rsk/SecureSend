@@ -12,7 +12,7 @@ namespace SecureSend.Protocol
         string salt;
         string username;
 
-        public PasswordAuthPacket(string username, byte[] passwordHash, string salt) : base(Type.PASSWORD_AUTH_RESP)
+        public PasswordAuthPacket(string username, byte[] passwordHash, string salt) : base(PacketType.PASSWORD_AUTH_RESP)
         {
             this.passwordHash = passwordHash;
             this.salt = salt;

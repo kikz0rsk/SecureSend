@@ -11,9 +11,9 @@ namespace SecureSend.Protocol
 {
     internal abstract class Packet
     {
-        protected Type type;
+        protected PacketType type;
 
-        public Packet(Type type)
+        public Packet(PacketType type)
         {
             this.type = type;
         }
@@ -28,30 +28,30 @@ namespace SecureSend.Protocol
         protected abstract byte[] EncodePayload();
 
         public static Packet? Deserialize(byte[] packetBytes) {
-            Type? typeCode = (Type)packetBytes[0];
+            PacketType? typeCode = (PacketType)packetBytes[0];
 
             var payload = packetBytes.Skip(1);
             switch (typeCode)
             {
-                case Type.DATA:
+                case PacketType.DATA:
                     return new DataPacket(payload.ToArray());
-                case Type.FILE_INFO:
+                case PacketType.FILE_INFO:
                     return FileInfoPacket.DecodeFromBytes(payload.ToArray());
-                case Type.HEARTBEAT:
+                case PacketType.HEARTBEAT:
                     return new HeartbeatPacket();
-                case Type.ACK:
+                case PacketType.ACK:
                     return new AckPacket();
-                case Type.NACK:
+                case PacketType.NACK:
                     return new NackPacket();
-                case Type.DISCONNECT:
+                case PacketType.DISCONNECT:
                     return new DisconnectPacket();
-                case Type.SERVER_HANDSHAKE:
+                case PacketType.SERVER_HANDSHAKE:
                     return ServerHandshake.DecodeFromBytes(payload.ToArray());
-                case Type.CLIENT_HANDSHAKE:
+                case PacketType.CLIENT_HANDSHAKE:
                     return ClientHandshake.DecodeFromBytes(payload.ToArray());
-                case Type.PASSWORD_AUTH_REQ:
+                case PacketType.PASSWORD_AUTH_REQ:
                     return new PasswordAuthRequestPacket();
-                case Type.PASSWORD_AUTH_RESP:
+                case PacketType.PASSWORD_AUTH_RESP:
                     return PasswordAuthPacket.DecodeFromBytes(payload.ToArray());
                 default:
                     return null;
@@ -132,22 +132,7 @@ namespace SecureSend.Protocol
             return UTF8Encoding.UTF8.GetString(bytes.Skip(4).Take(length).ToArray());
         }
 
-        public enum Type
-        {
-            SERVER_HANDSHAKE = 0,
-            CLIENT_HANDSHAKE = 1,
-            FILE_INFO = 2, 
-            DATA = 3,
-            HEARTBEAT = 4,
-            ACK = 5,
-            NACK = 6,
-            DISCONNECT = 7,
-            STOP = 8,
-            PASSWORD_AUTH_REQ = 9,
-            PASSWORD_AUTH_RESP = 10,
-        }
-
-        public Type GetType()
+        public PacketType GetType()
         {
             return type;
         }

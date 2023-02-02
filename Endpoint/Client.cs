@@ -115,7 +115,7 @@ namespace SecureSend.Endpoint
                 try
                 {
                     Packet? packet = ReceivePacket();
-                    if (packet == null || packet.GetType() != Packet.Type.ACK)
+                    if (packet == null || packet.GetType() != PacketType.ACK)
                     {
                         throw new InvalidDataException();
                     }
@@ -138,7 +138,7 @@ namespace SecureSend.Endpoint
                         throw new InvalidDataException();
                     }
 
-                    if(packet.GetType() == Packet.Type.PASSWORD_AUTH_REQ)
+                    if(packet.GetType() == PacketType.PASSWORD_AUTH_REQ)
                     {
                         PasswordAuthWindow window = Application.Current.Dispatcher.Invoke(() =>
                         {
@@ -156,7 +156,7 @@ namespace SecureSend.Endpoint
                         SendPacket(authPacket);
 
                         packet = ReceivePacket();
-                        if(packet.GetType() == Packet.Type.NACK)
+                        if(packet.GetType() == PacketType.NACK)
                         {
                             Task.Run(() =>
                             {

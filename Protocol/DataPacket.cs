@@ -10,7 +10,7 @@ namespace SecureSend.Protocol
     {
         protected byte[] data;
 
-        public DataPacket(byte[] data) : base(Type.DATA)
+        public DataPacket(byte[] data) : base(PacketType.DATA)
         {
             this.data = data;
         }

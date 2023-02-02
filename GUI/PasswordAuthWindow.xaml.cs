@@ -21,23 +21,30 @@ namespace SecureSend.GUI
     /// </summary>
     public partial class PasswordAuthWindow : Window
     {
-        public PasswordAuthWindow(string username)
+        public PasswordAuthWindow(bool changePassword, string? username)
         {
             InitializeComponent();
+
+            if(changePassword)
+            {
+                this.button.Content = "Zmeniť údaje";
+            }
 
             if(username != null)
             {
                 this.username.Text = username;
-                this.button.Content = "Zmeniť údaje";
             }
         }
 
         private void connectBtn_Click(object sender, RoutedEventArgs e)
         {
-            if(username.Text.Trim().Length == 0 || password.Password.Trim().Length == 0)
+            if(username.Text.Trim().Length == 0 || password.Password.Length == 0)
             {
                 return;
             }
+
+            Username = this.username.Text;
+            Password = this.password.Password;
 
             Close();
         }

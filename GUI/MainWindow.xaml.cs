@@ -156,8 +156,12 @@ namespace SecureSend
 
         private void changeLoginCredentials_Click(object sender, RoutedEventArgs e)
         {
-            var window = new PasswordAuthWindow("test");
-            window.Show();
+            var window = new PasswordAuthWindow(true, SecureSendMain.Instance.Username);
+            window.Owner = this;
+            window.ShowDialog();
+
+            SecureSendMain.Instance.Username = window.Username;
+            SecureSendMain.Instance.Password = window.Password;
         }
     }
 }

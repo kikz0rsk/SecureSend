@@ -14,6 +14,7 @@ using System.Windows;
 using Packet = SecureSend.Protocol.Packet;
 using SecureSend.Utils;
 using SecureSend.Base;
+using System.Text;
 
 namespace SecureSend.Endpoint
 {
@@ -129,6 +130,54 @@ namespace SecureSend.Endpoint
                     return;
                 }
 
+                try
+                {
+                    Packet? packet = ReceivePacket();
+                    if (packet == null)
+                    {
+                        throw new InvalidDataException();
+                    }
+
+                    if(packet.GetType() == Packet.Type.PASSWORD_AUTH_REQ)
+                    {
+                        PasswordAuthWindow window = Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            PasswordAuthWindow window = new PasswordAuthWindow(false, null);
+                            window.Owner = SecureSendMain.Instance.MainWindow;
+                            window.ShowDialog();
+                            return window;
+                        });
+
+                        string salt = CryptoUtils.CreateSalt(16);
+                        byte[] hash = HashAlgorithm.Sha512.Hash(
+                                UTF8Encoding.UTF8.GetBytes(window.Password + salt));
+                        
+                        PasswordAuthPacket authPacket = new PasswordAuthPacket(window.Username, hash, salt);
+                        SendPacket(authPacket);
+
+                        packet = ReceivePacket();
+                        if(packet.GetType() == Packet.Type.NACK)
+                        {
+                            Task.Run(() =>
+                            {
+                                MessageBox.Show("Nesprávne meno alebo heslo.", "Spojenie bolo odmietnuté",
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                            });
+                            Disconnect();
+                            return;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Task.Run(() =>
+                    {
+                        MessageBox.Show(ex.ToString(), "Spojenie bolo odmietnuté",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    });
+                    return;
+                }
+
                 SetConnected(true);
                 CommunicationLoop();
             }
@@ -139,14 +188,13 @@ namespace SecureSend.Endpoint
             finally
             {
                 filesToSend.Clear();
-                connection?.Close();
+                Disconnect();
                 SetConnected(false);
             }
         }
 
         protected override Key? EstablishTrust()
         {
-
             ClientHandshake clientHandshake = new ClientHandshake(
                 IdentityManager.Instance.GetKey().PublicKey.Export(
                     KeyBlobFormat.RawPublicKey), 0, TrustedEndpointsManager.GetDeviceFingerprint());

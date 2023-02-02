@@ -140,6 +140,38 @@ namespace SecureSend.Endpoint
                         continue;
                     }
 
+                    SendPacket(new PasswordAuthRequestPacket());
+
+                    try
+                    {
+                        Packet? packet = ReceivePacket();
+                        if (packet == null || packet.GetType() != Packet.Type.PASSWORD_AUTH_RESP)
+                        {
+                            throw new InvalidDataException();
+                        }
+
+                        PasswordAuthPacket pass = (PasswordAuthPacket)packet;
+
+                        // Prevent timing attacks, we do password hashing first
+                        byte[] hash = HashAlgorithm.Sha512.Hash(
+                                UTF8Encoding.UTF8.GetBytes(SecureSendMain.Instance.Password + pass.Salt));
+                        bool correct = Enumerable.SequenceEqual(hash, pass.PasswordHash) &&
+                            pass.Username.Equals(SecureSendMain.Instance.Username);
+
+                        if (correct)
+                        {
+                            SendPacket(new AckPacket());
+                        } else
+                        {
+                            SendPacket(new NackPacket());
+                            Disconnect();
+                            continue;
+                        }
+                    } catch(Exception ex)
+                    {
+                        continue;
+                    }
+
                     SetConnected(true);
                     CommunicationLoop();
 

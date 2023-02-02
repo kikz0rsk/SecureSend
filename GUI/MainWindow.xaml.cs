@@ -62,6 +62,7 @@ namespace SecureSend
             }
 
             ConnectWindow connectWindow = new ConnectWindow();
+            connectWindow.Owner = this;
             connectWindow.ShowDialog();
 
             if(connectWindow.IpAddress == null || connectWindow.Port == null)
@@ -93,7 +94,6 @@ namespace SecureSend
             {
                 server.GetFilesToSend().Enqueue(inputFilePath.Text.Trim());
             }
-
         }
 
         public void SetConnected()

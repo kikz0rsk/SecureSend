@@ -149,7 +149,7 @@ namespace SecureSend.Endpoint
                 });
             }
 
-            Application.Current.Dispatcher.Invoke(new Action(() => {
+            Application.Current.Dispatcher.InvokeAsync(new Action(() => {
                 mainWindow.SetProgress(0, 1);
                 mainWindow.statusText.Content = "Súbor bol prijatý";
                 mainWindow.sendFileButton.IsEnabled = true;
@@ -202,10 +202,10 @@ namespace SecureSend.Endpoint
                 }
             }
 
-            Application.Current.Dispatcher.Invoke(new Action(() => {
-                mainWindow.SetProgress(0, 1);
+            Application.Current.Dispatcher.InvokeAsync(new Action(() => {
                 mainWindow.statusText.Content = "Súbor bol odoslaný";
                 mainWindow.sendFileButton.IsEnabled = true;
+                mainWindow.SetProgress(0, 1);
             }));
         }
 

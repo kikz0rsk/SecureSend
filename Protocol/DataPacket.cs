@@ -15,6 +15,9 @@ namespace SecureSend.Protocol
             this.data = data;
         }
 
+        public DataPacket(ReadOnlySpan<byte> data) : this(data.ToArray())
+        { }
+
         protected override byte[] EncodePayload()
         {
             return data;

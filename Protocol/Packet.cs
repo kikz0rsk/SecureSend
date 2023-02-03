@@ -34,9 +34,9 @@ namespace SecureSend.Protocol
             switch (typeCode)
             {
                 case PacketType.DATA:
-                    return new DataPacket(payload.ToArray());
+                    return new DataPacket(payload);
                 case PacketType.FILE_INFO:
-                    return FileInfoPacket.DecodeFromBytes(payload.ToArray());
+                    return FileInfoPacket.DecodeFromBytes(payload);
                 case PacketType.HEARTBEAT:
                     return new HeartbeatPacket();
                 case PacketType.ACK:

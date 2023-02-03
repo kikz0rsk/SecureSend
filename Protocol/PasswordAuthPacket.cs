@@ -31,9 +31,9 @@ namespace SecureSend.Protocol
             int totalSkip = 0;
             int skip;
             string username = DecodeVarLengthString(payloadBytes, out totalSkip);
-            byte[] hash = DecodeVarLengthBytes(payloadBytes.Skip(totalSkip).ToArray(), out skip);
+            byte[] hash = DecodeVarLengthBytes(payloadBytes.Slice(totalSkip), out skip);
             totalSkip += skip;
-            string salt = DecodeVarLengthString(payloadBytes.Skip(totalSkip).ToArray(), out skip);
+            string salt = DecodeVarLengthString(payloadBytes.Slice(totalSkip), out skip);
 
             return new PasswordAuthPacket(username, hash, salt);
         }

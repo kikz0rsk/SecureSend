@@ -174,6 +174,10 @@ namespace SecureSend.Endpoint
             {
                 MessageBox.Show("Spojenie zlyhalo.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            catch(Exception ex)
+            {
+                MessageBox.Show("Vyskytla sa neočakávaná chyba: " + ex.ToString(), "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
             finally
             {
                 filesToSend.Clear();

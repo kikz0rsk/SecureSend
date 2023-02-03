@@ -75,7 +75,7 @@ namespace SecureSend.Endpoint
                     {
                         mainWindow.currentConnectionText.Content = "Vytvára sa bezpečný kanál...";
                     }));
-                    
+
                     stream = connection.GetStream();
 
                     this.symmetricKey = EstablishTrust();
@@ -97,7 +97,7 @@ namespace SecureSend.Endpoint
 
                     bool authorized = AuthorizeAccess();
 
-                    if(!authorized)
+                    if (!authorized)
                     {
                         SendPacket(new NackPacket());
                         Disconnect();
@@ -124,7 +124,7 @@ namespace SecureSend.Endpoint
                         continue;
                     }
 
-                    if(SecureSendMain.Instance.PasswordAuthEnabled)
+                    if (SecureSendMain.Instance.PasswordAuthEnabled)
                     {
                         SendPacket(new PasswordAuthRequestPacket());
 
@@ -159,7 +159,8 @@ namespace SecureSend.Endpoint
                         {
                             continue;
                         }
-                    } else
+                    }
+                    else
                     {
                         SendPacket(new AckPacket());
                     }
@@ -173,9 +174,14 @@ namespace SecureSend.Endpoint
                     throw inter;
                 }
                 catch (SocketException ex) { }
-                catch(ConnectionClosedException) { }
-                catch(IOException ex) {
+                catch (ConnectionClosedException) { }
+                catch (IOException ex)
+                {
                     MessageBox.Show("Spojenie zlyhalo.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Vyskytla sa neočakávaná chyba: " + ex.ToString(), "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }

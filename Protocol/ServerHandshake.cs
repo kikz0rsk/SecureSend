@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SecureSend.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,9 +22,10 @@ namespace SecureSend.Protocol
 
         public static ServerHandshake DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
         {
-            byte[] publicKey = payloadBytes.Slice(0, 32).ToArray();
-            byte[] sessionId = payloadBytes.Slice(32, 64).ToArray();
-            byte[] deviceFingerprint = payloadBytes.Slice(96).ToArray();
+            PacketDecoder decoder = new PacketDecoder();
+            byte[] publicKey = decoder.DecodeFixedLengthBytes(payloadBytes, 32);
+            byte[] sessionId = decoder.DecodeFixedLengthBytes(payloadBytes, 64);
+            byte[] deviceFingerprint = decoder.DecodeFixedLengthBytes(payloadBytes, 32);
             return new ServerHandshake(publicKey, sessionId, deviceFingerprint);
         }
 

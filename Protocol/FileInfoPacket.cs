@@ -1,4 +1,5 @@
 ﻿using Org.BouncyCastle.Utilities;
+using SecureSend.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,9 +28,10 @@ namespace SecureSend.Protocol
 
         public static FileInfoPacket DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
         {
-            ulong fileSize = DecodeULong(payloadBytes.Slice(0, 8).ToArray());
-            byte[] hash = payloadBytes.Slice(8, 16).ToArray();
-            string filename = DecodeVarLengthString(payloadBytes.Slice(24).ToArray());
+            PacketDecoder decoder = new PacketDecoder();
+            ulong fileSize = decoder.DecodeULong(payloadBytes);
+            byte[] hash = decoder.DecodeFixedLengthBytes(payloadBytes, 16);
+            string filename = decoder.DecodeVarLengthString(payloadBytes);
             return new FileInfoPacket(filename, fileSize, hash);
         }
 

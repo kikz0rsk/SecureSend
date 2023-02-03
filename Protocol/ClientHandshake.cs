@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SecureSend.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -20,12 +21,17 @@ namespace SecureSend.Protocol
 
         public static ClientHandshake DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
         {
-            return new ClientHandshake(payloadBytes.Slice(0, 32).ToArray(), 0, payloadBytes.Slice(33).ToArray());
+            PacketDecoder decoder = new PacketDecoder();
+            return new ClientHandshake(
+                decoder.DecodeFixedLengthBytes(payloadBytes, 32),
+                0,
+                decoder.DecodeFixedLengthBytes(payloadBytes, 32)
+            );
         }
 
         protected override byte[] EncodePayload()
         {
-            return publicKey.Concat(new byte[] { encryptionAlgo }).Concat(deviceFingerprint).ToArray();
+            return publicKey.Concat(deviceFingerprint).ToArray();
         }
 
         public byte[] PublicKey { get { return publicKey; } }

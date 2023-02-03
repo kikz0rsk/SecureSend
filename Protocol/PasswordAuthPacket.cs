@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SecureSend.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,12 +29,10 @@ namespace SecureSend.Protocol
 
         public static PasswordAuthPacket DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
         {
-            int totalSkip = 0;
-            int skip;
-            string username = DecodeVarLengthString(payloadBytes, out totalSkip);
-            byte[] hash = DecodeVarLengthBytes(payloadBytes.Slice(totalSkip), out skip);
-            totalSkip += skip;
-            string salt = DecodeVarLengthString(payloadBytes.Slice(totalSkip), out skip);
+            PacketDecoder decoder = new PacketDecoder();
+            string username = decoder.DecodeVarLengthString(payloadBytes);
+            byte[] hash = decoder.DecodeVarLengthBytes(payloadBytes);
+            string salt = decoder.DecodeVarLengthString(payloadBytes);
 
             return new PasswordAuthPacket(username, hash, salt);
         }

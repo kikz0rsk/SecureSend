@@ -27,12 +27,9 @@ namespace SecureSend.Utils
             secureRng.GetBytes(array);
         }
 
-        public static byte[] EncryptBytes(byte[] plaintext, Key symmetricKey, out byte[] nonce)
+        public static byte[] EncryptBytes(byte[] plaintext, Key symmetricKey, byte[] nonce)
         {
-            byte[] generatedNonce = new byte[12];
-            secureRng.GetBytes(generatedNonce);
-            nonce = generatedNonce;
-            return AeadAlgorithm.Aes256Gcm.Encrypt(symmetricKey, generatedNonce, null, plaintext);
+            return AeadAlgorithm.Aes256Gcm.Encrypt(symmetricKey, nonce, null, plaintext);
         }
 
         public static byte[]? DecryptBytes(byte[] ciphertext, Key symmetricKey, byte[] nonce)

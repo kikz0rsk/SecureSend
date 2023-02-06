@@ -29,6 +29,7 @@ namespace SecureSend.Endpoint
         protected MainWindow mainWindow;
         protected volatile bool connected = false;
         protected volatile bool isClient = false;
+        protected byte[] lastSequenceForNonce = new byte[6];
 
         protected PublicKey remoteEndpointPublicKey;
         protected byte[] deviceFingerprint;
@@ -57,8 +58,13 @@ namespace SecureSend.Endpoint
         {
             byte[] serializedPacket = packet.BuildPacket();
 
-            byte[] nonce;
-            byte[] encryptedPayload = CryptoUtils.EncryptBytes(serializedPacket, symmetricKey, out nonce);
+            byte[] nonceRandom = new byte[6];
+            CryptoUtils.FillWithRandomBytes(nonceRandom);
+
+            byte[] nonce = nonceRandom.Concat(lastSequenceForNonce).ToArray();
+            IncrementNonce();
+
+            byte[] encryptedPayload = AeadAlgorithm.Aes256Gcm.Encrypt(symmetricKey, nonce, null, serializedPacket);
 
             byte[] packetLengthBytes = Packet.EncodeUShort(Convert.ToUInt16(encryptedPayload.Length + 12)); // Nonce is 12 bytes
             byte[] bytesToSend = packetLengthBytes.Concat(nonce).Concat(encryptedPayload).ToArray();
@@ -309,6 +315,26 @@ namespace SecureSend.Endpoint
         public bool IsConnected()
         {
             return connected;
+        }
+
+        protected void IncrementNonce()
+        {
+            for(int i = 5; i >= 0; i--)
+            {
+                bool carry = false;
+                if (lastSequenceForNonce[i] == 255)
+                {
+                    lastSequenceForNonce[i] = 0;
+                    carry = true;
+                    continue;
+                }
+
+                lastSequenceForNonce[i]++;
+                if(!carry)
+                {
+                    return;
+                }
+            }
         }
     }
 }

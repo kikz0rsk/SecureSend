@@ -220,6 +220,8 @@ namespace SecureSend.Endpoint
                 return null;
             }
 
+            CryptoUtils.FillWithRandomBytes(lastSequenceForNonce);
+
             return KeyDerivationAlgorithm.HkdfSha512.DeriveKey(sharedSecret,
                 serverHandshake.SessionId, null, AeadAlgorithm.Aes256Gcm, CryptoUtils.AllowExport());
         }

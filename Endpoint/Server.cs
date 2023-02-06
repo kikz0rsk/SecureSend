@@ -182,7 +182,7 @@ namespace SecureSend.Endpoint
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Vyskytla sa neočakávaná chyba: " + ex.ToString(), "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Vyskytla sa chyba: " + ex.ToString(), "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }

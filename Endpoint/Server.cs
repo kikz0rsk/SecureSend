@@ -116,6 +116,7 @@ namespace SecureSend.Endpoint
                     }
                     catch (Exception ex)
                     {
+                        Disconnect();
                         Task.Run(() =>
                         {
                             MessageBox.Show("Užívateľ odmietol žiadosť o pripojenie.", "Spojenie bolo odmietnuté",

@@ -33,8 +33,8 @@ namespace SecureSend.Protocol
                     return new DataPacket(payload);
                 case PacketType.FILE_INFO:
                     return FileInfoPacket.DecodeFromBytes(payload);
-                case PacketType.HEARTBEAT:
-                    return new HeartbeatPacket();
+                case PacketType.PREPARE_TRANSFER:
+                    return new PrepareTransferPacket();
                 case PacketType.ACK:
                     return new AckPacket();
                 case PacketType.NACK:

@@ -19,7 +19,6 @@
             <MenuItem x:Name="connectBtn" Header="Pripojiť sa" Height="25" Click="connectBtn_Click"/>
             <MenuItem x:Name="identityMngrBtn" Header="Dôveryhodné zariadenia" Height="25" Click="identityMngrBtn_Click"/>
             <MenuItem Header="Autentifikácia" Height="25">
-                <!-- <MenuItem Header="Požadovať overenie menom a heslom" Height="25" IsCheckable="True" /> -->
                 <MenuItem Header="Nastaviť meno a heslo" Height="25" Click="changeLoginCredentials_Click"/>
             </MenuItem>
         </Menu>

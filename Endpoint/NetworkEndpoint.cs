@@ -12,6 +12,7 @@ using SecureSend.Utils;
 using SecureSend.Base;
 using SecureSend.GUI;
 using System.Net;
+using System.Reflection;
 
 namespace SecureSend.Endpoint
 {
@@ -90,12 +91,27 @@ namespace SecureSend.Endpoint
 
         protected abstract Key? EstablishTrust();
 
-        protected void ReceiveFile(FileInfoPacket fileInfo)
+        protected void ReceiveFile()
         {
+            Application.Current.Dispatcher.Invoke(new Action(() => {
+                mainWindow.fileProgressBar.IsIndeterminate = true;
+                mainWindow.sendFileButton.IsEnabled = false;
+                mainWindow.statusText.Content = "Odosielacie zariadenie začína prenos";
+            }));
+
+            Packet? packet = ReceivePacket();
+            if(packet == null)
+            {
+                return;
+            }
+
+            FileInfoPacket fileInfo = (FileInfoPacket)packet;
+
             Application.Current.Dispatcher.Invoke(new Action(() => {
                 mainWindow.statusText.Content = "Prichádzajúci súbor " + fileInfo.GetFileName();
                 mainWindow.fileProgressBar.Value = 0;
                 mainWindow.sendFileButton.IsEnabled = false;
+                mainWindow.fileProgressBar.IsIndeterminate = false;
             }));
 
             ulong totalBytes = fileInfo.GetFileSize();
@@ -130,6 +146,7 @@ namespace SecureSend.Endpoint
 
             Application.Current.Dispatcher.Invoke(new Action(() => {
                 mainWindow.statusText.Content = "Overuje sa kontrolný súčet súboru...";
+                mainWindow.fileProgressBar.IsIndeterminate = true;
             }));
 
             try
@@ -157,33 +174,40 @@ namespace SecureSend.Endpoint
                 mainWindow.SetProgress(0, 1);
                 mainWindow.statusText.Content = "Súbor bol prijatý";
                 mainWindow.sendFileButton.IsEnabled = true;
+                mainWindow.fileProgressBar.IsIndeterminate = false;
             }));
+
+            Task.Run(() =>
+            {
+                MessageBox.Show("Súbor " + fileInfo.GetFileName() + " bol úspešne prijatý", "Súbor prijatý", MessageBoxButton.OK, MessageBoxImage.Information);
+            });
         }
 
         protected void SendFile()
         {
-            string filePathString;
+            string? filePathString;
             if (!filesToSend.TryDequeue(out filePathString))
             {
                 return;
             }
 
-            if (!File.Exists(filePathString)) return;
+            if (filePathString == null || !File.Exists(filePathString)) return;
+
+            SendPacket(new PrepareTransferPacket());
 
             Application.Current.Dispatcher.Invoke(new Action(() => {
                 mainWindow.fileProgressBar.Value = 0;
+                mainWindow.fileProgressBar.IsIndeterminate = true;
                 mainWindow.sendFileButton.IsEnabled = false;
+                mainWindow.statusText.Content = "Počíta sa kontrolný súčet súboru...";
             }));
 
             ulong totalBytes = (ulong)new FileInfo(filePathString).Length;
 
-            Application.Current.Dispatcher.Invoke(new Action(() => {
-                mainWindow.statusText.Content = "Počíta sa kontrolný súčet súboru...";
-            }));
-
             byte[] hash = CryptoUtils.CalculateFileHash(filePathString);
 
             Application.Current.Dispatcher.Invoke(new Action(() => {
+                mainWindow.fileProgressBar.IsIndeterminate = false;
                 mainWindow.statusText.Content = "Odosiela sa súbor...";
             }));
 
@@ -211,6 +235,11 @@ namespace SecureSend.Endpoint
                 mainWindow.sendFileButton.IsEnabled = true;
                 mainWindow.SetProgress(0, 1);
             }));
+
+            Task.Run(() =>
+            {
+                MessageBox.Show("Súbor " + fileInfoPacket.GetFileName() + " bol úspešne odoslaný", "Súbor odoslaný", MessageBoxButton.OK, MessageBoxImage.Information);
+            });
         }
 
         protected bool AuthorizeAccess()
@@ -262,16 +291,13 @@ namespace SecureSend.Endpoint
 
                         if (packet == null)
                         {
-                            // TODO remove
-                            throw new InvalidDataException("Data available in stream but failed to get packet");
+                            continue;
                         }
 
-                        if (packet.GetType() == PacketType.FILE_INFO)
+                        if (packet.GetType() == PacketType.PREPARE_TRANSFER)
                         {
-                            ReceiveFile((FileInfoPacket)packet);
+                            ReceiveFile();
                         }
-
-                        
                     }
                     else if (filesToSend.Count > 0)
                     {

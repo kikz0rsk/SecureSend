@@ -6,7 +6,7 @@
         CLIENT_HANDSHAKE = 1,
         FILE_INFO = 2,
         DATA = 3,
-        HEARTBEAT = 4,
+        PREPARE_TRANSFER = 4,
         ACK = 5,
         NACK = 6,
         DISCONNECT = 7,

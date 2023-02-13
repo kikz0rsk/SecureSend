@@ -1,8 +1,8 @@
 ﻿namespace SecureSend.Protocol
 {
-    internal class HeartbeatPacket : Packet
+    internal class PrepareTransferPacket : Packet
     {
-        public HeartbeatPacket() : base(PacketType.HEARTBEAT)
+        public PrepareTransferPacket() : base(PacketType.PREPARE_TRANSFER)
         { }
 
         protected override byte[] EncodePayload()

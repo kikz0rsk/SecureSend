@@ -5,6 +5,7 @@ using System.Text;
 using System.Management;
 using System.IO;
 using System.Security.Cryptography;
+using System.Windows;
 
 namespace SecureSend.Base
 {
@@ -12,7 +13,7 @@ namespace SecureSend.Base
     {
         public const string KNOWN_HOSTS_FILENAME = ".known";
 
-        private static TrustedEndpointsManager instance;
+        private static TrustedEndpointsManager instance = new TrustedEndpointsManager();
 
         public List<Identity> Identities { get; protected set; }
 
@@ -20,22 +21,18 @@ namespace SecureSend.Base
         {
             get
             {
-                if (instance == null)
-                {
-                    instance = new TrustedEndpointsManager();
-                }
                 return instance;
             }
         }
 
-        public TrustedEndpointsManager()
+        private TrustedEndpointsManager()
         {
             Load();
         }
 
         public void Load()
         {
-            Identities = new List<Identity>();
+            List<Identity> identities = new List<Identity>();
 
             if (!File.Exists(KNOWN_HOSTS_FILENAME))
             {
@@ -54,8 +51,10 @@ namespace SecureSend.Base
                 // second part public key
                 byte[] pubKey = Convert.FromHexString(parts[1]);
 
-                Identities.Append(new Identity(deviceFingerprint, pubKey));
+                identities.Add(new Identity(deviceFingerprint, pubKey));
             }
+
+            Identities = identities;
         }
 
         public void Save() {

@@ -8,19 +8,9 @@ using System.Threading.Tasks;
 
 namespace SecureSend
 {
-    class SecureSendMain
+    public class SecureSendApp
     {
-        private static SecureSendMain instance = new SecureSendMain();
-
-        public static SecureSendMain Instance
-        {
-            get
-            {
-                return instance;
-            }
-        }
-
-        private SecureSendMain()
+        public SecureSendApp()
         {
             PasswordAuthEnabled = false;
         }

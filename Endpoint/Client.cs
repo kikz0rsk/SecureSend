@@ -16,16 +16,14 @@ using SecureSend.Exceptions;
 
 namespace SecureSend.Endpoint
 {
-    internal class Client : NetworkEndpoint
+    public class Client : NetworkEndpoint
     {
         private string? ipAddress;
         private string? port;
         protected Thread? thread;
 
-        public Client(MainWindow mainWindow)
-        {
-            this.mainWindow = mainWindow;
-        }
+        public Client(SecureSendApp application) : base(application)
+        { }
 
         public void Connect(string ipAddress, string port)
         {
@@ -86,7 +84,7 @@ namespace SecureSend.Endpoint
         {
             Application.Current.Dispatcher.Invoke(new Action(() =>
             {
-                mainWindow.currentConnectionText.Content = "Vytvára sa bezpečný kanál...";
+                application.MainWindow.currentConnectionText.Content = "Vytvára sa bezpečný kanál...";
             }));
 
             this.symmetricKey = EstablishTrust();
@@ -103,7 +101,7 @@ namespace SecureSend.Endpoint
 
             Application.Current.Dispatcher.Invoke(new Action(() =>
             {
-                mainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa...";
+                application.MainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa...";
             }));
 
             bool authorized = AuthorizeAccess();
@@ -148,7 +146,7 @@ namespace SecureSend.Endpoint
                     PasswordAuthWindow window = Application.Current.Dispatcher.Invoke(() =>
                     {
                         PasswordAuthWindow window = new PasswordAuthWindow(false, null);
-                        window.Owner = SecureSendMain.Instance.MainWindow;
+                        window.Owner = application.MainWindow;
                         window.ShowDialog();
                         return window;
                     });

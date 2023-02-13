@@ -13,5 +13,12 @@ namespace SecureSend
     /// </summary>
     public partial class App : Application
     {
+        void onStartup(object sender, StartupEventArgs e)
+        {
+            SecureSendApp application = new SecureSendApp();
+            MainWindow window = new MainWindow(application);
+
+            window.Show();
+        }
     }
 }

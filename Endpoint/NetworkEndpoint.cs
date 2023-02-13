@@ -16,7 +16,7 @@ using System.Reflection;
 
 namespace SecureSend.Endpoint
 {
-    internal abstract class NetworkEndpoint
+    public abstract class NetworkEndpoint
     {
         protected Key? symmetricKey;
         protected PublicKey remoteEndpointPublicKey;
@@ -27,11 +27,15 @@ namespace SecureSend.Endpoint
         
         protected ConcurrentQueue<string> filesToSend = new ConcurrentQueue<string>();
         
-        protected MainWindow mainWindow;
+        protected SecureSendApp application;
         
         protected volatile bool connected = false;
         protected volatile bool client = false;
         protected byte[] lastSequenceForNonce = new byte[6];
+
+        public NetworkEndpoint(SecureSendApp application) {
+            this.application = application;
+        }
 
         protected void SendUnencryptedPacket(Packet packet)
         {
@@ -94,9 +98,9 @@ namespace SecureSend.Endpoint
         protected void ReceiveFile()
         {
             Application.Current.Dispatcher.Invoke(new Action(() => {
-                mainWindow.fileProgressBar.IsIndeterminate = true;
-                mainWindow.sendFileButton.IsEnabled = false;
-                mainWindow.statusText.Content = "Odosielacie zariadenie začína prenos";
+                application.MainWindow.fileProgressBar.IsIndeterminate = true;
+                application.MainWindow.sendFileButton.IsEnabled = false;
+                application.MainWindow.statusText.Content = "Odosielacie zariadenie začína prenos";
             }));
 
             Packet? packet = ReceivePacket();
@@ -108,16 +112,16 @@ namespace SecureSend.Endpoint
             FileInfoPacket fileInfo = (FileInfoPacket)packet;
 
             Application.Current.Dispatcher.Invoke(new Action(() => {
-                mainWindow.statusText.Content = "Prichádzajúci súbor " + fileInfo.GetFileName();
-                mainWindow.fileProgressBar.Value = 0;
-                mainWindow.sendFileButton.IsEnabled = false;
-                mainWindow.fileProgressBar.IsIndeterminate = false;
+                application.MainWindow.statusText.Content = "Prichádzajúci súbor " + fileInfo.GetFileName();
+                application.MainWindow.fileProgressBar.Value = 0;
+                application.MainWindow.sendFileButton.IsEnabled = false;
+                application.MainWindow.fileProgressBar.IsIndeterminate = false;
             }));
 
             ulong totalBytes = fileInfo.GetFileSize();
 
             string saveFolder = Application.Current.Dispatcher.Invoke(() => {
-                return mainWindow.saveFolderLocation.Text.Trim();
+                return application.MainWindow.saveFolderLocation.Text.Trim();
             });
 
             string savePath = Path.Combine(saveFolder, fileInfo.GetFileName());
@@ -139,14 +143,14 @@ namespace SecureSend.Endpoint
                     fileStream.Write(data);
                     bytesWritten += (ulong)data.Length;
                     Application.Current.Dispatcher.InvokeAsync(new Action(() => {
-                        mainWindow.SetProgress(bytesWritten, totalBytes);
+                        application.MainWindow.SetProgress(bytesWritten, totalBytes);
                     }));
                 }
             }
 
             Application.Current.Dispatcher.Invoke(new Action(() => {
-                mainWindow.statusText.Content = "Overuje sa kontrolný súčet súboru...";
-                mainWindow.fileProgressBar.IsIndeterminate = true;
+                application.MainWindow.statusText.Content = "Overuje sa kontrolný súčet súboru...";
+                application.MainWindow.fileProgressBar.IsIndeterminate = true;
             }));
 
             try
@@ -171,10 +175,10 @@ namespace SecureSend.Endpoint
             }
 
             Application.Current.Dispatcher.InvokeAsync(new Action(() => {
-                mainWindow.SetProgress(0, 1);
-                mainWindow.statusText.Content = "Súbor bol prijatý";
-                mainWindow.sendFileButton.IsEnabled = true;
-                mainWindow.fileProgressBar.IsIndeterminate = false;
+                application.MainWindow.SetProgress(0, 1);
+                application.MainWindow.statusText.Content = "Súbor bol prijatý";
+                application.MainWindow.sendFileButton.IsEnabled = true;
+                application.MainWindow.fileProgressBar.IsIndeterminate = false;
             }));
 
             Task.Run(() =>
@@ -196,10 +200,10 @@ namespace SecureSend.Endpoint
             SendPacket(new PrepareTransferPacket());
 
             Application.Current.Dispatcher.Invoke(new Action(() => {
-                mainWindow.fileProgressBar.Value = 0;
-                mainWindow.fileProgressBar.IsIndeterminate = true;
-                mainWindow.sendFileButton.IsEnabled = false;
-                mainWindow.statusText.Content = "Počíta sa kontrolný súčet súboru...";
+                application.MainWindow.fileProgressBar.Value = 0;
+                application.MainWindow.fileProgressBar.IsIndeterminate = true;
+                application.MainWindow.sendFileButton.IsEnabled = false;
+                application.MainWindow.statusText.Content = "Počíta sa kontrolný súčet súboru...";
             }));
 
             ulong totalBytes = (ulong)new FileInfo(filePathString).Length;
@@ -207,8 +211,8 @@ namespace SecureSend.Endpoint
             byte[] hash = CryptoUtils.CalculateFileHash(filePathString);
 
             Application.Current.Dispatcher.Invoke(new Action(() => {
-                mainWindow.fileProgressBar.IsIndeterminate = false;
-                mainWindow.statusText.Content = "Odosiela sa súbor...";
+                application.MainWindow.fileProgressBar.IsIndeterminate = false;
+                application.MainWindow.statusText.Content = "Odosiela sa súbor...";
             }));
 
             FileInfoPacket fileInfoPacket = new FileInfoPacket(Path.GetFileName(filePathString), totalBytes, hash);
@@ -225,15 +229,15 @@ namespace SecureSend.Endpoint
                     SendPacket(data);
                     bytesSent += (ulong)bytesRead;
                     Application.Current.Dispatcher.InvokeAsync(new Action(() => {
-                        mainWindow.SetProgress(bytesSent, totalBytes);
+                        application.MainWindow.SetProgress(bytesSent, totalBytes);
                     }));
                 }
             }
 
             Application.Current.Dispatcher.InvokeAsync(new Action(() => {
-                mainWindow.statusText.Content = "Súbor bol odoslaný";
-                mainWindow.sendFileButton.IsEnabled = true;
-                mainWindow.SetProgress(0, 1);
+                application.MainWindow.statusText.Content = "Súbor bol odoslaný";
+                application.MainWindow.sendFileButton.IsEnabled = true;
+                application.MainWindow.SetProgress(0, 1);
             }));
 
             Task.Run(() =>
@@ -255,7 +259,7 @@ namespace SecureSend.Endpoint
             {
                 AcceptConnection acceptConnection = new AcceptConnection(
                     false, endpoint.Address.ToString(), deviceFingerprint, rawPublicKey);
-                acceptConnection.Owner = SecureSendMain.Instance.MainWindow;
+                acceptConnection.Owner = application.MainWindow;
                 acceptConnection.ShowDialog();
                 return acceptConnection.Result;
             });
@@ -329,11 +333,11 @@ namespace SecureSend.Endpoint
             this.connected = connected;
             if(connected)
             {
-                Application.Current.Dispatcher.Invoke(new Action(() => { mainWindow.SetConnected(); }));
+                Application.Current.Dispatcher.Invoke(new Action(() => { application.MainWindow.SetConnected(); }));
                 return;
             }
 
-            Application.Current.Dispatcher.Invoke(new Action(() => { mainWindow.SetDisconnected(); }));
+            Application.Current.Dispatcher.Invoke(new Action(() => { application.MainWindow.SetDisconnected(); }));
         }
 
         public bool IsConnected()

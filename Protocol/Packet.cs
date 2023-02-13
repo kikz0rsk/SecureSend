@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SecureSend.Protocol
 {
-    internal abstract class Packet
+    public abstract class Packet
     {
         protected PacketType type;
 

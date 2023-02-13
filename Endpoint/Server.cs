@@ -15,7 +15,7 @@ using SecureSend.Exceptions;
 
 namespace SecureSend.Endpoint
 {
-    internal class Server : NetworkEndpoint
+    public class Server : NetworkEndpoint
     {
 
         private int? port;
@@ -24,10 +24,8 @@ namespace SecureSend.Endpoint
 
         private volatile bool stopSignal = false;
 
-        public Server(MainWindow mainWindow)
-        {
-            this.mainWindow = mainWindow;
-        }
+        public Server(SecureSendApp application) : base(application)
+        { }
 
         public void StartServer()
         {
@@ -52,7 +50,7 @@ namespace SecureSend.Endpoint
 
             port = ((IPEndPoint)serverSocket.LocalEndpoint).Port;
             Application.Current.Dispatcher.Invoke(new Action(() => {
-                mainWindow.statusPortText.Content = "Port pre pripojenie: " + port.ToString(); }));
+                application.MainWindow.statusPortText.Content = "Port pre pripojenie: " + port.ToString(); }));
 
             while (!stopSignal)
             {
@@ -87,7 +85,7 @@ namespace SecureSend.Endpoint
         {
             Application.Current.Dispatcher.Invoke(new Action(() =>
             {
-                mainWindow.currentConnectionText.Content = "Vytvára sa bezpečný kanál...";
+                application.MainWindow.currentConnectionText.Content = "Vytvára sa bezpečný kanál...";
             }));
 
             this.symmetricKey = EstablishTrust();
@@ -104,7 +102,7 @@ namespace SecureSend.Endpoint
 
             Application.Current.Dispatcher.Invoke(new Action(() =>
             {
-                mainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa...";
+                application.MainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa...";
             }));
 
             bool authorized = AuthorizeAccess();
@@ -136,7 +134,7 @@ namespace SecureSend.Endpoint
                 return;
             }
 
-            if (SecureSendMain.Instance.PasswordAuthEnabled)
+            if (application.PasswordAuthEnabled)
             {
                 SendPacket(new PasswordAuthRequestPacket());
 
@@ -152,9 +150,9 @@ namespace SecureSend.Endpoint
 
                     // Prevent timing attacks, we do password hashing first
                     byte[] hash = HashAlgorithm.Sha512.Hash(
-                            UTF8Encoding.UTF8.GetBytes(SecureSendMain.Instance.Password + pass.Salt));
+                            UTF8Encoding.UTF8.GetBytes(application.Password + pass.Salt));
                     bool correct = Enumerable.SequenceEqual(hash, pass.PasswordHash) &&
-                        pass.Username.Equals(SecureSendMain.Instance.Username);
+                        pass.Username.Equals(application.Username);
 
                     if (correct)
                     {

@@ -15,16 +15,21 @@ namespace SecureSend
     /// </summary>
     public partial class MainWindow : Window
     {
+        private SecureSendApp application;
+
         private NSec.Cryptography.Key? clientKeyPair;
         Server server;
         Client? client;
 
-        public MainWindow()
+        public MainWindow(SecureSendApp application)
         {
             InitializeComponent();
-            SecureSendMain.Instance.MainWindow = this;
-            server = new Server(this);
-            SecureSendMain.Instance.Server = server;
+
+            this.application = application;
+            application.MainWindow = this;
+            
+            server = new Server(application);
+            application.Server = server;
         }
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
@@ -70,7 +75,8 @@ namespace SecureSend
                 return;
             }
 
-            client = new Client(this);
+            client = new Client(application);
+            application.Client = client;
             client.Connect(connectWindow.IpAddress, connectWindow.Port);
         }
 
@@ -157,13 +163,13 @@ namespace SecureSend
 
         private void onChangePasswordAuthClick(object sender, RoutedEventArgs e)
         {
-            var window = new PasswordAuthWindow(true, SecureSendMain.Instance.Username);
+            var window = new PasswordAuthWindow(true, application.Username);
             window.Owner = this;
             window.ShowDialog();
 
-            SecureSendMain.Instance.Username = window.Username;
-            SecureSendMain.Instance.Password = window.Password;
-            SecureSendMain.Instance.PasswordAuthEnabled = true;
+            application.Username = window.Username;
+            application.Password = window.Password;
+            application.PasswordAuthEnabled = true;
         }
 
         private void onAllowIncomingConnectionsClick(object sender, RoutedEventArgs e)
@@ -181,7 +187,8 @@ namespace SecureSend
 
             Debug.WriteLine("enable incoming connections");
             allowIncomingConnections.IsChecked = true;
-            server = new Server(this);
+            server = new Server(application);
+            application.Server = server;
             server.StartServer();
         }
     }

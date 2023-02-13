@@ -16,7 +16,7 @@ namespace SecureSend
     {
         private NSec.Cryptography.Key? clientKeyPair;
         Server server;
-        Client client;
+        Client? client;
 
         public MainWindow()
         {
@@ -24,8 +24,6 @@ namespace SecureSend
             SecureSendMain.Instance.MainWindow = this;
             server = new Server(this);
             SecureSendMain.Instance.Server = server;
-            client = new Client(this);
-            SecureSendMain.Instance.Client = client;
         }
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
@@ -41,7 +39,7 @@ namespace SecureSend
 
         protected void disconnctBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (client.IsConnected())
+            if (client != null && client.IsConnected())
             {
                 client.Disconnect();
                 return;
@@ -56,7 +54,7 @@ namespace SecureSend
 
         private void connectBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (client.IsConnected() || server.IsConnected())
+            if ((client != null && client.IsConnected()) || server.IsConnected())
             {
                 return;
             }
@@ -70,13 +68,14 @@ namespace SecureSend
                 return;
             }
 
+            client = new Client(this);
             client.Connect(connectWindow.IpAddress, connectWindow.Port);
         }
 
         private void onWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            client.Disconnect();
-            client.GetThread()?.Interrupt();
+            client?.Disconnect();
+            client?.GetThread()?.Interrupt();
 
             server.StopServer();
             server.ServerThread?.Join();
@@ -84,7 +83,7 @@ namespace SecureSend
 
         private void sendFileButton_Click(object sender, RoutedEventArgs e)
         {
-            if (client.IsConnected())
+            if ((client != null && client.IsConnected()))
             {
                 client.GetFilesToSend().Enqueue(inputFilePath.Text.Trim());
                 return;

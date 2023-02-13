@@ -57,7 +57,7 @@ namespace SecureSend.Endpoint
                 }
 
                 SetConnected(true);
-                this.isClient = true;
+                this.client = true;
                 stream = connection.GetStream();
 
                 HandleConnection();

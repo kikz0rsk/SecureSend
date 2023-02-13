@@ -18,16 +18,19 @@ namespace SecureSend.Endpoint
     internal abstract class NetworkEndpoint
     {
         protected Key? symmetricKey;
-        protected NetworkStream stream;
-        protected TcpClient? connection;
-        protected ConcurrentQueue<string> filesToSend = new ConcurrentQueue<string>();
-        protected MainWindow mainWindow;
-        protected volatile bool connected = false;
-        protected volatile bool isClient = false;
-        protected byte[] lastSequenceForNonce = new byte[6];
-
         protected PublicKey remoteEndpointPublicKey;
         protected byte[] deviceFingerprint;
+
+        protected NetworkStream stream;
+        protected TcpClient? connection;
+        
+        protected ConcurrentQueue<string> filesToSend = new ConcurrentQueue<string>();
+        
+        protected MainWindow mainWindow;
+        
+        protected volatile bool connected = false;
+        protected volatile bool client = false;
+        protected byte[] lastSequenceForNonce = new byte[6];
 
         protected void SendUnencryptedPacket(Packet packet)
         {

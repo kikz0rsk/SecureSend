@@ -56,22 +56,20 @@ namespace SecureSend.Endpoint
 
             while (!stopSignal)
             {
+                filesToSend.Clear();
+
                 try
                 {
-                    filesToSend.Clear();
                     // accepting loop
                     SetConnected(false);
                     connection = serverSocket.AcceptTcpClient();
                     SetConnected(true);
-                    this.isClient = false;
+                    this.client = false;
                     stream = connection.GetStream();
 
                     HandleConnection();
                 }
-                catch (ThreadInterruptedException inter)
-                {
-                    throw inter;
-                }
+                catch (ThreadInterruptedException inter) { }
                 catch (SocketException ex) { }
                 catch (ConnectionClosedException) { }
                 catch (IOException ex)

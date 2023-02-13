@@ -32,12 +32,13 @@ namespace SecureSend.Base
 
         public void Load()
         {
-            List<Identity> identities = new List<Identity>();
-
             if (!File.Exists(KNOWN_HOSTS_FILENAME))
             {
+                Identities = new List<Identity>();
                 return;
             }
+
+            List<Identity> identities = new List<Identity>();
 
             byte[] bytes = File.ReadAllBytes(KNOWN_HOSTS_FILENAME);
             string entries = UTF8Encoding.UTF8.GetString(bytes, 0, bytes.Length).Trim();

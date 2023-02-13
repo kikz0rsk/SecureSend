@@ -10,16 +10,12 @@ namespace SecureSend
 {
     class SecureSendMain
     {
-        private static SecureSendMain instance;
+        private static SecureSendMain instance = new SecureSendMain();
 
         public static SecureSendMain Instance
         {
             get
             {
-                if (instance == null)
-                {
-                    instance = new SecureSendMain();
-                }
                 return instance;
             }
         }

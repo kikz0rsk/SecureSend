@@ -58,111 +58,9 @@ namespace SecureSend.Endpoint
 
                 SetConnected(true);
                 this.isClient = true;
-
-                Application.Current.Dispatcher.Invoke(new Action(() =>
-                {
-                    mainWindow.currentConnectionText.Content = "Vytvára sa bezpečný kanál...";
-                }));
-                
-
                 stream = connection.GetStream();
 
-                this.symmetricKey = EstablishTrust();
-                if (this.symmetricKey == null)
-                {
-                    Disconnect();
-                    Task.Run(() =>
-                    {
-                        MessageBox.Show("Nepodarilo sa nadviazať spoločný šifrovací kľúč.", "Chyba pri pripájaní k serveru",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    });
-                    return;
-                }
-
-                Application.Current.Dispatcher.Invoke(new Action(() =>
-                {
-                    mainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa...";
-                }));
-
-                bool authorized = AuthorizeAccess();
-                if (!authorized)
-                {
-                    SendPacket(new NackPacket());
-                    Disconnect();
-                    return;
-                }
-
-                SendPacket(new AckPacket());
-
-                try
-                {
-                    Packet? packet = ReceivePacket();
-                    if (packet == null || packet.GetType() != PacketType.ACK)
-                    {
-                        throw new InvalidDataException();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Disconnect();
-                    Task.Run(() =>
-                    {
-                        MessageBox.Show("Užívateľ odmietol žiadosť o pripojenie.", "Spojenie bolo odmietnuté",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    });
-                    return;
-                }
-
-                try
-                {
-                    Packet? packet = ReceivePacket();
-                    if (packet == null)
-                    {
-                        throw new InvalidDataException();
-                    }
-
-                    if(packet.GetType() == PacketType.PASSWORD_AUTH_REQ)
-                    {
-                        PasswordAuthWindow window = Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            PasswordAuthWindow window = new PasswordAuthWindow(false, null);
-                            window.Owner = SecureSendMain.Instance.MainWindow;
-                            window.ShowDialog();
-                            return window;
-                        });
-
-                        string salt = CryptoUtils.CreateSalt(16);
-                        byte[] hash = HashAlgorithm.Sha512.Hash(
-                                UTF8Encoding.UTF8.GetBytes(window.Password + salt));
-                        
-                        PasswordAuthPacket authPacket = new PasswordAuthPacket(window.Username, hash, salt);
-                        SendPacket(authPacket);
-
-                        packet = ReceivePacket();
-                        if(packet.GetType() == PacketType.NACK)
-                        {
-                            Task.Run(() =>
-                            {
-                                MessageBox.Show("Nesprávne meno alebo heslo.", "Spojenie bolo odmietnuté",
-                                MessageBoxButton.OK, MessageBoxImage.Error);
-                            });
-                            Disconnect();
-                            return;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Task.Run(() =>
-                    {
-                        MessageBox.Show(ex.ToString(), "Spojenie bolo odmietnuté",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    });
-                    return;
-                }
-
-                SetConnected(true);
-                CommunicationLoop();
+                HandleConnection();
             }
             catch (ThreadInterruptedException inter)
             { }
@@ -182,6 +80,111 @@ namespace SecureSend.Endpoint
                 Disconnect();
                 SetConnected(false);
             }
+        }
+
+        protected void HandleConnection()
+        {
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
+                mainWindow.currentConnectionText.Content = "Vytvára sa bezpečný kanál...";
+            }));
+
+            this.symmetricKey = EstablishTrust();
+            if (this.symmetricKey == null)
+            {
+                Disconnect();
+                Task.Run(() =>
+                {
+                    MessageBox.Show("Nepodarilo sa nadviazať spoločný šifrovací kľúč.", "Chyba pri pripájaní k serveru",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                });
+                return;
+            }
+
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
+                mainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa...";
+            }));
+
+            bool authorized = AuthorizeAccess();
+            if (!authorized)
+            {
+                SendPacket(new NackPacket());
+                Disconnect();
+                return;
+            }
+
+            SendPacket(new AckPacket());
+
+            try
+            {
+                Packet? packet = ReceivePacket();
+                if (packet == null || packet.GetType() != PacketType.ACK)
+                {
+                    throw new InvalidDataException();
+                }
+            }
+            catch (Exception ex)
+            {
+                Disconnect();
+                Task.Run(() =>
+                {
+                    MessageBox.Show("Užívateľ odmietol žiadosť o pripojenie.", "Spojenie bolo odmietnuté",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                });
+                return;
+            }
+
+            try
+            {
+                Packet? packet = ReceivePacket();
+                if (packet == null)
+                {
+                    throw new InvalidDataException();
+                }
+
+                if (packet.GetType() == PacketType.PASSWORD_AUTH_REQ)
+                {
+                    PasswordAuthWindow window = Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        PasswordAuthWindow window = new PasswordAuthWindow(false, null);
+                        window.Owner = SecureSendMain.Instance.MainWindow;
+                        window.ShowDialog();
+                        return window;
+                    });
+
+                    string salt = CryptoUtils.CreateSalt(16);
+                    byte[] hash = HashAlgorithm.Sha512.Hash(
+                            UTF8Encoding.UTF8.GetBytes(window.Password + salt));
+
+                    PasswordAuthPacket authPacket = new PasswordAuthPacket(window.Username, hash, salt);
+                    SendPacket(authPacket);
+
+                    packet = ReceivePacket();
+                    if (packet.GetType() == PacketType.NACK)
+                    {
+                        Task.Run(() =>
+                        {
+                            MessageBox.Show("Nesprávne meno alebo heslo.", "Spojenie bolo odmietnuté",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                        Disconnect();
+                        return;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() =>
+                {
+                    MessageBox.Show(ex.ToString(), "Spojenie bolo odmietnuté",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                });
+                return;
+            }
+
+            SetConnected(true);
+            CommunicationLoop();
         }
 
         protected override Key? EstablishTrust()

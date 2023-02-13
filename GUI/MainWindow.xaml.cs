@@ -6,6 +6,7 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using SecureSend.GUI;
 using SecureSend.Utils;
 using SecureSend.Base;
+using System.Diagnostics;
 
 namespace SecureSend
 {
@@ -64,7 +65,7 @@ namespace SecureSend
             connectWindow.Owner = this;
             connectWindow.ShowDialog();
 
-            if(connectWindow.IpAddress == null || connectWindow.Port == null)
+            if (connectWindow.IpAddress == null || connectWindow.Port == null)
             {
                 return;
             }
@@ -154,7 +155,7 @@ namespace SecureSend
             window.Show();
         }
 
-        private void changeLoginCredentials_Click(object sender, RoutedEventArgs e)
+        private void onChangePasswordAuthClick(object sender, RoutedEventArgs e)
         {
             var window = new PasswordAuthWindow(true, SecureSendMain.Instance.Username);
             window.Owner = this;
@@ -163,6 +164,25 @@ namespace SecureSend
             SecureSendMain.Instance.Username = window.Username;
             SecureSendMain.Instance.Password = window.Password;
             SecureSendMain.Instance.PasswordAuthEnabled = true;
+        }
+
+        private void onAllowIncomingConnectionsClick(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("onAllowIncomingConnectionsClick");
+            Debug.WriteLine("isChecked: " + allowIncomingConnections.IsChecked.ToString());
+            if (allowIncomingConnections.IsChecked)
+            {
+                Debug.WriteLine("disable incoming connections");
+                allowIncomingConnections.IsChecked = false;
+                server.StopServer();
+                statusPortText.Content = "Pripojenie na toto zariadenia nie je povolené";
+                return;
+            }
+
+            Debug.WriteLine("enable incoming connections");
+            allowIncomingConnections.IsChecked = true;
+            server = new Server(this);
+            server.StartServer();
         }
     }
 }

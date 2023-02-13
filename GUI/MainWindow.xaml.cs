@@ -28,6 +28,7 @@ namespace SecureSend
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
+            saveFolderLocation.Text = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Downloads";
             statusText.Content = "Načítavanie kľúča...";
             clientKeyPair = IdentityManager.Instance.GetKey();
             publicKeyText.Text = Convert.ToBase64String(clientKeyPair.PublicKey.Export(KeyBlobFormat.RawPublicKey));

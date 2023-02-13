@@ -22,7 +22,7 @@ namespace SecureSend.Endpoint
         public TcpListener? serverSocket;
         private Thread? thread;
 
-        private bool stopSignal = false;
+        private volatile bool stopSignal = false;
 
         public Server(MainWindow mainWindow)
         {

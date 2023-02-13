@@ -1,6 +1,5 @@
 ﻿using SecureSend.Utils;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace SecureSend.Protocol

@@ -5,7 +5,6 @@ using System.Text;
 using System.Management;
 using System.IO;
 using System.Security.Cryptography;
-using System.Windows;
 
 namespace SecureSend.Base
 {
@@ -81,12 +80,10 @@ namespace SecureSend.Base
             bool result = false;
             foreach(Identity identity in Identities)
             {
-                if(Enumerable.SequenceEqual(identity.DeviceFingerprint, deviceFingerprint))
+                if(Enumerable.SequenceEqual(identity.DeviceFingerprint, deviceFingerprint) &&
+                    Enumerable.SequenceEqual(identity.PublicKey, publicKey))
                 {
-                    if(Enumerable.SequenceEqual(identity.PublicKey, publicKey))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
 

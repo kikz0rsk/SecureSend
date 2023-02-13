@@ -27,9 +27,6 @@ namespace SecureSend
 
             this.application = application;
             application.MainWindow = this;
-            
-            server = new Server(application);
-            application.Server = server;
         }
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
@@ -40,6 +37,8 @@ namespace SecureSend
             publicKeyText.Text = Convert.ToBase64String(clientKeyPair.PublicKey.Export(KeyBlobFormat.RawPublicKey));
 
             statusText.Content = "Štart servera...";
+            var server = new Server(application);
+            application.Server = server;
             server.StartServer();
             statusText.Content = "Pripravené";
         }

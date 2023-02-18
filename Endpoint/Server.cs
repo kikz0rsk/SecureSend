@@ -42,7 +42,7 @@ namespace SecureSend.Endpoint
                 serverSocket = new TcpListener(IPAddress.Any, 23488);
                 serverSocket.Start();
             }
-            catch (SocketException ex)
+            catch (SocketException)
             {
                 serverSocket = new TcpListener(IPAddress.Any, 0);
                 serverSocket.Start();
@@ -67,10 +67,10 @@ namespace SecureSend.Endpoint
 
                     HandleConnection();
                 }
-                catch (ThreadInterruptedException inter) { }
-                catch (SocketException ex) { }
+                catch (ThreadInterruptedException) { }
+                catch (SocketException) { }
                 catch (ConnectionClosedException) { }
-                catch (IOException ex)
+                catch (IOException)
                 {
                     MessageBox.Show("Spojenie zlyhalo.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
@@ -118,12 +118,12 @@ namespace SecureSend.Endpoint
             try
             {
                 Packet? packet = ReceivePacket();
-                if (packet == null || packet.GetType() != PacketType.ACK)
+                if (packet == null || packet.GetPacketType() != PacketType.ACK)
                 {
                     throw new InvalidDataException();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Disconnect();
                 Task.Run(() =>
@@ -141,7 +141,7 @@ namespace SecureSend.Endpoint
                 try
                 {
                     Packet? packet = ReceivePacket();
-                    if (packet == null || packet.GetType() != PacketType.PASSWORD_AUTH_RESP)
+                    if (packet == null || packet.GetPacketType() != PacketType.PASSWORD_AUTH_RESP)
                     {
                         throw new InvalidDataException();
                     }
@@ -165,7 +165,7 @@ namespace SecureSend.Endpoint
                         return;
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return;
                 }

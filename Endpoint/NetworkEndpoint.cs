@@ -22,7 +22,7 @@ namespace SecureSend.Endpoint
         protected PublicKey remoteEndpointPublicKey;
         protected byte[] deviceFingerprint;
 
-        protected NetworkStream stream;
+        protected NetworkStream? stream;
         protected TcpClient? connection;
         
         protected ConcurrentQueue<string> filesToSend = new ConcurrentQueue<string>();
@@ -133,7 +133,7 @@ namespace SecureSend.Endpoint
                 {
                     Packet? dataPacket = ReceivePacket();
 
-                    if (dataPacket == null || dataPacket.GetType() != PacketType.DATA)
+                    if (dataPacket == null || dataPacket.GetPacketType() != PacketType.DATA)
                     {
                         throw new InvalidDataException("GetFile() received invalid packet");
                     }
@@ -298,7 +298,7 @@ namespace SecureSend.Endpoint
                             continue;
                         }
 
-                        if (packet.GetType() == PacketType.PREPARE_TRANSFER)
+                        if (packet.GetPacketType() == PacketType.PREPARE_TRANSFER)
                         {
                             ReceiveFile();
                         }
@@ -310,7 +310,7 @@ namespace SecureSend.Endpoint
                     {
                         Thread.Sleep(100);
                     }
-                } catch(SocketException ex)
+                } catch(SocketException)
                 {
                     break;
                 }

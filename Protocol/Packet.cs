@@ -128,7 +128,7 @@ namespace SecureSend.Protocol
             return UTF8Encoding.UTF8.GetString(input.Slice(4, length));
         }
 
-        public PacketType GetType()
+        public PacketType GetPacketType()
         {
             return type;
         }

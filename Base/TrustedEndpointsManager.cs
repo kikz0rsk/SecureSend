@@ -102,7 +102,7 @@ namespace SecureSend.Base
 
             try
             {
-                return disk["VolumeSerialNumber"].ToString();
+                return disk["VolumeSerialNumber"].ToString() ?? "";
             } catch(Exception)
             {
                 return "";
@@ -121,7 +121,7 @@ namespace SecureSend.Base
             {
                 foreach (ManagementObject queryObj in baseboardSearcher.Get())
                 {
-                    return queryObj["SerialNumber"].ToString();
+                    return queryObj["SerialNumber"].ToString() ?? "";
                 }
 
                 return "";

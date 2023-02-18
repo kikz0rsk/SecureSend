@@ -60,11 +60,11 @@ namespace SecureSend.Endpoint
 
                 HandleConnection();
             }
-            catch (ThreadInterruptedException inter)
+            catch (ThreadInterruptedException)
             { }
             catch (ConnectionClosedException)
             { }
-            catch(IOException ex)
+            catch(IOException)
             {
                 MessageBox.Show("Spojenie zlyhalo.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -117,12 +117,12 @@ namespace SecureSend.Endpoint
             try
             {
                 Packet? packet = ReceivePacket();
-                if (packet == null || packet.GetType() != PacketType.ACK)
+                if (packet == null || packet.GetPacketType() != PacketType.ACK)
                 {
                     throw new InvalidDataException();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Disconnect();
                 Task.Run(() =>
@@ -141,7 +141,7 @@ namespace SecureSend.Endpoint
                     throw new InvalidDataException();
                 }
 
-                if (packet.GetType() == PacketType.PASSWORD_AUTH_REQ)
+                if (packet.GetPacketType() == PacketType.PASSWORD_AUTH_REQ)
                 {
                     PasswordAuthWindow window = Application.Current.Dispatcher.Invoke(() =>
                     {
@@ -159,7 +159,7 @@ namespace SecureSend.Endpoint
                     SendPacket(authPacket);
 
                     packet = ReceivePacket();
-                    if (packet.GetType() == PacketType.NACK)
+                    if (packet.GetPacketType() == PacketType.NACK)
                     {
                         Task.Run(() =>
                         {

@@ -1,4 +1,5 @@
-﻿using SecureSend.Endpoint;
+﻿using SecureSend.Base;
+using SecureSend.Endpoint;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace SecureSend
         public SecureSendApp()
         {
             PasswordAuthEnabled = false;
+            Key = IdentityManager.Instance.GetKey();
         }
 
         public NSec.Cryptography.Key? Key { get; set; }
@@ -28,5 +30,19 @@ namespace SecureSend
         public string Username { get; set; }
 
         public string Password { get; set; }
+
+        public Server CreateServer()
+        {
+            Server server = new Server(this);
+            Server = server;
+            return server;
+        }
+
+        public Client CreateClient()
+        {
+            Client client = new Client(this);
+            Client = client;
+            return client;
+        }
     }
 }

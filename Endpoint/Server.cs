@@ -185,7 +185,7 @@ namespace SecureSend.Endpoint
             CryptoUtils.FillWithRandomBytes(sessionId);
 
             ServerHandshake serverHandshake = new ServerHandshake(
-                IdentityManager.Instance.GetKey().PublicKey.Export(
+                application.Key.PublicKey.Export(
                     KeyBlobFormat.RawPublicKey), sessionId, TrustedEndpointsManager.GetDeviceFingerprint());
 
             SendUnencryptedPacket(serverHandshake);
@@ -208,7 +208,7 @@ namespace SecureSend.Endpoint
             remoteEndpointPublicKey = PublicKey.Import(KeyAgreementAlgorithm.X25519, clientHandshake.PublicKey, KeyBlobFormat.RawPublicKey);
 
             // agree on shared secret
-            SharedSecret? sharedSecret = KeyAgreementAlgorithm.X25519.Agree(IdentityManager.Instance.GetKey(), remoteEndpointPublicKey);
+            SharedSecret? sharedSecret = KeyAgreementAlgorithm.X25519.Agree(application.Key, remoteEndpointPublicKey);
 
             if (sharedSecret == null)
             {

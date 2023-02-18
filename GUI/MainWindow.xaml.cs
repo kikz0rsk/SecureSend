@@ -17,7 +17,6 @@ namespace SecureSend
     {
         private SecureSendApp application;
 
-        private NSec.Cryptography.Key? clientKeyPair;
         Server server;
         Client? client;
 
@@ -32,13 +31,10 @@ namespace SecureSend
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
             saveFolderLocation.Text = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Downloads";
-            statusText.Content = "Načítavanie kľúča...";
-            clientKeyPair = IdentityManager.Instance.GetKey();
-            publicKeyText.Text = Convert.ToBase64String(clientKeyPair.PublicKey.Export(KeyBlobFormat.RawPublicKey));
+            publicKeyText.Text = Convert.ToBase64String(application.Key.PublicKey.Export(KeyBlobFormat.RawPublicKey));
 
             statusText.Content = "Štart servera...";
-            var server = new Server(application);
-            application.Server = server;
+            server = application.CreateServer();
             server.StartServer();
             statusText.Content = "Pripravené";
         }
@@ -84,8 +80,8 @@ namespace SecureSend
             client?.Disconnect();
             client?.GetThread()?.Interrupt();
 
-            server.StopServer();
-            server.ServerThread?.Join();
+            server?.StopServer();
+            server?.ServerThread?.Join();
         }
 
         private void sendFileButton_Click(object sender, RoutedEventArgs e)

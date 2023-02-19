@@ -17,13 +17,14 @@ namespace SecureSend.Protocol
         public byte[] BuildPacket()
         {
             byte[] payload = EncodePayload();
-            byte[] output = {(byte)type};
+            byte[] output = { (byte)type };
             return output.Concat(payload).ToArray();
         }
 
         protected abstract byte[] EncodePayload();
 
-        public static Packet? Deserialize(ReadOnlySpan<byte> packetBytes) {
+        public static Packet? Deserialize(ReadOnlySpan<byte> packetBytes)
+        {
             PacketType? typeCode = (PacketType)packetBytes[0];
 
             var payload = packetBytes.Slice(1);
@@ -46,7 +47,7 @@ namespace SecureSend.Protocol
                 case PacketType.PASSWORD_AUTH_REQ:
                     return new PasswordAuthRequestPacket();
                 case PacketType.PASSWORD_AUTH_RESP:
-                    return PasswordAuthPacket.DecodeFromBytes(payload);
+                    return PasswordAuthResponsePacket.DecodeFromBytes(payload);
                 default:
                     return null;
             }

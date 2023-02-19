@@ -146,7 +146,7 @@ namespace SecureSend.Endpoint
                         throw new InvalidDataException();
                     }
 
-                    PasswordAuthPacket pass = (PasswordAuthPacket)packet;
+                    PasswordAuthResponsePacket pass = (PasswordAuthResponsePacket)packet;
 
                     // Prevent timing attacks, we do password hashing first
                     byte[] hash = HashAlgorithm.Sha512.Hash(

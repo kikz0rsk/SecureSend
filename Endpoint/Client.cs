@@ -155,7 +155,7 @@ namespace SecureSend.Endpoint
                     byte[] hash = HashAlgorithm.Sha512.Hash(
                             UTF8Encoding.UTF8.GetBytes(window.Password + salt));
 
-                    PasswordAuthPacket authPacket = new PasswordAuthPacket(window.Username, hash, salt);
+                    PasswordAuthResponsePacket authPacket = new PasswordAuthResponsePacket(window.Username, hash, salt);
                     SendPacket(authPacket);
 
                     packet = ReceivePacket();

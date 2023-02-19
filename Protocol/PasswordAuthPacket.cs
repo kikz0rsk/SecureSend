@@ -4,13 +4,13 @@ using System.Linq;
 
 namespace SecureSend.Protocol
 {
-    internal class PasswordAuthPacket : Packet
+    internal class PasswordAuthResponsePacket : Packet
     {
         byte[] passwordHash;
         string salt;
         string username;
 
-        public PasswordAuthPacket(string username, byte[] passwordHash, string salt) : base(PacketType.PASSWORD_AUTH_RESP)
+        public PasswordAuthResponsePacket(string username, byte[] passwordHash, string salt) : base(PacketType.PASSWORD_AUTH_RESP)
         {
             this.passwordHash = passwordHash;
             this.salt = salt;
@@ -24,14 +24,14 @@ namespace SecureSend.Protocol
                 .Concat(EncodeVarLengthString(this.salt)).ToArray();
         }
 
-        public static PasswordAuthPacket DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
+        public static PasswordAuthResponsePacket DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
         {
             PacketDecoder decoder = new PacketDecoder();
             string username = decoder.DecodeVarLengthString(payloadBytes);
             byte[] hash = decoder.DecodeVarLengthBytes(payloadBytes);
             string salt = decoder.DecodeVarLengthString(payloadBytes);
 
-            return new PasswordAuthPacket(username, hash, salt);
+            return new PasswordAuthResponsePacket(username, hash, salt);
         }
 
         public byte[] PasswordHash { get { return passwordHash; } }

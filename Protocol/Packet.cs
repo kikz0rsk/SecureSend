@@ -39,8 +39,6 @@ namespace SecureSend.Protocol
                     return new AckPacket();
                 case PacketType.NACK:
                     return new NackPacket();
-                case PacketType.DISCONNECT:
-                    return new DisconnectPacket();
                 case PacketType.SERVER_HANDSHAKE:
                     return ServerHandshake.DecodeFromBytes(payload);
                 case PacketType.CLIENT_HANDSHAKE:

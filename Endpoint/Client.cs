@@ -58,7 +58,7 @@ namespace SecureSend.Endpoint
                     return;
                 } catch(SocketException ex)
                 {
-                    MessageBox.Show("Chyba pri pripájaní. Podrobnosti: " + ex.ToString(), "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Chyba pri pripájaní. Podrobnosti: " + ex.Message, "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 } finally
                 {
@@ -78,7 +78,9 @@ namespace SecureSend.Endpoint
             { }
             catch (ConnectionClosedException)
             { }
-            catch(IOException)
+            catch (SocketException)
+            { }
+            catch (IOException)
             {
                 MessageBox.Show("Spojenie zlyhalo.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
             }

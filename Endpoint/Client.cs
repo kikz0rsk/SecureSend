@@ -40,6 +40,14 @@ namespace SecureSend.Endpoint
             try
             {
                 connection = new TcpClient();
+
+                Application.Current.Dispatcher.Invoke(new Action(() =>
+                {
+                    application.MainWindow.currentConnectionText.Content = "Prebieha pripájanie...";
+                    application.MainWindow.disconnectBtn.IsEnabled = false;
+                    application.MainWindow.connectBtn.IsEnabled = false;
+                }));
+
                 try
                 {
                     connection.Connect(IPAddress.Parse(ipAddress), int.Parse(port));
@@ -52,6 +60,12 @@ namespace SecureSend.Endpoint
                 {
                     MessageBox.Show("Chyba pri pripájaní. Podrobnosti: " + ex.ToString(), "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
+                } finally
+                {
+                    if(!connection.Connected)
+                    {
+                        SetConnected(false);
+                    }
                 }
 
                 SetConnected(true);

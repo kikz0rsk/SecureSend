@@ -102,12 +102,20 @@ namespace SecureSend
         {
             currentConnectionText.Content = "Pripojené";
             disconnectBtn.IsEnabled = true;
+            connectBtn.IsEnabled = false;
+            SetProgress(0, 1);
+            statusText.Content = "Pripravené";
+            sendFileButton.IsEnabled = true;
         }
 
         public void SetDisconnected()
         {
             currentConnectionText.Content = "Žiadne spojenie";
             disconnectBtn.IsEnabled = false;
+            connectBtn.IsEnabled = true;
+            SetProgress(0, 1);
+            statusText.Content = "Pripravené";
+            sendFileButton.IsEnabled = false;
         }
 
         public void SetBusy()

@@ -24,16 +24,17 @@ namespace SecureSend.Endpoint
 
         protected NetworkStream? stream;
         protected TcpClient? connection;
-        
+
         protected ConcurrentQueue<string> filesToSend = new ConcurrentQueue<string>();
-        
+
         protected SecureSendApp application;
-        
+
         protected volatile bool connected = false;
         protected volatile bool client = false;
         protected byte[] lastSequenceForNonce = new byte[6];
 
-        public NetworkEndpoint(SecureSendApp application) {
+        public NetworkEndpoint(SecureSendApp application)
+        {
             this.application = application;
         }
 
@@ -97,21 +98,23 @@ namespace SecureSend.Endpoint
 
         protected void ReceiveFile()
         {
-            Application.Current.Dispatcher.Invoke(new Action(() => {
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
                 application.MainWindow.fileProgressBar.IsIndeterminate = true;
                 application.MainWindow.sendFileButton.IsEnabled = false;
                 application.MainWindow.statusText.Content = "Odosielacie zariadenie začína prenos";
             }));
 
             Packet? packet = ReceivePacket();
-            if(packet == null)
+            if (packet == null)
             {
                 return;
             }
 
             FileInfoPacket fileInfo = (FileInfoPacket)packet;
 
-            Application.Current.Dispatcher.Invoke(new Action(() => {
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
                 application.MainWindow.statusText.Content = "Prichádzajúci súbor " + fileInfo.GetFileName();
                 application.MainWindow.fileProgressBar.Value = 0;
                 application.MainWindow.sendFileButton.IsEnabled = false;
@@ -120,7 +123,8 @@ namespace SecureSend.Endpoint
 
             ulong totalBytes = fileInfo.GetFileSize();
 
-            string saveFolder = Application.Current.Dispatcher.Invoke(() => {
+            string saveFolder = Application.Current.Dispatcher.Invoke(() =>
+            {
                 return application.MainWindow.saveFolderLocation.Text.Trim();
             });
 
@@ -142,13 +146,15 @@ namespace SecureSend.Endpoint
 
                     fileStream.Write(data);
                     bytesWritten += (ulong)data.Length;
-                    Application.Current.Dispatcher.InvokeAsync(new Action(() => {
+                    Application.Current.Dispatcher.InvokeAsync(new Action(() =>
+                    {
                         application.MainWindow.SetProgress(bytesWritten, totalBytes);
                     }));
                 }
             }
 
-            Application.Current.Dispatcher.Invoke(new Action(() => {
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
                 application.MainWindow.statusText.Content = "Overuje sa kontrolný súčet súboru...";
                 application.MainWindow.fileProgressBar.IsIndeterminate = true;
             }));
@@ -158,15 +164,26 @@ namespace SecureSend.Endpoint
                 byte[] hash = CryptoUtils.CalculateFileHash(savePath);
 
                 bool isValid = Enumerable.SequenceEqual(fileInfo.GetHash(), hash);
-                if(!isValid)
+                if (isValid)
                 {
+                    SendPacket(new AckPacket());
+                    Task.Run(() =>
+                    {
+                        MessageBox.Show("Súbor " + fileInfo.GetFileName() + " bol úspešne prijatý", "Súbor prijatý", MessageBoxButton.OK, MessageBoxImage.Information);
+                    });
+                }
+                else
+                {
+                    SendPacket(new NackPacket());
                     Task.Run(() =>
                     {
                         MessageBox.Show("Kontrolný súčet sa nezhoduje! Súbor je pravdepodobne poškodený. Zopakujte prenos.", "Súbor je poškodený",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     });
                 }
-            } catch(Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 Task.Run(() =>
                 {
                     MessageBox.Show("Integritu súboru sa nepodarilo overiť: " + ex.ToString(), "Chyba pri overovaní súboru",
@@ -174,17 +191,13 @@ namespace SecureSend.Endpoint
                 });
             }
 
-            Application.Current.Dispatcher.InvokeAsync(new Action(() => {
+            Application.Current.Dispatcher.InvokeAsync(new Action(() =>
+            {
                 application.MainWindow.SetProgress(0, 1);
                 application.MainWindow.statusText.Content = "Súbor bol prijatý";
                 application.MainWindow.sendFileButton.IsEnabled = true;
                 application.MainWindow.fileProgressBar.IsIndeterminate = false;
             }));
-
-            Task.Run(() =>
-            {
-                MessageBox.Show("Súbor " + fileInfo.GetFileName() + " bol úspešne prijatý", "Súbor prijatý", MessageBoxButton.OK, MessageBoxImage.Information);
-            });
         }
 
         protected void SendFile()
@@ -199,7 +212,8 @@ namespace SecureSend.Endpoint
 
             SendPacket(new PrepareTransferPacket());
 
-            Application.Current.Dispatcher.Invoke(new Action(() => {
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
                 application.MainWindow.fileProgressBar.Value = 0;
                 application.MainWindow.fileProgressBar.IsIndeterminate = true;
                 application.MainWindow.sendFileButton.IsEnabled = false;
@@ -210,7 +224,8 @@ namespace SecureSend.Endpoint
 
             byte[] hash = CryptoUtils.CalculateFileHash(filePathString);
 
-            Application.Current.Dispatcher.Invoke(new Action(() => {
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
                 application.MainWindow.fileProgressBar.IsIndeterminate = false;
                 application.MainWindow.statusText.Content = "Odosiela sa súbor...";
             }));
@@ -228,22 +243,45 @@ namespace SecureSend.Endpoint
                     DataPacket data = new DataPacket(buffer.Take(bytesRead).ToArray());
                     SendPacket(data);
                     bytesSent += (ulong)bytesRead;
-                    Application.Current.Dispatcher.InvokeAsync(new Action(() => {
+                    Application.Current.Dispatcher.InvokeAsync(new Action(() =>
+                    {
                         application.MainWindow.SetProgress(bytesSent, totalBytes);
                     }));
                 }
             }
 
-            Application.Current.Dispatcher.InvokeAsync(new Action(() => {
+            Application.Current.Dispatcher.InvokeAsync(new Action(() =>
+            {
+                application.MainWindow.statusText.Content = "Prijímajúce zariadenie overuje integritu súboru...";
+                application.MainWindow.fileProgressBar.IsIndeterminate = true;
+            }));
+
+            Packet? result = ReceivePacket();
+
+            if (result.GetPacketType() == PacketType.ACK)
+            {
+                Task.Run(() =>
+                {
+                    MessageBox.Show("Súbor " + fileInfoPacket.GetFileName() + " bol úspešne odoslaný",
+                        "Súbor odoslaný", MessageBoxButton.OK, MessageBoxImage.Information);
+                });
+            }
+            else
+            {
+                Task.Run(() =>
+                {
+                    MessageBox.Show("Kontrolný súčet sa nezhoduje! Súbor na druhej strane je pravdepodobne poškodený. Zopakujte prenos.",
+                        "Súbor poškodený", MessageBoxButton.OK, MessageBoxImage.Warning);
+                });
+            }
+
+            Application.Current.Dispatcher.InvokeAsync(new Action(() =>
+            {
                 application.MainWindow.statusText.Content = "Súbor bol odoslaný";
                 application.MainWindow.sendFileButton.IsEnabled = true;
                 application.MainWindow.SetProgress(0, 1);
+                application.MainWindow.fileProgressBar.IsIndeterminate = false;
             }));
-
-            Task.Run(() =>
-            {
-                MessageBox.Show("Súbor " + fileInfoPacket.GetFileName() + " bol úspešne odoslaný", "Súbor odoslaný", MessageBoxButton.OK, MessageBoxImage.Information);
-            });
         }
 
         protected bool AuthorizeAccess()
@@ -286,7 +324,7 @@ namespace SecureSend.Endpoint
                 {
                     if (connection.Client.Poll(1000, SelectMode.SelectRead))
                     {
-                        if(!stream.DataAvailable)
+                        if (!stream.DataAvailable)
                         {
                             return;
                         }
@@ -306,11 +344,13 @@ namespace SecureSend.Endpoint
                     else if (filesToSend.Count > 0)
                     {
                         SendFile();
-                    } else
+                    }
+                    else
                     {
                         Thread.Sleep(100);
                     }
-                } catch(SocketException)
+                }
+                catch (SocketException)
                 {
                     break;
                 }
@@ -331,7 +371,7 @@ namespace SecureSend.Endpoint
         public void SetConnected(bool connected)
         {
             this.connected = connected;
-            if(connected)
+            if (connected)
             {
                 Application.Current.Dispatcher.Invoke(new Action(() => { application.MainWindow.SetConnected(); }));
                 return;
@@ -347,7 +387,7 @@ namespace SecureSend.Endpoint
 
         protected void IncrementNonce()
         {
-            for(int i = 5; i >= 0; i--)
+            for (int i = 5; i >= 0; i--)
             {
                 bool carry = false;
                 if (lastSequenceForNonce[i] == 255)
@@ -358,7 +398,7 @@ namespace SecureSend.Endpoint
                 }
 
                 lastSequenceForNonce[i]++;
-                if(!carry)
+                if (!carry)
                 {
                     return;
                 }

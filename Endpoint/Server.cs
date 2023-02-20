@@ -49,8 +49,10 @@ namespace SecureSend.Endpoint
             }
 
             port = ((IPEndPoint)serverSocket.LocalEndpoint).Port;
-            Application.Current.Dispatcher.Invoke(new Action(() => {
-                application.MainWindow.statusPortText.Content = "Port pre pripojenie: " + port.ToString(); }));
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
+                application.MainWindow.statusPortText.Content = "Port pre pripojenie: " + port.ToString();
+            }));
 
             while (!stopSignal)
             {

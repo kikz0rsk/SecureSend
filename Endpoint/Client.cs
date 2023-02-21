@@ -132,8 +132,8 @@ namespace SecureSend.Endpoint
 
             try
             {
-                Packet? packet = ReceivePacket();
-                if (packet == null || packet.GetPacketType() != PacketType.ACK)
+                Packet packet = ReceivePacket();
+                if (packet.GetPacketType() != PacketType.ACK)
                 {
                     throw new InvalidDataException();
                 }
@@ -151,11 +151,7 @@ namespace SecureSend.Endpoint
 
             try
             {
-                Packet? packet = ReceivePacket();
-                if (packet == null)
-                {
-                    throw new InvalidDataException();
-                }
+                Packet packet = ReceivePacket();
 
                 if (packet.GetPacketType() == PacketType.PASSWORD_AUTH_REQ)
                 {

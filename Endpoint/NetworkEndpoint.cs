@@ -53,8 +53,6 @@ namespace SecureSend.Endpoint
 
             Packet? packet = Packet.Deserialize(packetBytes);
 
-            if (packet == null) throw new InvalidDataException("Could not deserialize packet");
-
             return packet;
         }
 
@@ -75,23 +73,26 @@ namespace SecureSend.Endpoint
             stream.Write(bytesToSend, 0, bytesToSend.Length);
         }
 
-        protected Packet? ReceivePacket()
+        protected Packet ReceivePacket()
         {
-            ushort packetLength = Packet.DecodeUShort(NetworkUtils.ReadExactlyBytes(stream, 2));
+            while(true)
+            {
+                ushort packetLength = Packet.DecodeUShort(NetworkUtils.ReadExactlyBytes(stream, 2));
 
-            byte[] encryptedPacket = NetworkUtils.ReadExactlyBytes(stream, packetLength);
+                byte[] encryptedPacket = NetworkUtils.ReadExactlyBytes(stream, packetLength);
 
-            byte[] nonce = encryptedPacket.Take(12).ToArray();
-            byte[] payload = encryptedPacket.Skip(12).ToArray();
-            byte[]? decryptedPacketBytes = CryptoUtils.DecryptBytes(payload, symmetricKey, nonce);
+                byte[] nonce = encryptedPacket.Take(12).ToArray();
+                byte[] payload = encryptedPacket.Skip(12).ToArray();
+                byte[]? decryptedPacketBytes = CryptoUtils.DecryptBytes(payload, symmetricKey, nonce);
 
-            if (decryptedPacketBytes == null) throw new InvalidDataException("Could not decrypt packet");
+                if (decryptedPacketBytes == null) continue;
 
-            Packet? packet = Packet.Deserialize(decryptedPacketBytes);
+                Packet? packet = Packet.Deserialize(decryptedPacketBytes);
 
-            if (packet == null) throw new InvalidDataException("Could not deserialize packet");
+                if (packet == null) continue;
 
-            return packet;
+                return packet;
+            }
         }
 
         protected abstract Key? EstablishTrust();
@@ -105,11 +106,7 @@ namespace SecureSend.Endpoint
                 application.MainWindow.statusText.Content = "Odosielacie zariadenie začína prenos";
             }));
 
-            Packet? packet = ReceivePacket();
-            if (packet == null)
-            {
-                return;
-            }
+            Packet packet = ReceivePacket();
 
             FileInfoPacket fileInfo = (FileInfoPacket)packet;
 
@@ -135,9 +132,9 @@ namespace SecureSend.Endpoint
                 ulong bytesWritten = 0;
                 while (bytesWritten < totalBytes)
                 {
-                    Packet? dataPacket = ReceivePacket();
+                    Packet dataPacket = ReceivePacket();
 
-                    if (dataPacket == null || dataPacket.GetPacketType() != PacketType.DATA)
+                    if (dataPacket.GetPacketType() != PacketType.DATA)
                     {
                         throw new InvalidDataException("GetFile() received invalid packet");
                     }
@@ -329,12 +326,7 @@ namespace SecureSend.Endpoint
                             return;
                         }
 
-                        Packet? packet = ReceivePacket();
-
-                        if (packet == null)
-                        {
-                            continue;
-                        }
+                        Packet packet = ReceivePacket();
 
                         if (packet.GetPacketType() == PacketType.PREPARE_TRANSFER)
                         {

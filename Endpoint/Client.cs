@@ -8,7 +8,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using Packet = SecureSend.Protocol.Packet;
+using NetworkSegment = SecureSend.Protocol.NetworkSegment;
 using SecureSend.Utils;
 using SecureSend.Base;
 using System.Text;
@@ -123,17 +123,17 @@ namespace SecureSend.Endpoint
             bool authorized = AuthorizeAccess();
             if (!authorized)
             {
-                SendPacket(new NackPacket());
+                SendEncryptedSegment(new NackSegment());
                 Disconnect();
                 return;
             }
 
-            SendPacket(new AckPacket());
+            SendEncryptedSegment(new AckSegment());
 
             try
             {
-                Packet packet = ReceivePacket();
-                if (packet.GetPacketType() != PacketType.ACK)
+                NetworkSegment segment = ReceiveSegment();
+                if (segment.GetSegmentType() != SegmentType.ACK)
                 {
                     throw new InvalidDataException();
                 }
@@ -151,9 +151,9 @@ namespace SecureSend.Endpoint
 
             try
             {
-                Packet packet = ReceivePacket();
+                NetworkSegment segment = ReceiveSegment();
 
-                if (packet.GetPacketType() == PacketType.PASSWORD_AUTH_REQ)
+                if (segment.GetSegmentType() == SegmentType.PASSWORD_AUTH_REQ)
                 {
                     PasswordAuthWindow window = Application.Current.Dispatcher.Invoke(() =>
                     {
@@ -167,11 +167,10 @@ namespace SecureSend.Endpoint
                     byte[] hash = HashAlgorithm.Sha512.Hash(
                             UTF8Encoding.UTF8.GetBytes(window.Password + salt));
 
-                    PasswordAuthResponsePacket authPacket = new PasswordAuthResponsePacket(window.Username, hash, salt);
-                    SendPacket(authPacket);
+                    SendEncryptedSegment(new PasswordAuthResponseSegment(window.Username, hash, salt));
 
-                    packet = ReceivePacket();
-                    if (packet.GetPacketType() == PacketType.NACK)
+                    segment = ReceiveSegment();
+                    if (segment.GetSegmentType() == SegmentType.NACK)
                     {
                         Task.Run(() =>
                         {
@@ -203,16 +202,16 @@ namespace SecureSend.Endpoint
                 IdentityManager.Instance.GetKey().PublicKey.Export(
                     KeyBlobFormat.RawPublicKey), 0, TrustedEndpointsManager.GetDeviceFingerprint());
 
-            SendUnencryptedPacket(clientHandshake);
+            SendUnencryptedSegment(clientHandshake);
 
-            Packet? packet = ReceiveUnencryptedPacket();
+            NetworkSegment? segment = ReceiveUnencryptedSegment();
 
-            if (packet == null) return null;
+            if (segment == null) return null;
 
             ServerHandshake serverHandshake;
             try
             {
-                serverHandshake = (ServerHandshake)packet;
+                serverHandshake = (ServerHandshake)segment;
             }
             catch (InvalidCastException)
             {

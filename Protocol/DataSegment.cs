@@ -2,16 +2,16 @@
 
 namespace SecureSend.Protocol
 {
-    internal class DataPacket : Packet
+    internal class DataSegment : NetworkSegment
     {
         protected byte[] data;
 
-        public DataPacket(byte[] data) : base(PacketType.DATA)
+        public DataSegment(byte[] data) : base(SegmentType.DATA)
         {
             this.data = data;
         }
 
-        public DataPacket(ReadOnlySpan<byte> data) : this(data.ToArray())
+        public DataSegment(ReadOnlySpan<byte> data) : this(data.ToArray())
         { }
 
         protected override byte[] EncodePayload()

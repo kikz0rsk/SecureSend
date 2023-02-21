@@ -1,8 +1,8 @@
 ﻿namespace SecureSend.Protocol
 {
-    internal class PrepareTransferPacket : Packet
+    internal class PasswordAuthRequestSegment : NetworkSegment
     {
-        public PrepareTransferPacket() : base(PacketType.PREPARE_TRANSFER)
+        public PasswordAuthRequestSegment() : base(SegmentType.PASSWORD_AUTH_REQ)
         { }
 
         protected override byte[] EncodePayload()

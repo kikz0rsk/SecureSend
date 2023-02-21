@@ -110,17 +110,17 @@ namespace SecureSend.Endpoint
             bool authorized = AuthorizeAccess();
             if (!authorized)
             {
-                SendPacket(new NackPacket());
+                SendEncryptedSegment(new NackSegment());
                 Disconnect();
                 return;
             }
 
-            SendPacket(new AckPacket());
+            SendEncryptedSegment(new AckSegment());
 
             try
             {
-                Packet packet = ReceivePacket();
-                if (packet.GetPacketType() != PacketType.ACK)
+                NetworkSegment segment = ReceiveSegment();
+                if (segment.GetSegmentType() != SegmentType.ACK)
                 {
                     throw new InvalidDataException();
                 }
@@ -138,17 +138,17 @@ namespace SecureSend.Endpoint
 
             if (application.PasswordAuthEnabled)
             {
-                SendPacket(new PasswordAuthRequestPacket());
+                SendEncryptedSegment(new PasswordAuthRequestSegment());
 
                 try
                 {
-                    Packet packet = ReceivePacket();
-                    if (packet.GetPacketType() != PacketType.PASSWORD_AUTH_RESP)
+                    NetworkSegment segment = ReceiveSegment();
+                    if (segment.GetSegmentType() != SegmentType.PASSWORD_AUTH_RESP)
                     {
                         throw new InvalidDataException();
                     }
 
-                    PasswordAuthResponsePacket pass = (PasswordAuthResponsePacket)packet;
+                    PasswordAuthResponseSegment pass = (PasswordAuthResponseSegment)segment;
 
                     // Prevent timing attacks, we do password hashing first
                     byte[] hash = HashAlgorithm.Sha512.Hash(
@@ -158,11 +158,11 @@ namespace SecureSend.Endpoint
 
                     if (correct)
                     {
-                        SendPacket(new AckPacket());
+                        SendEncryptedSegment(new AckSegment());
                     }
                     else
                     {
-                        SendPacket(new NackPacket());
+                        SendEncryptedSegment(new NackSegment());
                         Disconnect();
                         return;
                     }
@@ -174,7 +174,7 @@ namespace SecureSend.Endpoint
             }
             else
             {
-                SendPacket(new AckPacket());
+                SendEncryptedSegment(new AckSegment());
             }
 
             SetConnected(true);
@@ -190,16 +190,16 @@ namespace SecureSend.Endpoint
                 application.Key.PublicKey.Export(
                     KeyBlobFormat.RawPublicKey), sessionId, TrustedEndpointsManager.GetDeviceFingerprint());
 
-            SendUnencryptedPacket(serverHandshake);
+            SendUnencryptedSegment(serverHandshake);
 
-            Packet? packet = ReceiveUnencryptedPacket();
+            NetworkSegment? segment = ReceiveUnencryptedSegment();
 
-            if (packet == null) return null;
+            if (segment == null) return null;
 
             ClientHandshake clientHandshake;
             try
             {
-                clientHandshake = (ClientHandshake)packet;
+                clientHandshake = (ClientHandshake)segment;
             }
             catch (InvalidCastException)
             {

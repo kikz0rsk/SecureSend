@@ -1,18 +1,17 @@
-﻿using System;
+﻿using NSec.Cryptography;
+using SecureSend.Base;
+using SecureSend.GUI;
+using SecureSend.Protocol;
+using SecureSend.Utils;
+using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using SecureSend.Protocol;
-using NSec.Cryptography;
-using SecureSend.Utils;
-using SecureSend.Base;
-using SecureSend.GUI;
-using System.Net;
-using System.Reflection;
 
 namespace SecureSend.Endpoint
 {
@@ -38,27 +37,27 @@ namespace SecureSend.Endpoint
             this.application = application;
         }
 
-        protected void SendUnencryptedPacket(Packet packet)
+        protected void SendUnencryptedSegment(NetworkSegment segment)
         {
-            byte[] serializedPacket = packet.BuildPacket();
+            byte[] serializedSegment = segment.BuildSegment();
 
-            byte[] bytesToSend = Packet.EncodeUShort(Convert.ToUInt16(serializedPacket.Length)).Concat(serializedPacket).ToArray();
+            byte[] bytesToSend = NetworkSegment.EncodeUShort(Convert.ToUInt16(serializedSegment.Length)).Concat(serializedSegment).ToArray();
             stream.Write(bytesToSend, 0, bytesToSend.Length);
         }
 
-        protected Packet? ReceiveUnencryptedPacket()
+        protected NetworkSegment? ReceiveUnencryptedSegment()
         {
-            ushort packetLength = Packet.DecodeUShort(NetworkUtils.ReadExactlyBytes(stream, 2));
-            byte[] packetBytes = NetworkUtils.ReadExactlyBytes(stream, packetLength);
+            ushort segmentLength = NetworkSegment.DecodeUShort(NetworkUtils.ReadExactlyBytes(stream, 2));
+            byte[] segmentBytes = NetworkUtils.ReadExactlyBytes(stream, segmentLength);
 
-            Packet? packet = Packet.Deserialize(packetBytes);
+            NetworkSegment? segment = NetworkSegment.Deserialize(segmentBytes);
 
-            return packet;
+            return segment;
         }
 
-        protected void SendPacket(Packet packet)
+        protected void SendEncryptedSegment(NetworkSegment segment)
         {
-            byte[] serializedPacket = packet.BuildPacket();
+            byte[] serializedSegment = segment.BuildSegment();
 
             byte[] nonceRandom = new byte[6];
             CryptoUtils.FillWithRandomBytes(nonceRandom);
@@ -66,32 +65,32 @@ namespace SecureSend.Endpoint
             byte[] nonce = nonceRandom.Concat(lastSequenceForNonce).ToArray();
             IncrementNonce();
 
-            byte[] encryptedPayload = AeadAlgorithm.Aes256Gcm.Encrypt(symmetricKey, nonce, null, serializedPacket);
+            byte[] encryptedPayload = AeadAlgorithm.Aes256Gcm.Encrypt(symmetricKey, nonce, null, serializedSegment);
 
-            byte[] packetLengthBytes = Packet.EncodeUShort(Convert.ToUInt16(encryptedPayload.Length + 12)); // Nonce is 12 bytes
-            byte[] bytesToSend = packetLengthBytes.Concat(nonce).Concat(encryptedPayload).ToArray();
+            byte[] segmentLengthBytes = NetworkSegment.EncodeUShort(Convert.ToUInt16(encryptedPayload.Length + 12)); // Nonce is 12 bytes
+            byte[] bytesToSend = segmentLengthBytes.Concat(nonce).Concat(encryptedPayload).ToArray();
             stream.Write(bytesToSend, 0, bytesToSend.Length);
         }
 
-        protected Packet ReceivePacket()
+        protected NetworkSegment ReceiveSegment()
         {
             while(true)
             {
-                ushort packetLength = Packet.DecodeUShort(NetworkUtils.ReadExactlyBytes(stream, 2));
+                ushort segmentLength = NetworkSegment.DecodeUShort(NetworkUtils.ReadExactlyBytes(stream, 2));
 
-                byte[] encryptedPacket = NetworkUtils.ReadExactlyBytes(stream, packetLength);
+                byte[] encryptedSegment = NetworkUtils.ReadExactlyBytes(stream, segmentLength);
 
-                byte[] nonce = encryptedPacket.Take(12).ToArray();
-                byte[] payload = encryptedPacket.Skip(12).ToArray();
-                byte[]? decryptedPacketBytes = CryptoUtils.DecryptBytes(payload, symmetricKey, nonce);
+                byte[] nonce = encryptedSegment.Take(12).ToArray();
+                byte[] payload = encryptedSegment.Skip(12).ToArray();
+                byte[]? decryptedSegmentBytes = CryptoUtils.DecryptBytes(payload, symmetricKey, nonce);
 
-                if (decryptedPacketBytes == null) continue;
+                if (decryptedSegmentBytes == null) continue;
 
-                Packet? packet = Packet.Deserialize(decryptedPacketBytes);
+                NetworkSegment? segment = NetworkSegment.Deserialize(decryptedSegmentBytes);
 
-                if (packet == null) continue;
+                if (segment == null) continue;
 
-                return packet;
+                return segment;
             }
         }
 
@@ -106,9 +105,9 @@ namespace SecureSend.Endpoint
                 application.MainWindow.statusText.Content = "Odosielacie zariadenie začína prenos";
             }));
 
-            Packet packet = ReceivePacket();
+            NetworkSegment segment = ReceiveSegment();
 
-            FileInfoPacket fileInfo = (FileInfoPacket)packet;
+            FileInfoSegment fileInfo = (FileInfoSegment)segment;
 
             Application.Current.Dispatcher.Invoke(new Action(() =>
             {
@@ -132,14 +131,14 @@ namespace SecureSend.Endpoint
                 ulong bytesWritten = 0;
                 while (bytesWritten < totalBytes)
                 {
-                    Packet dataPacket = ReceivePacket();
+                    NetworkSegment dataSegment = ReceiveSegment();
 
-                    if (dataPacket.GetPacketType() != PacketType.DATA)
+                    if (dataSegment.GetSegmentType() != SegmentType.DATA)
                     {
                         continue;
                     }
 
-                    byte[] data = ((DataPacket)dataPacket).GetData();
+                    byte[] data = ((DataSegment)dataSegment).GetData();
 
                     fileStream.Write(data);
                     bytesWritten += (ulong)data.Length;
@@ -163,7 +162,7 @@ namespace SecureSend.Endpoint
                 bool isValid = Enumerable.SequenceEqual(fileInfo.GetHash(), hash);
                 if (isValid)
                 {
-                    SendPacket(new AckPacket());
+                    SendEncryptedSegment(new AckSegment());
                     Task.Run(() =>
                     {
                         MessageBox.Show("Súbor " + fileInfo.GetFileName() + " bol úspešne prijatý", "Súbor prijatý", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -171,7 +170,7 @@ namespace SecureSend.Endpoint
                 }
                 else
                 {
-                    SendPacket(new NackPacket());
+                    SendEncryptedSegment(new NackSegment());
                     Task.Run(() =>
                     {
                         MessageBox.Show("Kontrolný súčet sa nezhoduje! Súbor je pravdepodobne poškodený. Zopakujte prenos.", "Súbor je poškodený",
@@ -207,7 +206,7 @@ namespace SecureSend.Endpoint
 
             if (filePathString == null || !File.Exists(filePathString)) return;
 
-            SendPacket(new PrepareTransferPacket());
+            SendEncryptedSegment(new PrepareTransferSegment());
 
             Application.Current.Dispatcher.Invoke(new Action(() =>
             {
@@ -227,8 +226,8 @@ namespace SecureSend.Endpoint
                 application.MainWindow.statusText.Content = "Odosiela sa súbor...";
             }));
 
-            FileInfoPacket fileInfoPacket = new FileInfoPacket(Path.GetFileName(filePathString), totalBytes, hash);
-            SendPacket(fileInfoPacket);
+            FileInfoSegment fileInfoSegment = new FileInfoSegment(Path.GetFileName(filePathString), totalBytes, hash);
+            SendEncryptedSegment(fileInfoSegment);
 
             ulong bytesSent = 0;
             using (Stream fileStream = File.OpenRead(filePathString))
@@ -237,8 +236,8 @@ namespace SecureSend.Endpoint
                 int bytesRead;
                 while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) > 0)
                 {
-                    DataPacket data = new DataPacket(buffer.Take(bytesRead).ToArray());
-                    SendPacket(data);
+                    DataSegment data = new DataSegment(buffer.Take(bytesRead).ToArray());
+                    SendEncryptedSegment(data);
                     bytesSent += (ulong)bytesRead;
                     Application.Current.Dispatcher.InvokeAsync(new Action(() =>
                     {
@@ -253,13 +252,13 @@ namespace SecureSend.Endpoint
                 application.MainWindow.fileProgressBar.IsIndeterminate = true;
             }));
 
-            Packet result = ReceivePacket();
+            NetworkSegment result = ReceiveSegment();
 
-            if (result.GetPacketType() == PacketType.ACK)
+            if (result.GetSegmentType() == SegmentType.ACK)
             {
                 Task.Run(() =>
                 {
-                    MessageBox.Show("Súbor " + fileInfoPacket.GetFileName() + " bol úspešne odoslaný",
+                    MessageBox.Show("Súbor " + fileInfoSegment.GetFileName() + " bol úspešne odoslaný",
                         "Súbor odoslaný", MessageBoxButton.OK, MessageBoxImage.Information);
                 });
             }
@@ -326,9 +325,9 @@ namespace SecureSend.Endpoint
                             return;
                         }
 
-                        Packet packet = ReceivePacket();
+                        NetworkSegment segment = ReceiveSegment();
 
-                        if (packet.GetPacketType() == PacketType.PREPARE_TRANSFER)
+                        if (segment.GetSegmentType() == SegmentType.PREPARE_TRANSFER)
                         {
                             ReceiveFile();
                         }

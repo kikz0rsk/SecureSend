@@ -5,16 +5,16 @@ using System.Text;
 
 namespace SecureSend.Protocol
 {
-    public abstract class Packet
+    public abstract class NetworkSegment
     {
-        protected PacketType type;
+        protected SegmentType type;
 
-        public Packet(PacketType type)
+        public NetworkSegment(SegmentType type)
         {
             this.type = type;
         }
 
-        public byte[] BuildPacket()
+        public byte[] BuildSegment()
         {
             byte[] payload = EncodePayload();
             byte[] output = { (byte)type };
@@ -23,31 +23,31 @@ namespace SecureSend.Protocol
 
         protected abstract byte[] EncodePayload();
 
-        public static Packet? Deserialize(ReadOnlySpan<byte> packetBytes)
+        public static NetworkSegment? Deserialize(ReadOnlySpan<byte> segmentBytes)
         {
-            PacketType? typeCode = (PacketType)packetBytes[0];
+            SegmentType? typeCode = (SegmentType)segmentBytes[0];
 
-            var payload = packetBytes.Slice(1);
+            var payload = segmentBytes.Slice(1);
             switch (typeCode)
             {
-                case PacketType.DATA:
-                    return new DataPacket(payload);
-                case PacketType.FILE_INFO:
-                    return FileInfoPacket.DecodeFromBytes(payload);
-                case PacketType.PREPARE_TRANSFER:
-                    return new PrepareTransferPacket();
-                case PacketType.ACK:
-                    return new AckPacket();
-                case PacketType.NACK:
-                    return new NackPacket();
-                case PacketType.SERVER_HANDSHAKE:
+                case SegmentType.DATA:
+                    return new DataSegment(payload);
+                case SegmentType.FILE_INFO:
+                    return FileInfoSegment.DecodeFromBytes(payload);
+                case SegmentType.PREPARE_TRANSFER:
+                    return new PrepareTransferSegment();
+                case SegmentType.ACK:
+                    return new AckSegment();
+                case SegmentType.NACK:
+                    return new NackSegment();
+                case SegmentType.SERVER_HANDSHAKE:
                     return ServerHandshake.DecodeFromBytes(payload);
-                case PacketType.CLIENT_HANDSHAKE:
+                case SegmentType.CLIENT_HANDSHAKE:
                     return ClientHandshake.DecodeFromBytes(payload);
-                case PacketType.PASSWORD_AUTH_REQ:
-                    return new PasswordAuthRequestPacket();
-                case PacketType.PASSWORD_AUTH_RESP:
-                    return PasswordAuthResponsePacket.DecodeFromBytes(payload);
+                case SegmentType.PASSWORD_AUTH_REQ:
+                    return new PasswordAuthRequestSegment();
+                case SegmentType.PASSWORD_AUTH_RESP:
+                    return PasswordAuthResponseSegment.DecodeFromBytes(payload);
                 default:
                     return null;
             }
@@ -127,7 +127,7 @@ namespace SecureSend.Protocol
             return UTF8Encoding.UTF8.GetString(input.Slice(4, length));
         }
 
-        public PacketType GetPacketType()
+        public SegmentType GetSegmentType()
         {
             return type;
         }

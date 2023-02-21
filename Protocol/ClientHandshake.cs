@@ -4,14 +4,14 @@ using System.Linq;
 
 namespace SecureSend.Protocol
 {
-    internal class ClientHandshake : Packet
+    internal class ClientHandshake : NetworkSegment
     {
         byte[] publicKey;
         byte encryptionAlgo;
         byte[] deviceFingerprint;
 
         public ClientHandshake(byte[] publicKey, byte encryptionAlgo,
-            byte[] deviceFingerprint) : base(PacketType.CLIENT_HANDSHAKE)
+            byte[] deviceFingerprint) : base(SegmentType.CLIENT_HANDSHAKE)
         {
             this.publicKey = publicKey;
             this.encryptionAlgo = encryptionAlgo;
@@ -20,7 +20,7 @@ namespace SecureSend.Protocol
 
         public static ClientHandshake DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
         {
-            PacketDecoder decoder = new PacketDecoder();
+            SegmentDecoder decoder = new SegmentDecoder();
             return new ClientHandshake(
                 decoder.DecodeFixedLengthBytes(payloadBytes, 32),
                 0,

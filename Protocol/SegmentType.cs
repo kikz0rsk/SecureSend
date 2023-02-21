@@ -1,6 +1,6 @@
 ﻿namespace SecureSend.Protocol
 {
-    public enum PacketType
+    public enum SegmentType
     {
         SERVER_HANDSHAKE = 0,
         CLIENT_HANDSHAKE = 1,

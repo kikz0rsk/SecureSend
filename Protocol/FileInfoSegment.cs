@@ -4,13 +4,13 @@ using System.Linq;
 
 namespace SecureSend.Protocol
 {
-    internal class FileInfoPacket : Packet
+    internal class FileInfoSegment : NetworkSegment
     {
         string fileName;
         ulong fileSize;
         byte[] hash;
 
-        public FileInfoPacket(string fileName, ulong fileSize, byte[] hash) : base(PacketType.FILE_INFO)
+        public FileInfoSegment(string fileName, ulong fileSize, byte[] hash) : base(SegmentType.FILE_INFO)
         {
             this.fileName = fileName;
             this.fileSize = fileSize;
@@ -22,13 +22,13 @@ namespace SecureSend.Protocol
             return EncodeULong(this.fileSize).Concat(hash).Concat(EncodeVarLengthString(fileName)).ToArray();
         }
 
-        public static FileInfoPacket DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
+        public static FileInfoSegment DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
         {
-            PacketDecoder decoder = new PacketDecoder();
+            SegmentDecoder decoder = new SegmentDecoder();
             ulong fileSize = decoder.DecodeULong(payloadBytes);
             byte[] hash = decoder.DecodeFixedLengthBytes(payloadBytes, 16);
             string filename = decoder.DecodeVarLengthString(payloadBytes);
-            return new FileInfoPacket(filename, fileSize, hash);
+            return new FileInfoSegment(filename, fileSize, hash);
         }
 
         public string GetFileName()

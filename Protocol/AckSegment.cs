@@ -1,8 +1,8 @@
 ﻿namespace SecureSend.Protocol
 {
-    internal class PasswordAuthRequestPacket : Packet
+    internal class AckSegment : NetworkSegment
     {
-        public PasswordAuthRequestPacket() : base(PacketType.PASSWORD_AUTH_REQ)
+        public AckSegment() : base(SegmentType.ACK)
         { }
 
         protected override byte[] EncodePayload()

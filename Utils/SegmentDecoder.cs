@@ -4,32 +4,32 @@ using System.Text;
 
 namespace SecureSend.Utils
 {
-    internal class PacketDecoder
+    internal class SegmentDecoder
     {
         private int offset;
 
-        public PacketDecoder()
+        public SegmentDecoder()
         {
             offset = 0;
         }
 
         public int DecodeInteger(ReadOnlySpan<byte> input)
         {
-            int num = Packet.DecodeInteger(input.Slice(offset));
+            int num = NetworkSegment.DecodeInteger(input.Slice(offset));
             offset += 4;
             return num;
         }
 
         public ushort DecodeUShort(ReadOnlySpan<byte> input)
         {
-            ushort num = Packet.DecodeUShort(input.Slice(offset));
+            ushort num = NetworkSegment.DecodeUShort(input.Slice(offset));
             offset += 2;
             return num;
         }
 
         public ulong DecodeULong(ReadOnlySpan<byte> input)
         {
-            ulong num = Packet.DecodeULong(input.Slice(offset));
+            ulong num = NetworkSegment.DecodeULong(input.Slice(offset));
             offset += 8;
             return num;
         }

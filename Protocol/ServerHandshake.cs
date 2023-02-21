@@ -4,13 +4,13 @@ using System.Linq;
 
 namespace SecureSend.Protocol
 {
-    internal class ServerHandshake : Packet
+    internal class ServerHandshake : NetworkSegment
     {
         protected byte[] publicKey;
         protected byte[] sessionId;
         protected byte[] deviceFingerprint;
 
-        public ServerHandshake(byte[] publicKey, byte[] sessionId, byte[] deviceFingerprint) : base(PacketType.SERVER_HANDSHAKE)
+        public ServerHandshake(byte[] publicKey, byte[] sessionId, byte[] deviceFingerprint) : base(SegmentType.SERVER_HANDSHAKE)
         {
             this.publicKey = publicKey;
             this.sessionId = sessionId;
@@ -19,7 +19,7 @@ namespace SecureSend.Protocol
 
         public static ServerHandshake DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
         {
-            PacketDecoder decoder = new PacketDecoder();
+            SegmentDecoder decoder = new SegmentDecoder();
             byte[] publicKey = decoder.DecodeFixedLengthBytes(payloadBytes, 32);
             byte[] sessionId = decoder.DecodeFixedLengthBytes(payloadBytes, 64);
             byte[] deviceFingerprint = decoder.DecodeFixedLengthBytes(payloadBytes, 32);

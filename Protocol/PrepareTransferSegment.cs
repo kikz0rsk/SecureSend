@@ -1,8 +1,8 @@
 ﻿namespace SecureSend.Protocol
 {
-    internal class NackPacket : Packet
+    internal class PrepareTransferSegment : NetworkSegment
     {
-        public NackPacket() : base(PacketType.NACK)
+        public PrepareTransferSegment() : base(SegmentType.PREPARE_TRANSFER)
         { }
 
         protected override byte[] EncodePayload()

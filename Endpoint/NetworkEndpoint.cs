@@ -136,7 +136,7 @@ namespace SecureSend.Endpoint
 
                     if (dataPacket.GetPacketType() != PacketType.DATA)
                     {
-                        throw new InvalidDataException("GetFile() received invalid packet");
+                        continue;
                     }
 
                     byte[] data = ((DataPacket)dataPacket).GetData();
@@ -253,7 +253,7 @@ namespace SecureSend.Endpoint
                 application.MainWindow.fileProgressBar.IsIndeterminate = true;
             }));
 
-            Packet? result = ReceivePacket();
+            Packet result = ReceivePacket();
 
             if (result.GetPacketType() == PacketType.ACK)
             {

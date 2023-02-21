@@ -16,7 +16,7 @@
 
             </ListView.View>
         </ListView>
-        <Button Content="Odstrániť" HorizontalAlignment="Left" Margin="10,0,0,12" VerticalAlignment="Bottom" Height="26" Width="93"/>
+        <Button Content="Odstrániť" HorizontalAlignment="Left" Margin="10,0,0,12" VerticalAlignment="Bottom" Height="26" Width="93" Click="onDeleteDeviceButtonClick"/>
 
     </Grid>
 </Window>

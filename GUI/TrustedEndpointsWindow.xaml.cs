@@ -28,10 +28,24 @@ namespace SecureSend.GUI
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            foreach(Identity identity in TrustedEndpointsManager.Instance.Identities)
+            Refresh();
+        }
+
+        protected void Refresh()
+        {
+            list.Items.Clear();
+            foreach (Identity identity in TrustedEndpointsManager.Instance.Identities)
             {
                 list.Items.Add(identity);
             }
+        }
+
+        private void onDeleteDeviceButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (list.SelectedIndex < 0) return;
+
+            TrustedEndpointsManager.Instance.RemoveAtIndex(list.SelectedIndex);
+            Refresh();
         }
     }
 }

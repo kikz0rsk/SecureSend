@@ -7,8 +7,6 @@ namespace SecureSend.Protocol
 {
     public abstract class NetworkSegment
     {
-        protected SegmentType type;
-
         public NetworkSegment(SegmentType type)
         {
             Type = type;
@@ -17,7 +15,7 @@ namespace SecureSend.Protocol
         public byte[] BuildSegment()
         {
             byte[] payload = EncodePayload();
-            byte[] output = { (byte)type };
+            byte[] output = { (byte)Type };
             return output.Concat(payload).ToArray();
         }
 

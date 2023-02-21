@@ -43,6 +43,8 @@ namespace SecureSend.Base
             string entries = UTF8Encoding.UTF8.GetString(bytes, 0, bytes.Length).Trim();
             foreach (string row in entries.Split('\n'))
             {
+                if (row.Trim().Length == 0) continue;
+
                 string[] parts = row.Trim().Split(':');
 
                 // first part device id
@@ -88,6 +90,13 @@ namespace SecureSend.Base
             }
 
             return result;
+        }
+
+        public void RemoveAtIndex(int index)
+        {
+            Identities.RemoveAt(index);
+            Save();
+            Load();
         }
 
         public static byte[] GetDeviceFingerprint()

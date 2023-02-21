@@ -12,6 +12,8 @@ using System.Windows;
 using SecureSend.Utils;
 using SecureSend.Base;
 using SecureSend.Exceptions;
+using Open.Nat;
+using System.Diagnostics;
 
 namespace SecureSend.Endpoint
 {
@@ -23,6 +25,10 @@ namespace SecureSend.Endpoint
         private Thread? thread;
 
         private volatile bool stopSignal = false;
+        private volatile bool upnpForwarded = false;
+
+        private volatile NatDevice? natDevice;
+        private volatile Mapping? mapping;
 
         public Server(SecureSendApp application) : base(application)
         { }
@@ -39,7 +45,7 @@ namespace SecureSend.Endpoint
         {
             try
             {
-                serverSocket = new TcpListener(IPAddress.Any, 23488);
+                serverSocket = new TcpListener(IPAddress.Any, application.ServerPort);
                 serverSocket.Start();
             }
             catch (SocketException)
@@ -230,6 +236,72 @@ namespace SecureSend.Endpoint
             Disconnect();
             stopSignal = true;
             serverSocket?.Stop();
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
+                application.MainWindow.statusPortText.Content = "Pripájanie je vypnuté";
+            }));
+        }
+
+        public async void EnableUpnpForward()
+        {
+            if (this.port == null) return;
+            if (upnpForwarded) return;
+
+            try
+            {
+                var discoverService = new NatDiscoverer();
+                var cts = new CancellationTokenSource(10000);
+                this.natDevice = await discoverService.DiscoverDeviceAsync(PortMapper.Upnp, cts);
+
+                int attempt = 1;
+                int publicPort = 23488;
+                bool success = false;
+                while (attempt < 10)
+                {
+                    try
+                    {
+                        Mapping mapping = new Mapping(Open.Nat.Protocol.Tcp, (int)port, publicPort, "SecureSend");
+                        await natDevice.CreatePortMapAsync(mapping);
+                        success = true;
+                        this.mapping = mapping;
+                        break;
+                    }
+                    catch (MappingException ex)
+                    {
+                        Debug.WriteLine("[NAT] error: " + ex.ToString());
+                        publicPort = (CryptoUtils.GetRandomInstance().Next() + 10000) % 65535;
+                        Debug.WriteLine("[NAT] trying random port");
+                        attempt++;
+                    }
+                    catch (Exception)
+                    { }
+                }
+
+                if (success)
+                {
+                    upnpForwarded = true;
+                    Application.Current.Dispatcher.Invoke(new Action(() =>
+                    {
+                        application.MainWindow.upnpPortStatus.Content = "Port pre pripojenie z internetu: " + publicPort.ToString();
+                    }));
+                    Debug.WriteLine("[NAT] successfully setup UPnP port forward");
+                    return;
+                }
+            } catch(Exception ex)
+            { }
+            
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
+                application.MainWindow.upnpPortStatus.Content = "Presmerovanie portu UPnP zlyhalo";
+            }));
+        }
+
+        public async void DisableUpnpForward()
+        {
+            if (natDevice == null || mapping == null) return;
+            if (!upnpForwarded) return;
+
+            natDevice?.DeletePortMapAsync(mapping);
         }
 
         public int? Port { get { return port; } }

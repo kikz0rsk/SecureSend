@@ -15,6 +15,9 @@ namespace SecureSend
         {
             PasswordAuthEnabled = false;
             Key = IdentityManager.Instance.GetKey();
+            ServerPort = 23488;
+            AllowUpnp = false;
+            AllowIncomingConnections = true;
         }
 
         public NSec.Cryptography.Key? Key { get; set; }
@@ -31,8 +34,19 @@ namespace SecureSend
 
         public string Password { get; set; }
 
+        public bool AllowIncomingConnections { get; set; }
+
+        public int ServerPort { get; set; }
+
+        public bool AllowUpnp { get; set; }
+
         public Server CreateServer()
         {
+            if(Server != null)
+            {
+                Server.StopServer();
+            }
+
             Server server = new Server(this);
             Server = server;
             return server;
@@ -40,6 +54,11 @@ namespace SecureSend
 
         public Client CreateClient()
         {
+            if (Client != null)
+            {
+                Client.Disconnect();
+            }
+
             Client client = new Client(this);
             Client = client;
             return client;

@@ -57,5 +57,10 @@ namespace SecureSend.Utils
 
             return new string(salt);
         }
+
+        public static Random GetRandomInstance()
+        {
+            return rng;
+        }
     }
 }

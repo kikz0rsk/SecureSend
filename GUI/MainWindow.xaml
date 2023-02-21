@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SecureSend"
         mc:Ignorable="d"
-        Title="SecureSend" Width="662" Height="364" Loaded="OnWindowLoaded" Closing="onWindowClosing" SizeToContent="WidthAndHeight">
+        Title="SecureSend" Width="662" Height="364" Loaded="OnWindowLoaded" Closing="onWindowClosing" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
@@ -20,12 +20,13 @@
             <MenuItem x:Name="identityMngrBtn" Header="Zapamätané zariadenia" Height="25" Click="identityMngrBtn_Click"/>
             <MenuItem Header="Nastavenia" Height="25">
                 <MenuItem Header="Autentifikácia menom a heslom..." Height="25" Click="onChangePasswordAuthClick"/>
-                <MenuItem x:Name="allowIncomingConnections" Header="Povoliť pripojenie k tomuto zariadeniu" Height="25" Click="onAllowIncomingConnectionsClick" IsChecked="True"/>
+                <MenuItem x:Name="serverSettings" Header="Nastavenie pripojenia na toto zariadenie..." Height="25" Click="onServerSettingsClick"/>
             </MenuItem>
         </Menu>
 
         <StatusBar Grid.Row="2" Margin="0,0,0,0" Grid.RowSpan="3" Height="22" VerticalAlignment="Bottom">
-            <StatusBarItem x:Name="statusPortText" Content="Port" Height="22" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+            <StatusBarItem x:Name="statusPortText" Content="Port" Height="22" VerticalAlignment="Center" HorizontalAlignment="Left" Width="308"/>
+            <StatusBarItem x:Name="upnpPortStatus" Content="" Height="22" VerticalAlignment="Top" HorizontalAlignment="Left"/>
         </StatusBar>
         <Label x:Name="currentConnectionText" Content="Žiadne spojenie" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" Padding="0,5,5,5" Height="37" Grid.Row="1"/>
         <TextBox x:Name="inputFilePath" HorizontalAlignment="Left" Margin="189,57,0,0" VerticalAlignment="Top" Width="379" Height="26" VerticalContentAlignment="Center" MaxLines="1" Grid.Row="1"/>

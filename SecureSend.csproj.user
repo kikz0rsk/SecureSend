@@ -13,6 +13,9 @@
     <Compile Update="GUI\ConnectWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="GUI\ServerSettingsWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="GUI\TrustedEndpointsWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -22,6 +25,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="GUI\ConnectWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="GUI\ServerSettingsWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="GUI\TrustedEndpointsWindow.xaml">

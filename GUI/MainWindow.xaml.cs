@@ -175,24 +175,46 @@ namespace SecureSend
             application.PasswordAuthEnabled = true;
         }
 
-        private void onAllowIncomingConnectionsClick(object sender, RoutedEventArgs e)
+        private void onAllowUpnpClick(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("onAllowIncomingConnectionsClick");
-            Debug.WriteLine("isChecked: " + allowIncomingConnections.IsChecked.ToString());
-            if (allowIncomingConnections.IsChecked)
+            if (server == null) return;
+
+            server.EnableUpnpForward();
+        }
+
+        private void onServerSettingsClick(object sender, RoutedEventArgs e)
+        {
+            ServerSettingsWindow serverSettingsWindow = new ServerSettingsWindow(
+                application.AllowIncomingConnections, application.AllowUpnp, application.ServerPort);
+            serverSettingsWindow.Owner = this;
+            serverSettingsWindow.ShowDialog();
+
+            if(!serverSettingsWindow.ApplyChanges)
             {
-                Debug.WriteLine("disable incoming connections");
-                allowIncomingConnections.IsChecked = false;
-                server.StopServer();
-                statusPortText.Content = "Pripojenie na toto zariadenia nie je povolené";
                 return;
             }
 
-            Debug.WriteLine("enable incoming connections");
-            allowIncomingConnections.IsChecked = true;
-            server = new Server(application);
-            application.Server = server;
+            Debug.WriteLine("apply server changes");
+            application.AllowIncomingConnections = serverSettingsWindow.AllowServer;
+            application.AllowUpnp = serverSettingsWindow.AllowUpnp;
+            application.ServerPort = serverSettingsWindow.Port;
+
+            if (!serverSettingsWindow.AllowServer)
+            {
+                Debug.WriteLine("stopping server");
+                server?.StopServer();
+                return;
+            }
+
+            server?.StopServer();
+            application.ServerPort = serverSettingsWindow.Port;
+            server = application.CreateServer();
             server.StartServer();
+            
+            if(serverSettingsWindow.AllowUpnp)
+            {
+                server.EnableUpnpForward();
+            }
         }
     }
 }

@@ -15,7 +15,7 @@
             <RowDefinition Height="243.035"/>
             <RowDefinition Height="37.005"/>
         </Grid.RowDefinitions>
-        <Label Content="Nové nedôveryhodné zariadenie" HorizontalAlignment="Left" Margin="11,10,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" UseLayoutRounding="False" Height="37" Width="315"/>
+        <Label Content="Nové zariadenie" HorizontalAlignment="Left" Margin="11,5,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" UseLayoutRounding="False" Height="37" Width="315"/>
         <Label Content="IP Adresa" HorizontalAlignment="Left" Margin="11,89,0,0" VerticalAlignment="Top" Height="25" Width="60"/>
         <Label x:Name="ipAddr" Content="" HorizontalAlignment="Left" Margin="124,89,0,0" VerticalAlignment="Top" Height="25"/>
         <Label Content="Identifikátor&#xD;&#xA;zariadenia" HorizontalAlignment="Left" Margin="11,119,0,0" VerticalAlignment="Top" Height="42" Width="74"/>
@@ -26,7 +26,7 @@
         <Button x:Name="reject" Content="Nepovoliť" HorizontalAlignment="Left" Margin="360,0,0,0" VerticalAlignment="Center" Height="25" Width="150" Click="reject_Click" Grid.Row="1"/>
         <Label Content="Identita&#xD;&#xA;(verejný kľúč)" HorizontalAlignment="Left" Margin="11,165,0,0" VerticalAlignment="Top" Height="42" Width="80"/>
         <Label x:Name="identity" Content="" HorizontalAlignment="Left" Margin="124,175,0,0" VerticalAlignment="Top" Height="25"/>
-        <TextBlock HorizontalAlignment="Left" Margin="16,47,0,0" TextWrapping="Wrap" Text="Táto kombinácia identifikátora zariadenia a identity sa nenachádza v zozname dôveryhodných zariadení." VerticalAlignment="Top" Height="32" Width="495"/>
+        <TextBlock HorizontalAlignment="Left" Margin="16,47,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="32" Width="495"><Run Text="Táto kombinácia identifikátora zariadenia a identity sa nenachádza v zozname zapam"/><Run Language="sk-sk" Text="ätaných"/><Run Text=" zariadení."/></TextBlock>
 
     </Grid>
 </Window>

@@ -80,6 +80,10 @@ namespace SecureSend.Endpoint
             { }
             catch (SocketException)
             { }
+            catch (ArgumentOutOfRangeException)
+            {
+                MessageBox.Show("Neočakávaná odpoveď.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
             catch (IOException)
             {
                 MessageBox.Show("Spojenie zlyhalo.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);

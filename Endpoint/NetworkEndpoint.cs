@@ -133,7 +133,7 @@ namespace SecureSend.Endpoint
                 {
                     NetworkSegment dataSegment = ReceiveSegment();
 
-                    if (dataSegment.GetSegmentType() != SegmentType.DATA)
+                    if (dataSegment.Type != SegmentType.DATA)
                     {
                         continue;
                     }
@@ -254,7 +254,7 @@ namespace SecureSend.Endpoint
 
             NetworkSegment result = ReceiveSegment();
 
-            if (result.GetSegmentType() == SegmentType.ACK)
+            if (result.Type == SegmentType.ACK)
             {
                 Task.Run(() =>
                 {
@@ -327,7 +327,7 @@ namespace SecureSend.Endpoint
 
                         NetworkSegment segment = ReceiveSegment();
 
-                        if (segment.GetSegmentType() == SegmentType.PREPARE_TRANSFER)
+                        if (segment.Type == SegmentType.PREPARE_TRANSFER)
                         {
                             ReceiveFile();
                         }

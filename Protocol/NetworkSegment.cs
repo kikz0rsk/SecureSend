@@ -11,7 +11,7 @@ namespace SecureSend.Protocol
 
         public NetworkSegment(SegmentType type)
         {
-            this.type = type;
+            Type = type;
         }
 
         public byte[] BuildSegment()
@@ -26,6 +26,7 @@ namespace SecureSend.Protocol
         public static NetworkSegment? Deserialize(ReadOnlySpan<byte> segmentBytes)
         {
             SegmentType? typeCode = (SegmentType)segmentBytes[0];
+            
 
             var payload = segmentBytes.Slice(1);
             switch (typeCode)
@@ -127,9 +128,6 @@ namespace SecureSend.Protocol
             return UTF8Encoding.UTF8.GetString(input.Slice(4, length));
         }
 
-        public SegmentType GetSegmentType()
-        {
-            return type;
-        }
+        public SegmentType Type { get; }
     }
 }

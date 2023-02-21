@@ -120,7 +120,7 @@ namespace SecureSend.Endpoint
             try
             {
                 NetworkSegment segment = ReceiveSegment();
-                if (segment.GetSegmentType() != SegmentType.ACK)
+                if (segment.Type != SegmentType.ACK)
                 {
                     throw new InvalidDataException();
                 }
@@ -143,7 +143,7 @@ namespace SecureSend.Endpoint
                 try
                 {
                     NetworkSegment segment = ReceiveSegment();
-                    if (segment.GetSegmentType() != SegmentType.PASSWORD_AUTH_RESP)
+                    if (segment.Type != SegmentType.PASSWORD_AUTH_RESP)
                     {
                         throw new InvalidDataException();
                     }

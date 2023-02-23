@@ -45,7 +45,7 @@ namespace SecureSend.Utils
             }
         }
 
-        public static string CreateSalt(int length)
+        public static string CreateRandomString(int length)
         {
             const string chars = "abcdefghijkmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             char[] salt = new char[length];

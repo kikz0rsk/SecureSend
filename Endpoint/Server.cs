@@ -149,7 +149,7 @@ namespace SecureSend.Endpoint
 
             if (application.PasswordAuthEnabled)
             {
-                string salt = CryptoUtils.CreateSalt(16);
+                string salt = CryptoUtils.CreateRandomString(16);
                 SendEncryptedSegment(
                     new PasswordAuthRequestSegment(salt));
 

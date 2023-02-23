@@ -6,14 +6,12 @@ namespace SecureSend.Protocol
 {
     internal class ClientHandshake : NetworkSegment
     {
-        byte[] publicKey;
-        byte[] deviceFingerprint;
-
-        public ClientHandshake(byte[] publicKey, byte[] deviceFingerprint) :
+        public ClientHandshake(byte[] publicKey, byte[] deviceFingerprint, string computerName) :
             base(SegmentType.CLIENT_HANDSHAKE)
         {
-            this.publicKey = publicKey;
-            this.deviceFingerprint = deviceFingerprint;
+            PublicKey = publicKey;
+            DeviceFingerprint = deviceFingerprint;
+            ComputerName = computerName;
         }
 
         public static ClientHandshake DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
@@ -21,17 +19,23 @@ namespace SecureSend.Protocol
             SegmentDecoder decoder = new SegmentDecoder();
             return new ClientHandshake(
                 decoder.DecodeFixedLengthBytes(payloadBytes, 32),
-                decoder.DecodeFixedLengthBytes(payloadBytes, 32)
+                decoder.DecodeFixedLengthBytes(payloadBytes, 32),
+                decoder.DecodeVarLengthString(payloadBytes)
             );
         }
 
         protected override byte[] EncodePayload()
         {
-            return publicKey.Concat(deviceFingerprint).ToArray();
+            return PublicKey
+                .Concat(DeviceFingerprint)
+                .Concat(EncodeVarLengthString(ComputerName))
+                .ToArray();
         }
 
-        public byte[] PublicKey { get { return publicKey; } }
+        public byte[] PublicKey { get; protected set; }
 
-        public byte[] DeviceFingerprint { get { return deviceFingerprint; } }
+        public byte[] DeviceFingerprint { get; protected set; }
+
+        public string ComputerName { get; protected set; }
     }
 }

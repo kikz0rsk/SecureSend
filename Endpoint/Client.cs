@@ -205,8 +205,8 @@ namespace SecureSend.Endpoint
         protected override Key? EstablishTrust()
         {
             ClientHandshake clientHandshake = new ClientHandshake(
-                IdentityManager.Instance.GetKey().PublicKey.Export(
-                    KeyBlobFormat.RawPublicKey), TrustedEndpointsManager.GetDeviceFingerprint());
+                IdentityManager.Instance.GetKey().PublicKey.Export(KeyBlobFormat.RawPublicKey),
+                TrustedEndpointsManager.GetDeviceFingerprint(), System.Environment.MachineName);
 
             SendUnencryptedSegment(clientHandshake);
 

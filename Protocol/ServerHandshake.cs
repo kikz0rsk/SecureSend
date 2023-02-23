@@ -6,15 +6,13 @@ namespace SecureSend.Protocol
 {
     internal class ServerHandshake : NetworkSegment
     {
-        protected byte[] publicKey;
-        protected byte[] sessionId;
-        protected byte[] deviceFingerprint;
-
-        public ServerHandshake(byte[] publicKey, byte[] sessionId, byte[] deviceFingerprint) : base(SegmentType.SERVER_HANDSHAKE)
+        public ServerHandshake(byte[] publicKey, byte[] sessionId,
+            byte[] deviceFingerprint, string computerName) : base(SegmentType.SERVER_HANDSHAKE)
         {
-            this.publicKey = publicKey;
-            this.sessionId = sessionId;
-            this.deviceFingerprint = deviceFingerprint;
+            PublicKey = publicKey;
+            SessionId = sessionId;
+            DeviceFingerprint = deviceFingerprint;
+            ComputerName = computerName;
         }
 
         public static ServerHandshake DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
@@ -23,18 +21,25 @@ namespace SecureSend.Protocol
             byte[] publicKey = decoder.DecodeFixedLengthBytes(payloadBytes, 32);
             byte[] sessionId = decoder.DecodeFixedLengthBytes(payloadBytes, 64);
             byte[] deviceFingerprint = decoder.DecodeFixedLengthBytes(payloadBytes, 32);
-            return new ServerHandshake(publicKey, sessionId, deviceFingerprint);
+            string computerName = decoder.DecodeVarLengthString(payloadBytes);
+            return new ServerHandshake(publicKey, sessionId, deviceFingerprint, computerName);
         }
 
         protected override byte[] EncodePayload()
         {
-            return publicKey.Concat(sessionId).Concat(deviceFingerprint).ToArray();
+            return PublicKey
+                .Concat(SessionId)
+                .Concat(DeviceFingerprint)
+                .Concat(EncodeVarLengthString(ComputerName))
+                .ToArray();
         }
 
-        public byte[] PublicKey { get { return publicKey; } }
+        public byte[] PublicKey { get; protected set; }
 
-        public byte[] SessionId { get { return sessionId; } }
+        public byte[] SessionId { get; protected set; }
 
-        public byte[] DeviceFingerprint { get { return deviceFingerprint; } }
+        public byte[] DeviceFingerprint { get; protected set; }
+
+        public string ComputerName { get; protected set; }
     }
 }

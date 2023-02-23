@@ -200,8 +200,8 @@ namespace SecureSend.Endpoint
             CryptoUtils.FillWithRandomBytes(sessionId);
 
             ServerHandshake serverHandshake = new ServerHandshake(
-                application.Key.PublicKey.Export(
-                    KeyBlobFormat.RawPublicKey), sessionId, TrustedEndpointsManager.GetDeviceFingerprint());
+                application.Key.PublicKey.Export(KeyBlobFormat.RawPublicKey), sessionId,
+                TrustedEndpointsManager.GetDeviceFingerprint(), System.Environment.MachineName);
 
             SendUnencryptedSegment(serverHandshake);
 

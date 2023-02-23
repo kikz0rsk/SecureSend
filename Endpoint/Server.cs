@@ -268,13 +268,13 @@ namespace SecureSend.Endpoint
                     }
                     catch (MappingException ex)
                     {
-                        Debug.WriteLine("[NAT] error: " + ex.ToString());
+                        Debug.WriteLine("[NAT] mapping conflict: " + ex.ToString());
                         publicPort = (CryptoUtils.GetRandomInstance().Next() + 10000) % 65535;
                         Debug.WriteLine("[NAT] trying random port");
                         attempt++;
                     }
                     catch (Exception)
-                    { }
+                    { break; }
                 }
 
                 if (success)
@@ -288,7 +288,9 @@ namespace SecureSend.Endpoint
                     return;
                 }
             } catch(Exception ex)
-            { }
+            {
+                Debug.WriteLine("[NAT] general exception: " + ex.ToString());
+            }
             
             Application.Current.Dispatcher.Invoke(new Action(() =>
             {

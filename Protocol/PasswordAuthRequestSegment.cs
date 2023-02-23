@@ -1,13 +1,25 @@
-﻿namespace SecureSend.Protocol
+﻿using SecureSend.Utils;
+using System;
+
+namespace SecureSend.Protocol
 {
     internal class PasswordAuthRequestSegment : NetworkSegment
     {
-        public PasswordAuthRequestSegment() : base(SegmentType.PASSWORD_AUTH_REQ)
-        { }
+        public PasswordAuthRequestSegment(string salt) : base(SegmentType.PASSWORD_AUTH_REQ)
+        {
+            Salt = salt;
+        }
 
         protected override byte[] EncodePayload()
         {
-            return new byte[0];
+            return EncodeVarLengthString(Salt);
         }
+
+        public static PasswordAuthRequestSegment DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
+        {
+            return new PasswordAuthRequestSegment(DecodeVarLengthString(payloadBytes));
+        }
+
+        public string Salt { get; protected set; }
     }
 }

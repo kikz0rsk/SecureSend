@@ -31,6 +31,7 @@ namespace SecureSend.Endpoint
             this.port = port;
 
             thread = new Thread(_Connect);
+            thread.IsBackground = true;
             thread.Start();
         }
 
@@ -159,6 +160,7 @@ namespace SecureSend.Endpoint
 
                 if (segment.Type == SegmentType.PASSWORD_AUTH_REQ)
                 {
+                    string salt = ((PasswordAuthRequestSegment)segment).Salt;
                     PasswordAuthWindow window = Application.Current.Dispatcher.Invoke(() =>
                     {
                         PasswordAuthWindow window = new PasswordAuthWindow(false, null);
@@ -167,11 +169,11 @@ namespace SecureSend.Endpoint
                         return window;
                     });
 
-                    string salt = CryptoUtils.CreateSalt(16);
-                    byte[] hash = HashAlgorithm.Sha512.Hash(
+                    byte[] hash = HashAlgorithm.Sha256.Hash(
                             UTF8Encoding.UTF8.GetBytes(window.Password + salt));
 
-                    SendEncryptedSegment(new PasswordAuthResponseSegment(window.Username, hash, salt));
+                    SendEncryptedSegment(
+                        new PasswordAuthResponseSegment(window.Username, hash));
 
                     segment = ReceiveSegment();
                     if (segment.Type == SegmentType.NACK)

@@ -81,7 +81,6 @@ namespace SecureSend
             client?.GetThread()?.Interrupt();
 
             server?.StopServer();
-            server?.ServerThread?.Join();
         }
 
         private void sendFileButton_Click(object sender, RoutedEventArgs e)

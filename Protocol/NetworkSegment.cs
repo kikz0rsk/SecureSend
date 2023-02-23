@@ -44,7 +44,7 @@ namespace SecureSend.Protocol
                 case SegmentType.CLIENT_HANDSHAKE:
                     return ClientHandshake.DecodeFromBytes(payload);
                 case SegmentType.PASSWORD_AUTH_REQ:
-                    return new PasswordAuthRequestSegment();
+                    return PasswordAuthRequestSegment.DecodeFromBytes(payload);
                 case SegmentType.PASSWORD_AUTH_RESP:
                     return PasswordAuthResponseSegment.DecodeFromBytes(payload);
                 default:

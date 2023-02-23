@@ -25,7 +25,6 @@ namespace SecureSend.Endpoint
         private Thread? thread;
 
         private volatile bool stopSignal = false;
-        private volatile bool upnpForwarded = false;
 
         private volatile NatDevice? natDevice;
         private volatile Mapping? mapping;
@@ -38,6 +37,7 @@ namespace SecureSend.Endpoint
             if (thread != null) return;
 
             thread = new Thread(_StartServer);
+            thread.IsBackground = true;
             thread.Start();
         }
 
@@ -62,12 +62,9 @@ namespace SecureSend.Endpoint
 
             while (!stopSignal)
             {
-                filesToSend.Clear();
-
                 try
                 {
                     // accepting loop
-                    SetConnected(false);
                     connection = serverSocket.AcceptTcpClient();
                     SetConnected(true);
                     this.client = false;
@@ -78,7 +75,8 @@ namespace SecureSend.Endpoint
                 catch (ThreadInterruptedException) { }
                 catch (SocketException) { }
                 catch (ConnectionClosedException) { }
-                catch (ArgumentOutOfRangeException) {
+                catch (ArgumentOutOfRangeException)
+                {
                     MessageBox.Show("Neočakávaná odpoveď.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 catch (IOException)
@@ -88,6 +86,10 @@ namespace SecureSend.Endpoint
                 catch (Exception ex)
                 {
                     MessageBox.Show("Vyskytla sa chyba: " + ex.ToString(), "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
+                } finally
+                {
+                    filesToSend.Clear();
+                    SetConnected(false);
                 }
             }
         }
@@ -147,7 +149,9 @@ namespace SecureSend.Endpoint
 
             if (application.PasswordAuthEnabled)
             {
-                SendEncryptedSegment(new PasswordAuthRequestSegment());
+                string salt = CryptoUtils.CreateSalt(16);
+                SendEncryptedSegment(
+                    new PasswordAuthRequestSegment(salt));
 
                 try
                 {
@@ -160,8 +164,8 @@ namespace SecureSend.Endpoint
                     PasswordAuthResponseSegment pass = (PasswordAuthResponseSegment)segment;
 
                     // Prevent timing attacks, we do password hashing first
-                    byte[] hash = HashAlgorithm.Sha512.Hash(
-                            UTF8Encoding.UTF8.GetBytes(application.Password + pass.Salt));
+                    byte[] hash = HashAlgorithm.Sha256.Hash(
+                            UTF8Encoding.UTF8.GetBytes(application.Password + salt));
                     bool correct = Enumerable.SequenceEqual(hash, pass.PasswordHash) &&
                         pass.Username.Equals(application.Username);
 
@@ -233,9 +237,12 @@ namespace SecureSend.Endpoint
 
         public void StopServer()
         {
+            if (serverSocket == null || !serverSocket.Server.IsBound) return; 
+
             Disconnect();
             stopSignal = true;
             serverSocket?.Stop();
+
             Application.Current.Dispatcher.Invoke(new Action(() =>
             {
                 application.MainWindow.statusPortText.Content = "Pripájanie je vypnuté";
@@ -245,7 +252,7 @@ namespace SecureSend.Endpoint
         public async void EnableUpnpForward()
         {
             if (this.port == null) return;
-            if (upnpForwarded) return;
+            if (this.mapping != null) return;
 
             try
             {
@@ -279,7 +286,6 @@ namespace SecureSend.Endpoint
 
                 if (success)
                 {
-                    upnpForwarded = true;
                     Application.Current.Dispatcher.Invoke(new Action(() =>
                     {
                         application.MainWindow.upnpPortStatus.Content = "Port pre pripojenie z internetu: " + publicPort.ToString();
@@ -287,11 +293,12 @@ namespace SecureSend.Endpoint
                     Debug.WriteLine("[NAT] successfully setup UPnP port forward");
                     return;
                 }
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Debug.WriteLine("[NAT] general exception: " + ex.ToString());
             }
-            
+
             Application.Current.Dispatcher.Invoke(new Action(() =>
             {
                 application.MainWindow.upnpPortStatus.Content = "Presmerovanie portu UPnP zlyhalo";
@@ -301,9 +308,9 @@ namespace SecureSend.Endpoint
         public async void DisableUpnpForward()
         {
             if (natDevice == null || mapping == null) return;
-            if (!upnpForwarded) return;
 
             await natDevice?.DeletePortMapAsync(mapping);
+            this.mapping = null;
 
             Application.Current.Dispatcher.Invoke(new Action(() =>
             {

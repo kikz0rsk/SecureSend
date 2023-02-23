@@ -159,6 +159,7 @@ namespace SecureSend
 
         private void identityMngrBtn_Click(object sender, RoutedEventArgs e)
         {
+            TrustedEndpointsManager.Instance.Load();
             TrustedEndpointsWindow window = new TrustedEndpointsWindow();
             window.Show();
         }

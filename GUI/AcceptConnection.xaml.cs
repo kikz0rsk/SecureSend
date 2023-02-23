@@ -22,7 +22,8 @@ namespace SecureSend.GUI
     {
         AcceptConnectionResult result = AcceptConnectionResult.Reject;
 
-        public AcceptConnection(bool client, string ip, byte[] deviceFingerprint, byte[] publicKey)
+        public AcceptConnection(bool client, string computerName,
+            string ip, byte[] deviceFingerprint, byte[] publicKey)
         {
             InitializeComponent();
 
@@ -30,8 +31,8 @@ namespace SecureSend.GUI
             {
                 question.Content = "Chcete sa pripojiť na toto zariadenie?";
             }
-            ipAddr.Content = ip;
-            deviceIdentification.Content = Convert.ToBase64String(deviceFingerprint);
+            computerNameAndAddress.Content = computerName + " (" + ip + ")";
+            deviceIdentification.Content = Convert.ToHexString(deviceFingerprint);
             identity.Content = Convert.ToBase64String(publicKey);
         }
 

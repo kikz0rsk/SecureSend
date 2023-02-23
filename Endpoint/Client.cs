@@ -125,7 +125,7 @@ namespace SecureSend.Endpoint
                 application.MainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa...";
             }));
 
-            bool authorized = AuthorizeAccess();
+            bool authorized = AuthorizeAccess(true);
             if (!authorized)
             {
                 SendEncryptedSegment(new NackSegment());
@@ -226,6 +226,7 @@ namespace SecureSend.Endpoint
 
             deviceFingerprint = serverHandshake.DeviceFingerprint;
             remoteEndpointPublicKey = PublicKey.Import(KeyAgreementAlgorithm.X25519, serverHandshake.PublicKey, KeyBlobFormat.RawPublicKey);
+            remoteComputerName = serverHandshake.ComputerName;
 
             // agree on shared secret
             SharedSecret? sharedSecret = KeyAgreementAlgorithm.X25519.Agree(IdentityManager.Instance.GetKey(), remoteEndpointPublicKey);

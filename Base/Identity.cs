@@ -4,23 +4,17 @@ namespace SecureSend.Base
 {
     class Identity
     {
-        protected byte[] deviceFingerprint;
-        protected byte[] publicKey;
-
-        protected string deviceFingerprintString;
-        protected string publicKeyString;
-
-        public Identity(byte[] deviceFingerprint, byte[] publicKey)
+        public Identity(byte[] deviceFingerprint, byte[] publicKey, string computerName)
         {
-            this.deviceFingerprint = deviceFingerprint;
-            this.deviceFingerprintString = Convert.ToHexString(deviceFingerprint);
-            this.publicKey = publicKey;
-            this.publicKeyString = Convert.ToHexString(publicKey);
+            DeviceFingerprint = deviceFingerprint;
+            PublicKey = publicKey;
+            ComputerName = computerName;
         }
 
-        public byte[] DeviceFingerprint { get { return deviceFingerprint; } }
-        public byte[] PublicKey { get { return publicKey; } }
-        public string DeviceFingerprintString { get { return deviceFingerprintString; } }
-        public string PublicKeyString { get { return publicKeyString; } }
+        public byte[] DeviceFingerprint { get; private set; }
+        public byte[] PublicKey { get; private set; }
+        public string ComputerName { get; private set; }
+        public string DeviceFingerprintString { get { return Convert.ToHexString(DeviceFingerprint); } }
+        public string PublicKeyString { get { return Convert.ToBase64String(PublicKey); } }
     }
 }

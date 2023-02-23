@@ -221,6 +221,7 @@ namespace SecureSend.Endpoint
 
             deviceFingerprint = clientHandshake.DeviceFingerprint;
             remoteEndpointPublicKey = PublicKey.Import(KeyAgreementAlgorithm.X25519, clientHandshake.PublicKey, KeyBlobFormat.RawPublicKey);
+            remoteComputerName = clientHandshake.ComputerName;
 
             // agree on shared secret
             SharedSecret? sharedSecret = KeyAgreementAlgorithm.X25519.Agree(application.Key, remoteEndpointPublicKey);

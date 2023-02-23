@@ -20,6 +20,7 @@ namespace SecureSend.Endpoint
         protected Key? symmetricKey;
         protected PublicKey remoteEndpointPublicKey;
         protected byte[] deviceFingerprint;
+        protected string? remoteComputerName;
 
         protected NetworkStream? stream;
         protected TcpClient? connection;
@@ -280,7 +281,7 @@ namespace SecureSend.Endpoint
             }));
         }
 
-        protected bool AuthorizeAccess()
+        protected bool AuthorizeAccess(bool client = false)
         {
             byte[] rawPublicKey = remoteEndpointPublicKey.Export(KeyBlobFormat.RawPublicKey);
             if (TrustedEndpointsManager.Instance.Lookup(deviceFingerprint, rawPublicKey))
@@ -292,7 +293,7 @@ namespace SecureSend.Endpoint
             AcceptConnectionResult result = Application.Current.Dispatcher.Invoke(() =>
             {
                 AcceptConnection acceptConnection = new AcceptConnection(
-                    false, endpoint.Address.ToString(), deviceFingerprint, rawPublicKey);
+                    client, remoteComputerName, endpoint.Address.ToString(), deviceFingerprint, rawPublicKey);
                 acceptConnection.Owner = application.MainWindow;
                 acceptConnection.ShowDialog();
                 return acceptConnection.Result;
@@ -306,7 +307,7 @@ namespace SecureSend.Endpoint
             if (result == AcceptConnectionResult.AcceptAndRemember)
             {
                 TrustedEndpointsManager.Instance.Add(deviceFingerprint,
-                    rawPublicKey);
+                    rawPublicKey, remoteComputerName ?? "");
             }
 
             return true;

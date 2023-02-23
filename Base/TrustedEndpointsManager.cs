@@ -37,26 +37,34 @@ namespace SecureSend.Base
                 return;
             }
 
-            List<Identity> identities = new List<Identity>();
-
-            byte[] bytes = File.ReadAllBytes(KNOWN_HOSTS_FILENAME);
-            string entries = UTF8Encoding.UTF8.GetString(bytes, 0, bytes.Length).Trim();
-            foreach (string row in entries.Split('\n'))
+            try
             {
-                if (row.Trim().Length == 0) continue;
+                List<Identity> identities = new List<Identity>();
 
-                string[] parts = row.Trim().Split(':');
+                byte[] bytes = File.ReadAllBytes(KNOWN_HOSTS_FILENAME);
+                string entries = UTF8Encoding.UTF8.GetString(bytes, 0, bytes.Length).Trim();
+                foreach (string row in entries.Split('\n'))
+                {
+                    if (row.Trim().Length == 0) continue;
 
-                // first part device id
-                byte[] deviceFingerprint = Convert.FromHexString(parts[0]);
+                    string[] parts = row.Trim().Split(':');
 
-                // second part public key
-                byte[] pubKey = Convert.FromHexString(parts[1]);
+                    string computerName = parts[0];
 
-                identities.Add(new Identity(deviceFingerprint, pubKey));
+                    // first part device id
+                    byte[] deviceFingerprint = Convert.FromHexString(parts[1]);
+
+                    // second part public key
+                    byte[] pubKey = Convert.FromBase64String(parts[2]);
+
+                    identities.Add(new Identity(deviceFingerprint, pubKey, computerName));
+                }
+
+                Identities = identities;
+            } catch(Exception)
+            {
+                Identities = new List<Identity>();
             }
-
-            Identities = identities;
         }
 
         public void Save() {
@@ -64,16 +72,16 @@ namespace SecureSend.Base
             {
                 foreach (Identity identity in Identities)
                 {
-                    string devFingerprint = Convert.ToHexString(identity.DeviceFingerprint);
-                    string pubKey = Convert.ToHexString(identity.PublicKey);
-                    fileStream.WriteLine(devFingerprint + ':' + pubKey);
+                    fileStream.WriteLine(identity.ComputerName + ":" 
+                        + identity.DeviceFingerprintString + ':'
+                        + identity.PublicKeyString);
                 }
             }
         }
 
-        public void Add(byte[] deviceFingerprint, byte[] publicKey)
+        public void Add(byte[] deviceFingerprint, byte[] publicKey, string computerName)
         {
-            Identities.Add(new Identity(deviceFingerprint, publicKey));
+            Identities.Add(new Identity(deviceFingerprint, publicKey, computerName));
             Save();
         }
 

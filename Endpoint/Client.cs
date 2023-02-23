@@ -206,7 +206,7 @@ namespace SecureSend.Endpoint
         {
             ClientHandshake clientHandshake = new ClientHandshake(
                 IdentityManager.Instance.GetKey().PublicKey.Export(
-                    KeyBlobFormat.RawPublicKey), 0, TrustedEndpointsManager.GetDeviceFingerprint());
+                    KeyBlobFormat.RawPublicKey), TrustedEndpointsManager.GetDeviceFingerprint());
 
             SendUnencryptedSegment(clientHandshake);
 

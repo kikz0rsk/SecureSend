@@ -7,14 +7,12 @@ namespace SecureSend.Protocol
     internal class ClientHandshake : NetworkSegment
     {
         byte[] publicKey;
-        byte encryptionAlgo;
         byte[] deviceFingerprint;
 
-        public ClientHandshake(byte[] publicKey, byte encryptionAlgo,
-            byte[] deviceFingerprint) : base(SegmentType.CLIENT_HANDSHAKE)
+        public ClientHandshake(byte[] publicKey, byte[] deviceFingerprint) :
+            base(SegmentType.CLIENT_HANDSHAKE)
         {
             this.publicKey = publicKey;
-            this.encryptionAlgo = encryptionAlgo;
             this.deviceFingerprint = deviceFingerprint;
         }
 
@@ -23,7 +21,6 @@ namespace SecureSend.Protocol
             SegmentDecoder decoder = new SegmentDecoder();
             return new ClientHandshake(
                 decoder.DecodeFixedLengthBytes(payloadBytes, 32),
-                0,
                 decoder.DecodeFixedLengthBytes(payloadBytes, 32)
             );
         }
@@ -34,8 +31,6 @@ namespace SecureSend.Protocol
         }
 
         public byte[] PublicKey { get { return publicKey; } }
-
-        public byte EncryptionAlgo { get { return encryptionAlgo; } }
 
         public byte[] DeviceFingerprint { get { return deviceFingerprint; } }
     }

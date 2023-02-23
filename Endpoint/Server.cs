@@ -301,7 +301,12 @@ namespace SecureSend.Endpoint
             if (natDevice == null || mapping == null) return;
             if (!upnpForwarded) return;
 
-            natDevice?.DeletePortMapAsync(mapping);
+            await natDevice?.DeletePortMapAsync(mapping);
+
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
+                application.MainWindow.upnpPortStatus.Content = "";
+            }));
         }
 
         public int? Port { get { return port; } }

@@ -18,6 +18,8 @@ namespace SecureSend
             ServerPort = 23488;
             AllowUpnp = false;
             AllowIncomingConnections = true;
+            Username = "admin";
+            Password = "";
         }
 
         public NSec.Cryptography.Key? Key { get; set; }

@@ -166,13 +166,16 @@ namespace SecureSend
 
         private void onChangePasswordAuthClick(object sender, RoutedEventArgs e)
         {
-            var window = new PasswordAuthWindow(true, application.Username);
+            var window = new PasswordAuthSettingsWindow(
+                application.PasswordAuthEnabled, application.Username, application.Password);
             window.Owner = this;
             window.ShowDialog();
 
+            if (!window.ApplyChanges) return;
+            
             application.Username = window.Username;
             application.Password = window.Password;
-            application.PasswordAuthEnabled = true;
+            application.PasswordAuthEnabled = window.AuthEnabled;
         }
 
         private void onAllowUpnpClick(object sender, RoutedEventArgs e)

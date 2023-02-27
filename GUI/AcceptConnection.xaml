@@ -16,11 +16,11 @@
             <RowDefinition Height="37.005"/>
         </Grid.RowDefinitions>
         <Label Content="Nové zariadenie" HorizontalAlignment="Left" Margin="11,5,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" UseLayoutRounding="False" Height="37" Width="315"/>
-        <Label Content="Počítač a IP adresa" HorizontalAlignment="Left" Margin="11,89,0,0" VerticalAlignment="Top" Height="25" Width="108"/>
+        <Label Content="Názov a IP adresa" HorizontalAlignment="Left" Margin="11,89,0,0" VerticalAlignment="Top" Height="25" Width="108"/>
         <Label x:Name="computerNameAndAddress" Content="" HorizontalAlignment="Left" Margin="131,89,0,0" VerticalAlignment="Top" Height="25"/>
         <Label Content="Identifikátor&#xD;&#xA;zariadenia" HorizontalAlignment="Left" Margin="11,119,0,0" VerticalAlignment="Top" Height="42" Width="74"/>
         <Label x:Name="deviceIdentification" Content="" HorizontalAlignment="Left" Margin="131,130,0,0" VerticalAlignment="Top" Height="25"/>
-        <Label x:Name="question" Content="Chcete povoliť tomuto zariadeniu sa pripojiť?" Margin="0,212,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="15" Height="30" Width="310"/>
+        <Label x:Name="question" Content="Chcete povoliť tomuto zariadeniu sa pripojiť?" Margin="0,212,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="15" Height="30"/>
         <Button x:Name="acceptOnce" Content="Tentokrát povoliť" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Height="25" Width="150" Click="acceptOnce_Click" Grid.Row="1"/>
         <Button x:Name="acceptRemember" Content="Povoliť a zapamätať" HorizontalAlignment="Left" Margin="188,0,0,0" VerticalAlignment="Center" Height="25" Width="150" Click="acceptRemember_Click" Grid.Row="1"/>
         <Button x:Name="reject" Content="Nepovoliť" HorizontalAlignment="Left" Margin="360,0,0,0" VerticalAlignment="Center" Height="25" Width="150" Click="reject_Click" Grid.Row="1"/>

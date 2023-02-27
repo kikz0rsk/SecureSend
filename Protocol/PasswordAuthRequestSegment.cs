@@ -3,7 +3,7 @@ using System;
 
 namespace SecureSend.Protocol
 {
-    internal class PasswordAuthRequestSegment : NetworkSegment
+    internal class PasswordAuthRequestSegment : Segment
     {
         public PasswordAuthRequestSegment(string salt) : base(SegmentType.PASSWORD_AUTH_REQ)
         {

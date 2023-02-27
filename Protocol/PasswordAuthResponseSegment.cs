@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace SecureSend.Protocol
 {
-    internal class PasswordAuthResponseSegment : NetworkSegment
+    internal class PasswordAuthResponseSegment : Segment
     {
         byte[] passwordHash;
         string username;

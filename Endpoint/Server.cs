@@ -130,7 +130,7 @@ namespace SecureSend.Endpoint
 
             try
             {
-                NetworkSegment segment = ReceiveSegment();
+                Segment segment = ReceiveSegment();
                 if (segment.Type != SegmentType.ACK)
                 {
                     throw new InvalidDataException();
@@ -155,7 +155,7 @@ namespace SecureSend.Endpoint
 
                 try
                 {
-                    NetworkSegment segment = ReceiveSegment();
+                    Segment segment = ReceiveSegment();
                     if (segment.Type != SegmentType.PASSWORD_AUTH_RESP)
                     {
                         throw new InvalidDataException();
@@ -205,7 +205,7 @@ namespace SecureSend.Endpoint
 
             SendUnencryptedSegment(serverHandshake);
 
-            NetworkSegment? segment = ReceiveUnencryptedSegment();
+            Segment? segment = ReceiveUnencryptedSegment();
 
             if (segment == null) return null;
 

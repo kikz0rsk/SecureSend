@@ -38,25 +38,25 @@ namespace SecureSend.Endpoint
             this.application = application;
         }
 
-        protected void SendUnencryptedSegment(NetworkSegment segment)
+        protected void SendUnencryptedSegment(Segment segment)
         {
             byte[] serializedSegment = segment.BuildSegment();
 
-            byte[] bytesToSend = NetworkSegment.EncodeUShort(Convert.ToUInt16(serializedSegment.Length)).Concat(serializedSegment).ToArray();
+            byte[] bytesToSend = Segment.EncodeUShort(Convert.ToUInt16(serializedSegment.Length)).Concat(serializedSegment).ToArray();
             stream.Write(bytesToSend, 0, bytesToSend.Length);
         }
 
-        protected NetworkSegment? ReceiveUnencryptedSegment()
+        protected Segment? ReceiveUnencryptedSegment()
         {
-            ushort segmentLength = NetworkSegment.DecodeUShort(NetworkUtils.ReadExactlyBytes(stream, 2));
+            ushort segmentLength = Segment.DecodeUShort(NetworkUtils.ReadExactlyBytes(stream, 2));
             byte[] segmentBytes = NetworkUtils.ReadExactlyBytes(stream, segmentLength);
 
-            NetworkSegment? segment = NetworkSegment.Deserialize(segmentBytes);
+            Segment? segment = Segment.Deserialize(segmentBytes);
 
             return segment;
         }
 
-        protected void SendEncryptedSegment(NetworkSegment segment)
+        protected void SendEncryptedSegment(Segment segment)
         {
             byte[] serializedSegment = segment.BuildSegment();
 
@@ -68,16 +68,16 @@ namespace SecureSend.Endpoint
 
             byte[] encryptedPayload = AeadAlgorithm.Aes256Gcm.Encrypt(symmetricKey, nonce, null, serializedSegment);
 
-            byte[] segmentLengthBytes = NetworkSegment.EncodeUShort(Convert.ToUInt16(encryptedPayload.Length + 12)); // Nonce is 12 bytes
+            byte[] segmentLengthBytes = Segment.EncodeUShort(Convert.ToUInt16(encryptedPayload.Length + 12)); // Nonce is 12 bytes
             byte[] bytesToSend = segmentLengthBytes.Concat(nonce).Concat(encryptedPayload).ToArray();
             stream.Write(bytesToSend, 0, bytesToSend.Length);
         }
 
-        protected NetworkSegment ReceiveSegment()
+        protected Segment ReceiveSegment()
         {
             while(true)
             {
-                ushort segmentLength = NetworkSegment.DecodeUShort(NetworkUtils.ReadExactlyBytes(stream, 2));
+                ushort segmentLength = Segment.DecodeUShort(NetworkUtils.ReadExactlyBytes(stream, 2));
 
                 byte[] encryptedSegment = NetworkUtils.ReadExactlyBytes(stream, segmentLength);
 
@@ -87,7 +87,7 @@ namespace SecureSend.Endpoint
 
                 if (decryptedSegmentBytes == null) continue;
 
-                NetworkSegment? segment = NetworkSegment.Deserialize(decryptedSegmentBytes);
+                Segment? segment = Segment.Deserialize(decryptedSegmentBytes);
 
                 if (segment == null) continue;
 
@@ -106,7 +106,7 @@ namespace SecureSend.Endpoint
                 application.MainWindow.statusText.Content = "Odosielacie zariadenie začína prenos";
             }));
 
-            NetworkSegment segment = ReceiveSegment();
+            Segment segment = ReceiveSegment();
 
             FileInfoSegment fileInfo = (FileInfoSegment)segment;
 
@@ -132,7 +132,7 @@ namespace SecureSend.Endpoint
                 ulong bytesWritten = 0;
                 while (bytesWritten < totalBytes)
                 {
-                    NetworkSegment dataSegment = ReceiveSegment();
+                    Segment dataSegment = ReceiveSegment();
 
                     if (dataSegment.Type != SegmentType.DATA)
                     {
@@ -253,7 +253,7 @@ namespace SecureSend.Endpoint
                 application.MainWindow.fileProgressBar.IsIndeterminate = true;
             }));
 
-            NetworkSegment result = ReceiveSegment();
+            Segment result = ReceiveSegment();
 
             if (result.Type == SegmentType.ACK)
             {
@@ -326,7 +326,7 @@ namespace SecureSend.Endpoint
                             return;
                         }
 
-                        NetworkSegment segment = ReceiveSegment();
+                        Segment segment = ReceiveSegment();
 
                         if (segment.Type == SegmentType.PREPARE_TRANSFER)
                         {

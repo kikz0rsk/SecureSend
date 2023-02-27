@@ -1,6 +1,6 @@
 ﻿namespace SecureSend.Protocol
 {
-    internal class PrepareTransferSegment : NetworkSegment
+    internal class PrepareTransferSegment : Segment
     {
         public PrepareTransferSegment() : base(SegmentType.PREPARE_TRANSFER)
         { }

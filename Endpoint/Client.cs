@@ -8,7 +8,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using NetworkSegment = SecureSend.Protocol.NetworkSegment;
+using Segment = SecureSend.Protocol.Segment;
 using SecureSend.Utils;
 using SecureSend.Base;
 using System.Text;
@@ -137,7 +137,7 @@ namespace SecureSend.Endpoint
 
             try
             {
-                NetworkSegment segment = ReceiveSegment();
+                Segment segment = ReceiveSegment();
                 if (segment.Type != SegmentType.ACK)
                 {
                     throw new InvalidDataException();
@@ -156,7 +156,7 @@ namespace SecureSend.Endpoint
 
             try
             {
-                NetworkSegment segment = ReceiveSegment();
+                Segment segment = ReceiveSegment();
 
                 if (segment.Type == SegmentType.PASSWORD_AUTH_REQ)
                 {
@@ -210,7 +210,7 @@ namespace SecureSend.Endpoint
 
             SendUnencryptedSegment(clientHandshake);
 
-            NetworkSegment? segment = ReceiveUnencryptedSegment();
+            Segment? segment = ReceiveUnencryptedSegment();
 
             if (segment == null) return null;
 

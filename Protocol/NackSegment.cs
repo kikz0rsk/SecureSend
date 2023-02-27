@@ -1,6 +1,6 @@
 ﻿namespace SecureSend.Protocol
 {
-    internal class NackSegment : NetworkSegment
+    internal class NackSegment : Segment
     {
         public NackSegment() : base(SegmentType.NACK)
         { }

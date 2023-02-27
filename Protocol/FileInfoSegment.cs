@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace SecureSend.Protocol
 {
-    internal class FileInfoSegment : NetworkSegment
+    internal class FileInfoSegment : Segment
     {
         string fileName;
         ulong fileSize;

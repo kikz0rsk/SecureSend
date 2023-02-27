@@ -2,7 +2,7 @@
 
 namespace SecureSend.Protocol
 {
-    internal class DataSegment : NetworkSegment
+    internal class DataSegment : Segment
     {
         protected byte[] data;
 

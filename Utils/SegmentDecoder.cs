@@ -15,21 +15,21 @@ namespace SecureSend.Utils
 
         public int DecodeInteger(ReadOnlySpan<byte> input)
         {
-            int num = NetworkSegment.DecodeInteger(input.Slice(offset));
+            int num = Segment.DecodeInteger(input.Slice(offset));
             offset += 4;
             return num;
         }
 
         public ushort DecodeUShort(ReadOnlySpan<byte> input)
         {
-            ushort num = NetworkSegment.DecodeUShort(input.Slice(offset));
+            ushort num = Segment.DecodeUShort(input.Slice(offset));
             offset += 2;
             return num;
         }
 
         public ulong DecodeULong(ReadOnlySpan<byte> input)
         {
-            ulong num = NetworkSegment.DecodeULong(input.Slice(offset));
+            ulong num = Segment.DecodeULong(input.Slice(offset));
             offset += 8;
             return num;
         }

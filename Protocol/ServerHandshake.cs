@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace SecureSend.Protocol
 {
-    internal class ServerHandshake : NetworkSegment
+    internal class ServerHandshake : Segment
     {
         public ServerHandshake(byte[] publicKey, byte[] sessionId,
             byte[] deviceFingerprint, string computerName) : base(SegmentType.SERVER_HANDSHAKE)

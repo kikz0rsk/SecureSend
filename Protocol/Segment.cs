@@ -5,9 +5,9 @@ using System.Text;
 
 namespace SecureSend.Protocol
 {
-    public abstract class NetworkSegment
+    public abstract class Segment
     {
-        public NetworkSegment(SegmentType type)
+        public Segment(SegmentType type)
         {
             Type = type;
         }
@@ -21,7 +21,7 @@ namespace SecureSend.Protocol
 
         protected abstract byte[] EncodePayload();
 
-        public static NetworkSegment? Deserialize(ReadOnlySpan<byte> segmentBytes)
+        public static Segment? Deserialize(ReadOnlySpan<byte> segmentBytes)
         {
             SegmentType? typeCode = (SegmentType)segmentBytes[0];
             

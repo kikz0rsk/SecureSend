@@ -100,10 +100,10 @@ namespace SecureSend.Protocol
             return encodedLength.Concat(bytes).ToArray();
         }
 
-        public static byte[] DecodeVarLengthBytes(ReadOnlySpan<byte> input, out int skipBytes)
+        public static byte[] DecodeVarLengthBytes(ReadOnlySpan<byte> input, out int totalLength)
         {
             int length = DecodeInteger(input);
-            skipBytes = 4 + length;
+            totalLength = 4 + length;
             return input.Slice(4, length).ToArray();
         }
 
@@ -113,10 +113,10 @@ namespace SecureSend.Protocol
             return encodedLength.Concat(UTF8Encoding.UTF8.GetBytes(str)).ToArray();
         }
 
-        public static string DecodeVarLengthString(ReadOnlySpan<byte> input, out int skipBytes)
+        public static string DecodeVarLengthString(ReadOnlySpan<byte> input, out int totalLength)
         {
             int length = DecodeInteger(input);
-            skipBytes = 4 + length;
+            totalLength = 4 + length;
             return UTF8Encoding.UTF8.GetString(input.Slice(4, length));
         }
 

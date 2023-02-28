@@ -42,7 +42,7 @@ namespace SecureSend.Endpoint
             {
                 connection = new TcpClient();
 
-                Application.Current.Dispatcher.Invoke(new Action(() =>
+                InvokeGUI(new Action(() =>
                 {
                     application.MainWindow.currentConnectionText.Content = "Prebieha pripájanie...";
                     application.MainWindow.disconnectBtn.IsEnabled = false;
@@ -104,7 +104,7 @@ namespace SecureSend.Endpoint
 
         protected void HandleConnection()
         {
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            InvokeGUI(new Action(() =>
             {
                 application.MainWindow.currentConnectionText.Content = "Vytvára sa bezpečný kanál...";
             }));
@@ -121,7 +121,7 @@ namespace SecureSend.Endpoint
                 return;
             }
 
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            InvokeGUI(new Action(() =>
             {
                 application.MainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa...";
             }));

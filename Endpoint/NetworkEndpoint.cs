@@ -142,7 +142,7 @@ namespace SecureSend.Endpoint
                 return;
             }
 
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            InvokeGUI(new Action(() =>
             {
                 application.MainWindow.SetCipher(algo);
             }));
@@ -157,7 +157,7 @@ namespace SecureSend.Endpoint
 
         protected void ReceiveFile()
         {
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            InvokeGUI(new Action(() =>
             {
                 application.MainWindow.fileProgressBar.IsIndeterminate = true;
                 application.MainWindow.sendFileButton.IsEnabled = false;
@@ -168,7 +168,7 @@ namespace SecureSend.Endpoint
 
             FileInfoSegment fileInfo = (FileInfoSegment)segment;
 
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            InvokeGUI(new Action(() =>
             {
                 application.MainWindow.statusText.Content = "Prichádzajúci súbor " + fileInfo.GetFileName();
                 application.MainWindow.fileProgressBar.Value = 0;
@@ -201,14 +201,14 @@ namespace SecureSend.Endpoint
 
                     fileStream.Write(data);
                     bytesWritten += (ulong)data.Length;
-                    Application.Current.Dispatcher.InvokeAsync(new Action(() =>
+                    InvokeAsyncGUI(new Action(() =>
                     {
                         application.MainWindow.SetProgress(bytesWritten, totalBytes);
                     }));
                 }
             }
 
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            InvokeGUI(new Action(() =>
             {
                 application.MainWindow.statusText.Content = "Overuje sa kontrolný súčet súboru...";
                 application.MainWindow.fileProgressBar.IsIndeterminate = true;
@@ -246,7 +246,7 @@ namespace SecureSend.Endpoint
                 });
             }
 
-            Application.Current.Dispatcher.InvokeAsync(new Action(() =>
+            InvokeAsyncGUI(new Action(() =>
             {
                 application.MainWindow.SetProgress(0, 1);
                 application.MainWindow.statusText.Content = "Súbor bol prijatý";
@@ -267,7 +267,7 @@ namespace SecureSend.Endpoint
 
             SendEncryptedSegment(new PrepareTransferSegment());
 
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            InvokeGUI(new Action(() =>
             {
                 application.MainWindow.fileProgressBar.Value = 0;
                 application.MainWindow.fileProgressBar.IsIndeterminate = true;
@@ -279,7 +279,7 @@ namespace SecureSend.Endpoint
 
             byte[] hash = CryptoUtils.CalculateFileHash(filePathString);
 
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            InvokeGUI(new Action(() =>
             {
                 application.MainWindow.fileProgressBar.IsIndeterminate = false;
                 application.MainWindow.statusText.Content = "Odosiela sa súbor...";
@@ -298,14 +298,14 @@ namespace SecureSend.Endpoint
                     DataSegment data = new DataSegment(buffer.Take(bytesRead).ToArray());
                     SendEncryptedSegment(data);
                     bytesSent += (ulong)bytesRead;
-                    Application.Current.Dispatcher.InvokeAsync(new Action(() =>
+                    InvokeAsyncGUI(new Action(() =>
                     {
                         application.MainWindow.SetProgress(bytesSent, totalBytes);
                     }));
                 }
             }
 
-            Application.Current.Dispatcher.InvokeAsync(new Action(() =>
+            InvokeAsyncGUI(new Action(() =>
             {
                 application.MainWindow.statusText.Content = "Prijímajúce zariadenie overuje integritu súboru...";
                 application.MainWindow.fileProgressBar.IsIndeterminate = true;
@@ -330,7 +330,7 @@ namespace SecureSend.Endpoint
                 });
             }
 
-            Application.Current.Dispatcher.InvokeAsync(new Action(() =>
+            InvokeAsyncGUI(new Action(() =>
             {
                 application.MainWindow.statusText.Content = "Súbor bol odoslaný";
                 application.MainWindow.sendFileButton.IsEnabled = true;

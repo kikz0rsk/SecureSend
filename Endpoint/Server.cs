@@ -55,7 +55,7 @@ namespace SecureSend.Endpoint
             }
 
             port = ((IPEndPoint)serverSocket.LocalEndpoint).Port;
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            InvokeGUI(new Action(() =>
             {
                 application.MainWindow.statusPortText.Content = "Port pre pripojenie: " + port.ToString();
             }));
@@ -97,7 +97,7 @@ namespace SecureSend.Endpoint
 
         protected void HandleConnection()
         {
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            InvokeGUI(new Action(() =>
             {
                 application.MainWindow.currentConnectionText.Content = "Vytvára sa bezpečný kanál...";
             }));
@@ -114,7 +114,7 @@ namespace SecureSend.Endpoint
                 return;
             }
 
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            InvokeGUI(new Action(() =>
             {
                 application.MainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa...";
             }));
@@ -287,7 +287,7 @@ namespace SecureSend.Endpoint
 
                 if (success)
                 {
-                    Application.Current.Dispatcher.Invoke(new Action(() =>
+                    InvokeGUI(new Action(() =>
                     {
                         application.MainWindow.upnpPortStatus.Content = "Port pre pripojenie z internetu: " + publicPort.ToString();
                     }));
@@ -300,7 +300,7 @@ namespace SecureSend.Endpoint
                 Debug.WriteLine("[NAT] general exception: " + ex.ToString());
             }
 
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            InvokeGUI(new Action(() =>
             {
                 application.MainWindow.upnpPortStatus.Content = "Presmerovanie portu UPnP zlyhalo";
             }));

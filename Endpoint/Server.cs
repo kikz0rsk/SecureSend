@@ -90,6 +90,7 @@ namespace SecureSend.Endpoint
                 {
                     filesToSend.Clear();
                     SetConnected(false);
+                    cipherAlgorithm = CipherAlgorithm.AES256;
                 }
             }
         }
@@ -243,7 +244,7 @@ namespace SecureSend.Endpoint
             stopSignal = true;
             serverSocket?.Stop();
 
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            InvokeGUI(new Action(() =>
             {
                 application.MainWindow.statusPortText.Content = "Pripájanie je vypnuté";
             }));
@@ -316,13 +317,6 @@ namespace SecureSend.Endpoint
             {
                 application.MainWindow.upnpPortStatus.Content = "";
             }));
-        }
-
-        public void ChangeCipher(CipherAlgorithm algo, byte[] salt)
-        {
-            SendEncryptedSegment(new CipherChangeSegment(algo, salt));
-
-            _ChangeCipher(algo, salt);
         }
 
         public int? Port { get { return port; } }

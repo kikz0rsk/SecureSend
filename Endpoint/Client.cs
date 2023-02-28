@@ -98,6 +98,7 @@ namespace SecureSend.Endpoint
                 filesToSend.Clear();
                 Disconnect();
                 SetConnected(false);
+                cipherAlgorithm = CipherAlgorithm.AES256;
             }
         }
 

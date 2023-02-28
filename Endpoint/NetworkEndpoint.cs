@@ -22,8 +22,8 @@ namespace SecureSend.Endpoint
         protected PublicKey remoteEndpointPublicKey;
         protected byte[] deviceFingerprint;
         protected string? remoteComputerName;
-        protected byte[]? sessionId;
-        protected SharedSecret? sharedSecret;
+        protected volatile byte[]? sessionId;
+        protected volatile SharedSecret? sharedSecret;
 
         protected NetworkStream? stream;
         protected TcpClient? connection;
@@ -36,7 +36,7 @@ namespace SecureSend.Endpoint
         protected volatile bool client = false;
         protected byte[] lastSequenceForNonce = new byte[6];
 
-        protected CipherAlgorithm cipherAlgorithm = CipherAlgorithm.AES256;
+        protected volatile CipherAlgorithm cipherAlgorithm = CipherAlgorithm.AES256;
 
         public NetworkEndpoint(SecureSendApp application)
         {
@@ -71,7 +71,15 @@ namespace SecureSend.Endpoint
             byte[] nonce = nonceRandom.Concat(lastSequenceForNonce).ToArray();
             IncrementNonce();
 
-            byte[] encryptedPayload = AeadAlgorithm.Aes256Gcm.Encrypt(symmetricKey, nonce, null, serializedSegment);
+            byte[]? encryptedPayload = null;
+            if(cipherAlgorithm == CipherAlgorithm.ChaCha20Poly1305)
+            {
+                encryptedPayload = AeadAlgorithm.ChaCha20Poly1305.Encrypt(symmetricKey, nonce, null, serializedSegment);
+            } else
+            {
+                encryptedPayload = AeadAlgorithm.Aes256Gcm.Encrypt(symmetricKey, nonce, null, serializedSegment);
+            }
+            
 
             byte[] segmentLengthBytes = Segment.EncodeUShort(Convert.ToUInt16(encryptedPayload.Length + 12)); // Nonce is 12 bytes
             byte[] bytesToSend = segmentLengthBytes.Concat(nonce).Concat(encryptedPayload).ToArray();
@@ -88,7 +96,15 @@ namespace SecureSend.Endpoint
 
                 byte[] nonce = encryptedSegment.Take(12).ToArray();
                 byte[] payload = encryptedSegment.Skip(12).ToArray();
-                byte[]? decryptedSegmentBytes = CryptoUtils.DecryptBytes(payload, symmetricKey, nonce);
+                byte[]? decryptedSegmentBytes = null;
+
+                if(cipherAlgorithm == CipherAlgorithm.ChaCha20Poly1305)
+                {
+                    decryptedSegmentBytes = AeadAlgorithm.ChaCha20Poly1305.Decrypt(symmetricKey, nonce, null, payload);
+                } else
+                {
+                    decryptedSegmentBytes = AeadAlgorithm.Aes256Gcm.Decrypt(symmetricKey, nonce, null, payload);
+                }
 
                 if (decryptedSegmentBytes == null) continue;
 
@@ -112,10 +128,6 @@ namespace SecureSend.Endpoint
                     key = KeyDerivationAlgorithm.HkdfSha512.DeriveKey(
                         sharedSecret, salt, null, AeadAlgorithm.ChaCha20Poly1305, CryptoUtils.AllowExport());
                     break;
-                case CipherAlgorithm.XChaCha20Poly1305:
-                    key = KeyDerivationAlgorithm.HkdfSha512.DeriveKey(
-                        sharedSecret, salt, null, AeadAlgorithm.XChaCha20Poly1305, CryptoUtils.AllowExport());
-                    break;
                 default:
                     key = KeyDerivationAlgorithm.HkdfSha512.DeriveKey(
                         sharedSecret, salt, null, AeadAlgorithm.Aes256Gcm, CryptoUtils.AllowExport());
@@ -123,6 +135,24 @@ namespace SecureSend.Endpoint
             }
             this.sessionId = salt;
             this.symmetricKey = key;
+            if(key == null)
+            {
+                Disconnect();
+                Debug.WriteLine("[change cipher] failed");
+                return;
+            }
+
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
+                application.MainWindow.SetCipher(algo);
+            }));
+        }
+
+        public void ChangeCipher(CipherAlgorithm algo, byte[] salt)
+        {
+            SendEncryptedSegment(new CipherChangeSegment(algo, salt));
+
+            _ChangeCipher(algo, salt);
         }
 
         protected void ReceiveFile()
@@ -384,6 +414,22 @@ namespace SecureSend.Endpoint
             }
         }
 
+        protected void InvokeGUI(Action action)
+        {
+            if (application.MainWindow == null)
+                return;
+
+            Application.Current.Dispatcher.Invoke(action);
+        }
+
+        protected void InvokeAsyncGUI(Action action)
+        {
+            if (application.MainWindow == null)
+                return;
+
+            Application.Current.Dispatcher.InvokeAsync(action);
+        }
+
         public void Disconnect()
         {
             stream?.Close();
@@ -400,11 +446,11 @@ namespace SecureSend.Endpoint
             this.connected = connected;
             if (connected)
             {
-                Application.Current.Dispatcher.Invoke(new Action(() => { application.MainWindow.SetConnected(); }));
+                InvokeGUI(new Action(() => { application.MainWindow.SetConnected(); }));
                 return;
             }
 
-            Application.Current.Dispatcher.Invoke(new Action(() => { application.MainWindow.SetDisconnected(); }));
+            InvokeGUI(new Action(() => { application.MainWindow.SetDisconnected(); }));
         }
 
         public bool IsConnected()

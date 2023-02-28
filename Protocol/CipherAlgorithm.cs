@@ -9,7 +9,6 @@ namespace SecureSend.Protocol
     public enum CipherAlgorithm
     {
         AES256 = 0,
-        ChaCha20Poly1305 = 1,
-        XChaCha20Poly1305 = 2
+        ChaCha20Poly1305 = 1
     }
 }

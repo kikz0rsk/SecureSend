@@ -7,6 +7,7 @@ using SecureSend.GUI;
 using SecureSend.Utils;
 using SecureSend.Base;
 using System.Diagnostics;
+using SecureSend.Protocol;
 
 namespace SecureSend
 {
@@ -77,6 +78,7 @@ namespace SecureSend
 
         private void onWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            application.MainWindow = null;
             client?.Disconnect();
             client?.GetThread()?.Interrupt();
 
@@ -217,6 +219,53 @@ namespace SecureSend
             if(serverSettingsWindow.AllowUpnp)
             {
                 server.EnableUpnpForward();
+            }
+        }
+
+        private void onAesSelected(object sender, RoutedEventArgs e)
+        {
+            byte[] salt = new byte[64];
+            CryptoUtils.FillWithRandomBytes(salt);
+            if ((client != null && client.IsConnected()))
+            {
+                client.ChangeCipher(Protocol.CipherAlgorithm.AES256, salt);
+                return;
+            }
+
+            if (server.IsConnected())
+            {
+                server.ChangeCipher(Protocol.CipherAlgorithm.AES256, salt);
+            }
+        }
+
+        private void onChachaSelected(object sender, RoutedEventArgs e)
+        {
+            byte[] salt = new byte[64];
+            CryptoUtils.FillWithRandomBytes(salt);
+            if ((client != null && client.IsConnected()))
+            {
+                client.ChangeCipher(Protocol.CipherAlgorithm.ChaCha20Poly1305, salt);
+                return;
+            }
+
+            if (server.IsConnected())
+            {
+                server.ChangeCipher(Protocol.CipherAlgorithm.ChaCha20Poly1305, salt);
+            }
+        }
+
+        public void SetCipher(CipherAlgorithm algo)
+        {
+            switch(algo)
+            {
+                case CipherAlgorithm.AES256:
+                    aes256.IsChecked = true;
+                    chachapoly1305.IsChecked = false;
+                    break;
+                case CipherAlgorithm.ChaCha20Poly1305:
+                    aes256.IsChecked = false;
+                    chachapoly1305.IsChecked = true;
+                    break;
             }
         }
     }

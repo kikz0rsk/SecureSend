@@ -229,8 +229,7 @@ namespace SecureSend.Endpoint
             remoteComputerName = serverHandshake.ComputerName;
 
             // agree on shared secret
-            SharedSecret? sharedSecret = KeyAgreementAlgorithm.X25519.Agree(IdentityManager.Instance.GetKey(), remoteEndpointPublicKey);
-
+            sharedSecret = KeyAgreementAlgorithm.X25519.Agree(IdentityManager.Instance.GetKey(), remoteEndpointPublicKey);
             if (sharedSecret == null)
             {
                 return null;
@@ -238,6 +237,7 @@ namespace SecureSend.Endpoint
 
             CryptoUtils.FillWithRandomBytes(lastSequenceForNonce);
 
+            sessionId = serverHandshake.SessionId;
             return KeyDerivationAlgorithm.HkdfSha512.DeriveKey(sharedSecret,
                 serverHandshake.SessionId, null, AeadAlgorithm.Aes256Gcm, CryptoUtils.AllowExport());
         }

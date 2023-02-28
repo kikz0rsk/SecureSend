@@ -5,6 +5,7 @@ using SecureSend.Protocol;
 using SecureSend.Utils;
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -21,6 +22,8 @@ namespace SecureSend.Endpoint
         protected PublicKey remoteEndpointPublicKey;
         protected byte[] deviceFingerprint;
         protected string? remoteComputerName;
+        protected byte[]? sessionId;
+        protected SharedSecret? sharedSecret;
 
         protected NetworkStream? stream;
         protected TcpClient? connection;
@@ -32,6 +35,8 @@ namespace SecureSend.Endpoint
         protected volatile bool connected = false;
         protected volatile bool client = false;
         protected byte[] lastSequenceForNonce = new byte[6];
+
+        protected CipherAlgorithm cipherAlgorithm = CipherAlgorithm.AES256;
 
         public NetworkEndpoint(SecureSendApp application)
         {
@@ -96,6 +101,29 @@ namespace SecureSend.Endpoint
         }
 
         protected abstract Key? EstablishTrust();
+
+        protected void _ChangeCipher(CipherAlgorithm algo, byte[] salt)
+        {
+            cipherAlgorithm = algo;
+            Key? key = null;
+            switch (algo)
+            {
+                case CipherAlgorithm.ChaCha20Poly1305:
+                    key = KeyDerivationAlgorithm.HkdfSha512.DeriveKey(
+                        sharedSecret, salt, null, AeadAlgorithm.ChaCha20Poly1305, CryptoUtils.AllowExport());
+                    break;
+                case CipherAlgorithm.XChaCha20Poly1305:
+                    key = KeyDerivationAlgorithm.HkdfSha512.DeriveKey(
+                        sharedSecret, salt, null, AeadAlgorithm.XChaCha20Poly1305, CryptoUtils.AllowExport());
+                    break;
+                default:
+                    key = KeyDerivationAlgorithm.HkdfSha512.DeriveKey(
+                        sharedSecret, salt, null, AeadAlgorithm.Aes256Gcm, CryptoUtils.AllowExport());
+                    break;
+            }
+            this.sessionId = salt;
+            this.symmetricKey = key;
+        }
 
         protected void ReceiveFile()
         {
@@ -328,9 +356,15 @@ namespace SecureSend.Endpoint
 
                         Segment segment = ReceiveSegment();
 
-                        if (segment.Type == SegmentType.PREPARE_TRANSFER)
+                        switch(segment.Type)
                         {
-                            ReceiveFile();
+                            case SegmentType.PREPARE_TRANSFER:
+                                ReceiveFile();
+                                break;
+                            case SegmentType.CIPHER_CHANGE:
+                                var cipherChange = (CipherChangeSegment)segment;
+                                _ChangeCipher(cipherChange.Algorithm, cipherChange.Salt);
+                                break;
                         }
                     }
                     else if (filesToSend.Count > 0)
@@ -342,8 +376,9 @@ namespace SecureSend.Endpoint
                         Thread.Sleep(100);
                     }
                 }
-                catch (SocketException)
+                catch (SocketException ex)
                 {
+                    Debug.WriteLine(ex.ToString());
                     break;
                 }
             }

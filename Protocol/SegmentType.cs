@@ -11,5 +11,6 @@
         NACK = 6,
         PASSWORD_AUTH_REQ = 7,
         PASSWORD_AUTH_RESP = 8,
+        CIPHER_CHANGE = 9,
     }
 }

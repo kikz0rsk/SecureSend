@@ -24,7 +24,6 @@ namespace SecureSend.Protocol
         public static Segment? Deserialize(ReadOnlySpan<byte> segmentBytes)
         {
             SegmentType? typeCode = (SegmentType)segmentBytes[0];
-            
 
             var payload = segmentBytes.Slice(1);
             switch (typeCode)
@@ -47,6 +46,8 @@ namespace SecureSend.Protocol
                     return PasswordAuthRequestSegment.DecodeFromBytes(payload);
                 case SegmentType.PASSWORD_AUTH_RESP:
                     return PasswordAuthResponseSegment.DecodeFromBytes(payload);
+                case SegmentType.CIPHER_CHANGE:
+                    return CipherChangeSegment.DecodeFromBytes(payload);
                 default:
                     return null;
             }

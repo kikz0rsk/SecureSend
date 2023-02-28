@@ -196,7 +196,7 @@ namespace SecureSend.Endpoint
 
         protected override Key? EstablishTrust()
         {
-            byte[] sessionId = new byte[64];
+            sessionId = new byte[64];
             CryptoUtils.FillWithRandomBytes(sessionId);
 
             ServerHandshake serverHandshake = new ServerHandshake(
@@ -224,8 +224,7 @@ namespace SecureSend.Endpoint
             remoteComputerName = clientHandshake.ComputerName;
 
             // agree on shared secret
-            SharedSecret? sharedSecret = KeyAgreementAlgorithm.X25519.Agree(application.Key, remoteEndpointPublicKey);
-
+            sharedSecret = KeyAgreementAlgorithm.X25519.Agree(application.Key, remoteEndpointPublicKey);
             if (sharedSecret == null)
             {
                 return null;
@@ -317,6 +316,13 @@ namespace SecureSend.Endpoint
             {
                 application.MainWindow.upnpPortStatus.Content = "";
             }));
+        }
+
+        public void ChangeCipher(CipherAlgorithm algo, byte[] salt)
+        {
+            SendEncryptedSegment(new CipherChangeSegment(algo, salt));
+
+            _ChangeCipher(algo, salt);
         }
 
         public int? Port { get { return port; } }

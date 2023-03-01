@@ -4,11 +4,10 @@ namespace SecureSend.Protocol
 {
     internal class DataSegment : Segment
     {
-        protected byte[] data;
 
         public DataSegment(byte[] data) : base(SegmentType.DATA)
         {
-            this.data = data;
+            Data = data;
         }
 
         public DataSegment(ReadOnlySpan<byte> data) : this(data.ToArray())
@@ -16,13 +15,10 @@ namespace SecureSend.Protocol
 
         protected override byte[] EncodePayload()
         {
-            return data;
+            return Data;
         }
 
-        public byte[] GetData()
-        {
-            return data;
-        }
+        public byte[] Data { get; private set; }
 
     }
 }

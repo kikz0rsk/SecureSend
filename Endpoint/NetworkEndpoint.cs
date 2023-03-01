@@ -199,7 +199,7 @@ namespace SecureSend.Endpoint
                         continue;
                     }
 
-                    byte[] data = ((DataSegment)dataSegment).GetData();
+                    byte[] data = ((DataSegment)dataSegment).Data;
 
                     fileStream.Write(data);
                     bytesWritten += (ulong)data.Length;

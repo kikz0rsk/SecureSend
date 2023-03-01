@@ -61,18 +61,20 @@ namespace SecureSend.Base
                 }
 
                 Identities = identities;
-            } catch(Exception)
+            }
+            catch (Exception)
             {
                 Identities = new List<Identity>();
             }
         }
 
-        public void Save() {
+        public void Save()
+        {
             using (StreamWriter fileStream = new StreamWriter(KNOWN_HOSTS_FILENAME, false))
             {
                 foreach (Identity identity in Identities)
                 {
-                    fileStream.WriteLine(identity.ComputerName + ":" 
+                    fileStream.WriteLine(identity.ComputerName + ":"
                         + identity.DeviceFingerprintString + ':'
                         + identity.PublicKeyString);
                 }
@@ -88,9 +90,9 @@ namespace SecureSend.Base
         public bool Lookup(byte[] deviceFingerprint, byte[] publicKey)
         {
             bool result = false;
-            foreach(Identity identity in Identities)
+            foreach (Identity identity in Identities)
             {
-                if(Enumerable.SequenceEqual(identity.DeviceFingerprint, deviceFingerprint) &&
+                if (Enumerable.SequenceEqual(identity.DeviceFingerprint, deviceFingerprint) &&
                     Enumerable.SequenceEqual(identity.PublicKey, publicKey))
                 {
                     return true;
@@ -120,14 +122,16 @@ namespace SecureSend.Base
             try
             {
                 return disk["VolumeSerialNumber"].ToString() ?? "";
-            } catch(Exception)
+            }
+            catch (Exception)
             {
                 return "";
-            } finally
+            }
+            finally
             {
                 disk.Dispose();
             }
-            
+
         }
 
         protected static string GetMotherboardSerialNumber()
@@ -142,10 +146,12 @@ namespace SecureSend.Base
                 }
 
                 return "";
-            } catch (Exception)
+            }
+            catch (Exception)
             {
                 return "";
-            } finally
+            }
+            finally
             {
                 baseboardSearcher.Dispose();
             }

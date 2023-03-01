@@ -174,7 +174,7 @@ namespace SecureSend
             window.ShowDialog();
 
             if (!window.ApplyChanges) return;
-            
+
             application.Username = window.Username;
             application.Password = window.Password;
             application.PasswordAuthEnabled = window.AuthEnabled;
@@ -194,7 +194,7 @@ namespace SecureSend
             serverSettingsWindow.Owner = this;
             serverSettingsWindow.ShowDialog();
 
-            if(!serverSettingsWindow.ApplyChanges)
+            if (!serverSettingsWindow.ApplyChanges)
             {
                 return;
             }
@@ -215,8 +215,8 @@ namespace SecureSend
             application.ServerPort = serverSettingsWindow.Port;
             server = application.CreateServer();
             server.StartServer();
-            
-            if(serverSettingsWindow.AllowUpnp)
+
+            if (serverSettingsWindow.AllowUpnp)
             {
                 server.EnableUpnpForward();
             }
@@ -256,7 +256,7 @@ namespace SecureSend
 
         public void SetCipher(CipherAlgorithm algo)
         {
-            switch(algo)
+            switch (algo)
             {
                 case CipherAlgorithm.AES256:
                     aes256.IsChecked = true;

@@ -24,12 +24,12 @@ namespace SecureSend.GUI
         {
             InitializeComponent();
 
-            if(changePassword)
+            if (changePassword)
             {
                 this.button.Content = "Zmeniť údaje";
             }
 
-            if(username != null)
+            if (username != null)
             {
                 this.username.Text = username;
             }
@@ -37,7 +37,7 @@ namespace SecureSend.GUI
 
         private void connectBtn_Click(object sender, RoutedEventArgs e)
         {
-            if(username.Text.Trim().Length == 0 || password.Password.Length == 0)
+            if (username.Text.Trim().Length == 0 || password.Password.Length == 0)
             {
                 return;
             }

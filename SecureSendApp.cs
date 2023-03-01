@@ -22,7 +22,7 @@ namespace SecureSend
             Password = "";
         }
 
-        public NSec.Cryptography.Key? Key { get; set; }
+        public NSec.Cryptography.Key Key { get; set; }
 
         public Server Server { get; set; }
 
@@ -44,7 +44,7 @@ namespace SecureSend
 
         public Server CreateServer()
         {
-            if(Server != null)
+            if (Server != null)
             {
                 Server.StopServer();
             }

@@ -21,7 +21,7 @@ namespace SecureSend.Base
                 }
                 return instance;
             }
-            
+
             private set { }
         }
 
@@ -30,14 +30,15 @@ namespace SecureSend.Base
 
         public void LoadKey()
         {
-            if(File.Exists(".id"))
+            if (File.Exists(".id"))
             {
                 byte[] key = File.ReadAllBytes(".id");
                 try
                 {
                     this.key = Key.Import(KeyAgreementAlgorithm.X25519, key, KeyBlobFormat.RawPrivateKey, CryptoUtils.AllowExport());
                     return;
-                } catch(Exception)
+                }
+                catch (Exception)
                 { }
             }
 
@@ -56,7 +57,7 @@ namespace SecureSend.Base
 
         public Key GetKey()
         {
-            if(key == null)
+            if (key == null)
             {
                 LoadKey();
             }

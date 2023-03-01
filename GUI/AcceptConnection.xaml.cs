@@ -27,7 +27,7 @@ namespace SecureSend.GUI
         {
             InitializeComponent();
 
-            if(client)
+            if (client)
             {
                 question.Content = "Chcete sa pripojiť na toto zariadenie?";
             }

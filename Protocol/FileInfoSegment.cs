@@ -41,7 +41,8 @@ namespace SecureSend.Protocol
             return fileSize;
         }
 
-        public byte[] GetHash() {
+        public byte[] GetHash()
+        {
             return hash;
         }
     }

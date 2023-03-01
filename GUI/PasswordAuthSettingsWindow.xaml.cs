@@ -37,9 +37,9 @@ namespace SecureSend.GUI
 
         private void saveButton_Click(object sender, RoutedEventArgs e)
         {
-            if(authEnabledCheckbox.IsChecked == true)
+            if (authEnabledCheckbox.IsChecked == true)
             {
-                if(password.Password.Length == 0 || username.Text.Trim().Length == 0) return;
+                if (password.Password.Length == 0 || username.Text.Trim().Length == 0) return;
 
                 AuthEnabled = true;
                 Username = username.Text;
@@ -62,10 +62,11 @@ namespace SecureSend.GUI
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if(authEnabledCheckbox.IsChecked == true)
+            if (authEnabledCheckbox.IsChecked == true)
             {
                 authEnabledCheckbox_Checked(null, null);
-            } else
+            }
+            else
             {
                 authEnabledCheckbox_Unchecked(null, null);
             }

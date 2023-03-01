@@ -26,7 +26,7 @@ namespace SecureSend.GUI
 
         private void connectBtn_Click(object sender, RoutedEventArgs e)
         {
-            if(ipAddress.Text.Trim().Length == 0 || port.Text.Trim().Length == 0)
+            if (ipAddress.Text.Trim().Length == 0 || port.Text.Trim().Length == 0)
             {
                 return;
             }

@@ -17,7 +17,7 @@ namespace SecureSend.Protocol
 
         public static PasswordAuthRequestSegment DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
         {
-            return new PasswordAuthRequestSegment(DecodeVarLengthString(payloadBytes));
+            return new PasswordAuthRequestSegment(DecodeVarLengthString(payloadBytes, out _));
         }
 
         public string Salt { get; protected set; }

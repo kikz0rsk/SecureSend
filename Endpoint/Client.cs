@@ -12,6 +12,7 @@ using SecureSend.Utils;
 using SecureSend.Base;
 using System.Text;
 using SecureSend.Exceptions;
+using System.Diagnostics;
 
 namespace SecureSend.Endpoint
 {
@@ -82,9 +83,10 @@ namespace SecureSend.Endpoint
             { }
             catch (SocketException)
             { }
-            catch (ArgumentOutOfRangeException)
+            catch (ArgumentOutOfRangeException ex)
             {
                 MessageBox.Show("Neočakávaná odpoveď.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
+                Debug.Write(ex.ToString());
             }
             catch (IOException)
             {

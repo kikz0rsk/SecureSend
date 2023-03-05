@@ -36,10 +36,10 @@ namespace SecureSend.Utils
 
         public byte[] DecodeVarLengthBytes(ReadOnlySpan<byte> input)
         {
-            int length = DecodeInteger(input);
-            byte[] arr = input.Slice(offset, length).ToArray();
-            offset += length;
-            return arr;
+            int skip;
+            byte[] bytes = Segment.DecodeVarLengthBytes(input.Slice(offset), out skip);
+            offset += skip;
+            return bytes;
         }
 
         public byte[] DecodeFixedLengthBytes(ReadOnlySpan<byte> input, int length)
@@ -51,10 +51,10 @@ namespace SecureSend.Utils
 
         public string DecodeVarLengthString(ReadOnlySpan<byte> input)
         {
-            int length = DecodeInteger(input);
-            string output = Encoding.UTF8.GetString(input.Slice(offset, length));
-            offset += length;
-            return output;
+            int skip;
+            string str = Segment.DecodeVarLengthString(input.Slice(offset), out skip);
+            offset += skip;
+            return str;
         }
 
         public string DecodeFixedLengthString(ReadOnlySpan<byte> input, int length)

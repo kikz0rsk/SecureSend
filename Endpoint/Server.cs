@@ -75,9 +75,10 @@ namespace SecureSend.Endpoint
                 catch (ThreadInterruptedException) { }
                 catch (SocketException) { }
                 catch (ConnectionClosedException) { }
-                catch (ArgumentOutOfRangeException)
+                catch (ArgumentOutOfRangeException ex)
                 {
                     MessageBox.Show("Neočakávaná odpoveď.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Debug.Write(ex.ToString());
                 }
                 catch (IOException)
                 {

@@ -97,34 +97,28 @@ namespace SecureSend.Protocol
 
         public static byte[] EncodeVarLengthBytes(byte[] bytes)
         {
-            byte[] encodedLength = EncodeInteger(bytes.Length);
+            byte[] encodedLength = EncodeUShort(Convert.ToUInt16(bytes.Length));
             return encodedLength.Concat(bytes).ToArray();
         }
 
         public static byte[] DecodeVarLengthBytes(ReadOnlySpan<byte> input, out int totalLength)
         {
-            int length = DecodeInteger(input);
-            totalLength = 4 + length;
-            return input.Slice(4, length).ToArray();
+            int length = DecodeUShort(input);
+            totalLength = 2 + length;
+            return input.Slice(2, length).ToArray();
         }
 
         public static byte[] EncodeVarLengthString(string str)
         {
-            byte[] encodedLength = EncodeInteger(str.Length);
+            byte[] encodedLength = EncodeUShort(Convert.ToUInt16(str.Length));
             return encodedLength.Concat(UTF8Encoding.UTF8.GetBytes(str)).ToArray();
         }
 
         public static string DecodeVarLengthString(ReadOnlySpan<byte> input, out int totalLength)
         {
-            int length = DecodeInteger(input);
-            totalLength = 4 + length;
-            return UTF8Encoding.UTF8.GetString(input.Slice(4, length));
-        }
-
-        public static string DecodeVarLengthString(ReadOnlySpan<byte> input)
-        {
-            int length = DecodeInteger(input);
-            return UTF8Encoding.UTF8.GetString(input.Slice(4, length));
+            int length = DecodeUShort(input);
+            totalLength = 2 + length;
+            return UTF8Encoding.UTF8.GetString(input.Slice(2, length));
         }
 
         public SegmentType Type { get; }

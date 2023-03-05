@@ -145,7 +145,7 @@ namespace SecureSend.Endpoint
 
             try
             {
-                Segment segment = ReceiveSegment();
+                Segment segment = ReceiveEncryptedSegment();
                 if (segment.Type != SegmentType.ACK)
                 {
                     throw new InvalidDataException();
@@ -164,7 +164,7 @@ namespace SecureSend.Endpoint
 
             try
             {
-                Segment segment = ReceiveSegment();
+                Segment segment = ReceiveEncryptedSegment();
 
                 if (segment.Type == SegmentType.PASSWORD_AUTH_REQ)
                 {
@@ -183,7 +183,7 @@ namespace SecureSend.Endpoint
                     SendEncryptedSegment(
                         new PasswordAuthResponseSegment(window.Username, hash));
 
-                    segment = ReceiveSegment();
+                    segment = ReceiveEncryptedSegment();
                     if (segment.Type == SegmentType.NACK)
                     {
                         Task.Run(() =>

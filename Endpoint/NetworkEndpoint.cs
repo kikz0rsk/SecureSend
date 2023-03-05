@@ -79,7 +79,7 @@ namespace SecureSend.Endpoint
             stream.Write(bytesToSend, 0, bytesToSend.Length);
         }
 
-        protected Segment ReceiveSegment()
+        protected Segment ReceiveEncryptedSegment()
         {
             while (true)
             {
@@ -156,7 +156,7 @@ namespace SecureSend.Endpoint
                 application.MainWindow.DisableCipherChange();
             }));
 
-            Segment segment = ReceiveSegment();
+            Segment segment = ReceiveEncryptedSegment();
 
             FileInfoSegment fileInfo = (FileInfoSegment)segment;
 
@@ -183,7 +183,7 @@ namespace SecureSend.Endpoint
                 ulong bytesWritten = 0;
                 while (bytesWritten < totalBytes)
                 {
-                    Segment dataSegment = ReceiveSegment();
+                    Segment dataSegment = ReceiveEncryptedSegment();
 
                     if (dataSegment.Type != SegmentType.DATA)
                     {
@@ -309,7 +309,7 @@ namespace SecureSend.Endpoint
                 application.MainWindow.fileProgressBar.IsIndeterminate = true;
             }));
 
-            Segment result = ReceiveSegment();
+            Segment result = ReceiveEncryptedSegment();
 
             if (result.Type == SegmentType.ACK)
             {
@@ -386,7 +386,7 @@ namespace SecureSend.Endpoint
                             return;
                         }
 
-                        Segment segment = ReceiveSegment();
+                        Segment segment = ReceiveEncryptedSegment();
 
                         switch (segment.Type)
                         {

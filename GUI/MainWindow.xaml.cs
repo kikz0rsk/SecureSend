@@ -62,8 +62,7 @@ namespace SecureSend
                 return;
             }
 
-            ConnectWindow connectWindow = new ConnectWindow();
-            connectWindow.Owner = this;
+            ConnectWindow connectWindow = new ConnectWindow { Owner = this };
             connectWindow.ShowDialog();
 
             if (connectWindow.IpAddress == null || connectWindow.Port == null)
@@ -162,15 +161,17 @@ namespace SecureSend
         private void identityMngrBtn_Click(object sender, RoutedEventArgs e)
         {
             TrustedEndpointsManager.Instance.Load();
-            TrustedEndpointsWindow window = new TrustedEndpointsWindow();
+            TrustedEndpointsWindow window = new TrustedEndpointsWindow { Owner = this };
             window.Show();
         }
 
         private void onChangePasswordAuthClick(object sender, RoutedEventArgs e)
         {
             var window = new PasswordAuthSettingsWindow(
-                application.PasswordAuthEnabled, application.Username, application.Password);
-            window.Owner = this;
+                application.PasswordAuthEnabled, application.Username, application.Password)
+            { 
+                Owner = this
+            };
             window.ShowDialog();
 
             if (!window.ApplyChanges) return;
@@ -190,8 +191,10 @@ namespace SecureSend
         private void onServerSettingsClick(object sender, RoutedEventArgs e)
         {
             ServerSettingsWindow serverSettingsWindow = new ServerSettingsWindow(
-                application.AllowIncomingConnections, application.AllowUpnp, application.ServerPort);
-            serverSettingsWindow.Owner = this;
+                application.AllowIncomingConnections, application.AllowUpnp, application.ServerPort)
+            {
+                Owner = this
+            };
             serverSettingsWindow.ShowDialog();
 
             if (!serverSettingsWindow.ApplyChanges)

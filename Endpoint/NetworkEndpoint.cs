@@ -349,8 +349,10 @@ namespace SecureSend.Endpoint
             AcceptConnectionResult result = Application.Current.Dispatcher.Invoke(() =>
             {
                 AcceptConnection acceptConnection = new AcceptConnection(
-                    client, remoteComputerName, endpoint.Address.ToString(), deviceFingerprint, rawPublicKey);
-                acceptConnection.Owner = application.MainWindow;
+                    client, remoteComputerName, endpoint.Address.ToString(), deviceFingerprint, rawPublicKey)
+                {
+                    Owner = application.MainWindow
+                };
                 acceptConnection.ShowDialog();
                 return acceptConnection.Result;
             });

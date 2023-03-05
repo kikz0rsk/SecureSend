@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SecureSend.GUI"
         mc:Ignorable="d"
-        Title="Potvrdenie spojenia" Height="296" Width="520" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
+        Title="Potvrdenie spojenia" Height="296" Width="520" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="520"/>

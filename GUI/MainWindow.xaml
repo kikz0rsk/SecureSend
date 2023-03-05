@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SecureSend"
         mc:Ignorable="d"
-        Title="SecureSend" Width="662" Height="364" Loaded="OnWindowLoaded" Closing="onWindowClosing" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
+        Title="SecureSend" Width="662" Height="364" Loaded="OnWindowLoaded" Closing="onWindowClosing" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>

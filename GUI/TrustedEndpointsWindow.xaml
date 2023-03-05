@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SecureSend.GUI"
         mc:Ignorable="d"
-        Title="Správa zapamätaných zariadení" Height="450" Width="800" SizeToContent="WidthAndHeight" Loaded="Window_Loaded" MinHeight="400">
+        Title="Správa zapamätaných zariadení" Height="450" Width="800" SizeToContent="WidthAndHeight" Loaded="Window_Loaded" MinHeight="400" WindowStartupLocation="CenterOwner">
     <Grid Margin="0,0,0,-6">
         <ListView x:Name="list" Margin="0,0,0,47" SelectionMode="Single">
             <ListView.View>

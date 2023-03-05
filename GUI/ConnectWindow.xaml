@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SecureSend.GUI"
         mc:Ignorable="d"
-        Title="Pripojiť sa na server" Height="142" Width="320" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
+        Title="Pripojiť sa na server" Height="142" Width="320" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
     <Grid Margin="10,10,10,10">
         <TextBox x:Name="ipAddress" HorizontalAlignment="Left" Margin="86,1,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="211" Height="24" VerticalContentAlignment="Center"/>
         <Label Content="IP Adresa" HorizontalAlignment="Left" VerticalAlignment="Top"/>

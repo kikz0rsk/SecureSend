@@ -261,12 +261,24 @@ namespace SecureSend
                 case CipherAlgorithm.AES256:
                     aes256.IsChecked = true;
                     chachapoly1305.IsChecked = false;
+                    statusText.Content = "Šifrovanie bolo zmenené na AES256";
                     break;
                 case CipherAlgorithm.ChaCha20Poly1305:
                     aes256.IsChecked = false;
                     chachapoly1305.IsChecked = true;
+                    statusText.Content = "Šifrovanie bolo zmenené na ChaCha20Poly1305";
                     break;
             }
+        }
+
+        public void DisableCipherChange()
+        {
+            cipherChangeSettings.IsEnabled = false;
+        }
+
+        public void EnableCipherChange()
+        {
+            cipherChangeSettings.IsEnabled = true;
         }
     }
 }

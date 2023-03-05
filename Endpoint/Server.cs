@@ -83,6 +83,10 @@ namespace SecureSend.Endpoint
                 {
                     MessageBox.Show("Spojenie zlyhalo.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+                catch (ObjectDisposedException)
+                {
+                    MessageBox.Show("Spojenie zlyhalo.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
                 catch (Exception ex)
                 {
                     MessageBox.Show("Vyskytla sa chyba: " + ex.ToString(), "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -91,7 +95,7 @@ namespace SecureSend.Endpoint
                 {
                     filesToSend.Clear();
                     SetConnected(false);
-                    cipherAlgorithm = CipherAlgorithm.AES256;
+                    cipherAlgorithm = AeadAlgorithm.Aes256Gcm;
                 }
             }
         }

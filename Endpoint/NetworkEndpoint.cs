@@ -36,7 +36,7 @@ namespace SecureSend.Endpoint
         protected volatile bool client = false;
         protected byte[] lastSequenceForNonce = new byte[6];
 
-        protected volatile CipherAlgorithm cipherAlgorithm = CipherAlgorithm.AES256;
+        protected volatile AeadAlgorithm cipherAlgorithm = AeadAlgorithm.Aes256Gcm;
 
         public NetworkEndpoint(SecureSendApp application)
         {
@@ -71,15 +71,7 @@ namespace SecureSend.Endpoint
             byte[] nonce = nonceRandom.Concat(lastSequenceForNonce).ToArray();
             IncrementNonce();
 
-            byte[]? encryptedPayload = null;
-            if (cipherAlgorithm == CipherAlgorithm.ChaCha20Poly1305)
-            {
-                encryptedPayload = AeadAlgorithm.ChaCha20Poly1305.Encrypt(symmetricKey, nonce, null, serializedSegment);
-            }
-            else
-            {
-                encryptedPayload = AeadAlgorithm.Aes256Gcm.Encrypt(symmetricKey, nonce, null, serializedSegment);
-            }
+            byte[]? encryptedPayload = cipherAlgorithm.Encrypt(symmetricKey, nonce, null, serializedSegment);
 
 
             byte[] segmentLengthBytes = Segment.EncodeUShort(Convert.ToUInt16(encryptedPayload.Length + 12)); // Nonce is 12 bytes
@@ -97,16 +89,7 @@ namespace SecureSend.Endpoint
 
                 byte[] nonce = encryptedSegment.Take(12).ToArray();
                 byte[] payload = encryptedSegment.Skip(12).ToArray();
-                byte[]? decryptedSegmentBytes = null;
-
-                if (cipherAlgorithm == CipherAlgorithm.ChaCha20Poly1305)
-                {
-                    decryptedSegmentBytes = AeadAlgorithm.ChaCha20Poly1305.Decrypt(symmetricKey, nonce, null, payload);
-                }
-                else
-                {
-                    decryptedSegmentBytes = AeadAlgorithm.Aes256Gcm.Decrypt(symmetricKey, nonce, null, payload);
-                }
+                byte[]? decryptedSegmentBytes = cipherAlgorithm.Decrypt(symmetricKey, nonce, null, payload);
 
                 if (decryptedSegmentBytes == null) continue;
 
@@ -122,27 +105,32 @@ namespace SecureSend.Endpoint
 
         protected void _ChangeCipher(CipherAlgorithm algo, byte[] salt)
         {
-            cipherAlgorithm = algo;
             Key? key = null;
+            AeadAlgorithm newAlgo;
             switch (algo)
             {
                 case CipherAlgorithm.ChaCha20Poly1305:
+                    newAlgo = AeadAlgorithm.ChaCha20Poly1305;
                     key = KeyDerivationAlgorithm.HkdfSha512.DeriveKey(
                         sharedSecret, salt, null, AeadAlgorithm.ChaCha20Poly1305, CryptoUtils.AllowExport());
                     break;
                 default:
+                    newAlgo = AeadAlgorithm.Aes256Gcm;
                     key = KeyDerivationAlgorithm.HkdfSha512.DeriveKey(
                         sharedSecret, salt, null, AeadAlgorithm.Aes256Gcm, CryptoUtils.AllowExport());
                     break;
             }
-            this.sessionId = salt;
-            this.symmetricKey = key;
+
             if (key == null)
             {
                 Disconnect();
                 Debug.WriteLine("[change cipher] failed");
                 return;
             }
+
+            this.sessionId = salt;
+            this.symmetricKey = key;
+            this.cipherAlgorithm = newAlgo;
 
             InvokeGUI(new Action(() =>
             {
@@ -165,6 +153,7 @@ namespace SecureSend.Endpoint
                 application.MainWindow.sendFileButton.IsEnabled = false;
                 application.MainWindow.statusText.Content = "Odosielacie zariadenie začína prenos";
                 application.MainWindow.currentConnectionText.Content = "Prijímanie súboru...";
+                application.MainWindow.DisableCipherChange();
             }));
 
             Segment segment = ReceiveSegment();
@@ -256,6 +245,7 @@ namespace SecureSend.Endpoint
                 application.MainWindow.sendFileButton.IsEnabled = true;
                 application.MainWindow.fileProgressBar.IsIndeterminate = false;
                 application.MainWindow.currentConnectionText.Content = "Pripojené";
+                application.MainWindow.EnableCipherChange();
             }));
         }
 
@@ -269,8 +259,6 @@ namespace SecureSend.Endpoint
 
             if (filePathString == null || !File.Exists(filePathString)) return;
 
-            SendEncryptedSegment(new PrepareTransferSegment());
-
             InvokeGUI(new Action(() =>
             {
                 application.MainWindow.fileProgressBar.Value = 0;
@@ -278,7 +266,10 @@ namespace SecureSend.Endpoint
                 application.MainWindow.sendFileButton.IsEnabled = false;
                 application.MainWindow.statusText.Content = "Počíta sa kontrolný súčet súboru...";
                 application.MainWindow.currentConnectionText.Content = "Odosielanie súboru...";
+                application.MainWindow.DisableCipherChange();
             }));
+
+            SendEncryptedSegment(new PrepareTransferSegment());
 
             ulong totalBytes = (ulong)new FileInfo(filePathString).Length;
 
@@ -342,6 +333,7 @@ namespace SecureSend.Endpoint
                 application.MainWindow.SetProgress(0, 1);
                 application.MainWindow.fileProgressBar.IsIndeterminate = false;
                 application.MainWindow.currentConnectionText.Content = "Pripojené";
+                application.MainWindow.EnableCipherChange();
             }));
         }
 

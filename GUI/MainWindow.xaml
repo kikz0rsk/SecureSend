@@ -21,7 +21,7 @@
             <MenuItem Header="Nastavenia" Height="25">
                 <MenuItem Header="Autentifikácia menom a heslom..." Height="25" Click="onChangePasswordAuthClick"/>
                 <MenuItem x:Name="serverSettings" Header="Nastavenie pripojenia na toto zariadenie..." Height="25" Click="onServerSettingsClick"/>
-                <MenuItem Header="Šifrovanie" Height="25" >
+                <MenuItem x:Name="cipherChangeSettings" Header="Šifrovanie" Height="25" >
                     <MenuItem x:Name="aes256" Header="AES256" Height="25" Click="onAesSelected" IsChecked="True"/>
                     <MenuItem x:Name="chachapoly1305" Header="ChaChaPoly1305" Height="25" Click="onChachaSelected" />
                 </MenuItem>

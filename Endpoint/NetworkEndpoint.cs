@@ -162,20 +162,20 @@ namespace SecureSend.Endpoint
 
             InvokeGUI(new Action(() =>
             {
-                application.MainWindow.statusText.Content = "Prichádzajúci súbor " + fileInfo.GetFileName();
+                application.MainWindow.statusText.Content = "Prichádzajúci súbor " + fileInfo.FileName;
                 application.MainWindow.fileProgressBar.Value = 0;
                 application.MainWindow.sendFileButton.IsEnabled = false;
                 application.MainWindow.fileProgressBar.IsIndeterminate = false;
             }));
 
-            ulong totalBytes = fileInfo.GetFileSize();
+            ulong totalBytes = fileInfo.FileSize;
 
             string saveFolder = Application.Current.Dispatcher.Invoke(() =>
             {
                 return application.MainWindow.saveFolderLocation.Text.Trim();
             });
 
-            string savePath = Path.Combine(saveFolder, fileInfo.GetFileName());
+            string savePath = Path.Combine(saveFolder, fileInfo.FileName);
 
             connection.ReceiveTimeout = 30_000;
             using (FileStream fileStream = new FileStream(savePath, FileMode.Create))
@@ -212,13 +212,13 @@ namespace SecureSend.Endpoint
             {
                 byte[] hash = CryptoUtils.CalculateFileHash(savePath);
 
-                bool isValid = Enumerable.SequenceEqual(fileInfo.GetHash(), hash);
+                bool isValid = Enumerable.SequenceEqual(fileInfo.Hash, hash);
                 if (isValid)
                 {
                     SendEncryptedSegment(new AckSegment());
                     Task.Run(() =>
                     {
-                        MessageBox.Show("Súbor " + fileInfo.GetFileName() + " bol úspešne prijatý", "Súbor prijatý", MessageBoxButton.OK, MessageBoxImage.Information);
+                        MessageBox.Show("Súbor " + fileInfo.FileName + " bol úspešne prijatý", "Súbor prijatý", MessageBoxButton.OK, MessageBoxImage.Information);
                     });
                 }
                 else
@@ -315,7 +315,7 @@ namespace SecureSend.Endpoint
             {
                 Task.Run(() =>
                 {
-                    MessageBox.Show("Súbor " + fileInfoSegment.GetFileName() + " bol úspešne odoslaný",
+                    MessageBox.Show("Súbor " + fileInfoSegment.FileName + " bol úspešne odoslaný",
                         "Súbor odoslaný", MessageBoxButton.OK, MessageBoxImage.Information);
                 });
             }

@@ -177,6 +177,7 @@ namespace SecureSend.Endpoint
 
             string savePath = Path.Combine(saveFolder, fileInfo.GetFileName());
 
+            connection.ReceiveTimeout = 30_000;
             using (FileStream fileStream = new FileStream(savePath, FileMode.Create))
             {
                 ulong bytesWritten = 0;
@@ -199,6 +200,7 @@ namespace SecureSend.Endpoint
                     }));
                 }
             }
+            connection.ReceiveTimeout = 0;
 
             InvokeGUI(new Action(() =>
             {

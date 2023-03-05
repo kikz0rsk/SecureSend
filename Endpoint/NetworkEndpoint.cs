@@ -72,14 +72,15 @@ namespace SecureSend.Endpoint
             IncrementNonce();
 
             byte[]? encryptedPayload = null;
-            if(cipherAlgorithm == CipherAlgorithm.ChaCha20Poly1305)
+            if (cipherAlgorithm == CipherAlgorithm.ChaCha20Poly1305)
             {
                 encryptedPayload = AeadAlgorithm.ChaCha20Poly1305.Encrypt(symmetricKey, nonce, null, serializedSegment);
-            } else
+            }
+            else
             {
                 encryptedPayload = AeadAlgorithm.Aes256Gcm.Encrypt(symmetricKey, nonce, null, serializedSegment);
             }
-            
+
 
             byte[] segmentLengthBytes = Segment.EncodeUShort(Convert.ToUInt16(encryptedPayload.Length + 12)); // Nonce is 12 bytes
             byte[] bytesToSend = segmentLengthBytes.Concat(nonce).Concat(encryptedPayload).ToArray();
@@ -88,7 +89,7 @@ namespace SecureSend.Endpoint
 
         protected Segment ReceiveSegment()
         {
-            while(true)
+            while (true)
             {
                 ushort segmentLength = Segment.DecodeUShort(NetworkUtils.ReadExactlyBytes(stream, 2));
 
@@ -98,10 +99,11 @@ namespace SecureSend.Endpoint
                 byte[] payload = encryptedSegment.Skip(12).ToArray();
                 byte[]? decryptedSegmentBytes = null;
 
-                if(cipherAlgorithm == CipherAlgorithm.ChaCha20Poly1305)
+                if (cipherAlgorithm == CipherAlgorithm.ChaCha20Poly1305)
                 {
                     decryptedSegmentBytes = AeadAlgorithm.ChaCha20Poly1305.Decrypt(symmetricKey, nonce, null, payload);
-                } else
+                }
+                else
                 {
                     decryptedSegmentBytes = AeadAlgorithm.Aes256Gcm.Decrypt(symmetricKey, nonce, null, payload);
                 }
@@ -135,7 +137,7 @@ namespace SecureSend.Endpoint
             }
             this.sessionId = salt;
             this.symmetricKey = key;
-            if(key == null)
+            if (key == null)
             {
                 Disconnect();
                 Debug.WriteLine("[change cipher] failed");
@@ -198,7 +200,7 @@ namespace SecureSend.Endpoint
                         continue;
                     }
 
-                    byte[] data = ((DataSegment)dataSegment).GetData();
+                    byte[] data = ((DataSegment)dataSegment).Data;
 
                     fileStream.Write(data);
                     bytesWritten += (ulong)data.Length;
@@ -390,7 +392,7 @@ namespace SecureSend.Endpoint
 
                         Segment segment = ReceiveSegment();
 
-                        switch(segment.Type)
+                        switch (segment.Type)
                         {
                             case SegmentType.PREPARE_TRANSFER:
                                 ReceiveFile();

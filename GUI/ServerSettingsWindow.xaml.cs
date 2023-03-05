@@ -33,12 +33,13 @@ namespace SecureSend.GUI
         {
             string text = portTextbox.Text.Trim();
 
-            if(text.Length == 0) return;
+            if (text.Length == 0) return;
 
             try
             {
                 Port = int.Parse(text);
-            } catch(Exception)
+            }
+            catch (Exception)
             {
                 return;
             }

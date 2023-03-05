@@ -8,7 +8,6 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using Segment = SecureSend.Protocol.Segment;
 using SecureSend.Utils;
 using SecureSend.Base;
 using System.Text;
@@ -57,13 +56,15 @@ namespace SecureSend.Endpoint
                 {
                     MessageBox.Show("Nesprávne zadané parametre.", "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
-                } catch(SocketException ex)
+                }
+                catch (SocketException ex)
                 {
                     MessageBox.Show("Chyba pri pripájaní. Podrobnosti: " + ex.Message, "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
-                } finally
+                }
+                finally
                 {
-                    if(!connection.Connected)
+                    if (!connection.Connected)
                     {
                         SetConnected(false);
                     }
@@ -89,7 +90,7 @@ namespace SecureSend.Endpoint
             {
                 MessageBox.Show("Spojenie zlyhalo.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show("Vyskytla sa chyba: " + ex.ToString(), "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
             }

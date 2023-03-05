@@ -86,7 +86,8 @@ namespace SecureSend.Endpoint
                 catch (Exception ex)
                 {
                     MessageBox.Show("Vyskytla sa chyba: " + ex.ToString(), "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
-                } finally
+                }
+                finally
                 {
                     filesToSend.Clear();
                     SetConnected(false);
@@ -243,7 +244,7 @@ namespace SecureSend.Endpoint
 
         public void StopServer()
         {
-            if (serverSocket == null || !serverSocket.Server.IsBound) return; 
+            if (serverSocket == null || !serverSocket.Server.IsBound) return;
 
             Disconnect();
             stopSignal = true;

@@ -162,6 +162,7 @@ namespace SecureSend.Endpoint
                 application.MainWindow.fileProgressBar.IsIndeterminate = true;
                 application.MainWindow.sendFileButton.IsEnabled = false;
                 application.MainWindow.statusText.Content = "Odosielacie zariadenie začína prenos";
+                application.MainWindow.currentConnectionText.Content = "Prijímanie súboru...";
             }));
 
             Segment segment = ReceiveSegment();
@@ -252,6 +253,7 @@ namespace SecureSend.Endpoint
                 application.MainWindow.statusText.Content = "Súbor bol prijatý";
                 application.MainWindow.sendFileButton.IsEnabled = true;
                 application.MainWindow.fileProgressBar.IsIndeterminate = false;
+                application.MainWindow.currentConnectionText.Content = "Pripojené";
             }));
         }
 
@@ -273,6 +275,7 @@ namespace SecureSend.Endpoint
                 application.MainWindow.fileProgressBar.IsIndeterminate = true;
                 application.MainWindow.sendFileButton.IsEnabled = false;
                 application.MainWindow.statusText.Content = "Počíta sa kontrolný súčet súboru...";
+                application.MainWindow.currentConnectionText.Content = "Odosielanie súboru...";
             }));
 
             ulong totalBytes = (ulong)new FileInfo(filePathString).Length;
@@ -336,6 +339,7 @@ namespace SecureSend.Endpoint
                 application.MainWindow.sendFileButton.IsEnabled = true;
                 application.MainWindow.SetProgress(0, 1);
                 application.MainWindow.fileProgressBar.IsIndeterminate = false;
+                application.MainWindow.currentConnectionText.Content = "Pripojené";
             }));
         }
 

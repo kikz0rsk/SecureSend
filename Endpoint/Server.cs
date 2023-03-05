@@ -154,6 +154,11 @@ namespace SecureSend.Endpoint
                 SendEncryptedSegment(
                     new PasswordAuthRequestSegment(salt));
 
+                InvokeGUI(new Action(() =>
+                {
+                    application.MainWindow.currentConnectionText.Content = "Čaká sa na zadanie mena a hesla...";
+                }));
+
                 try
                 {
                     Segment segment = ReceiveSegment();

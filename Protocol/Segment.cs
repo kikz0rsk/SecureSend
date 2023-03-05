@@ -15,8 +15,8 @@ namespace SecureSend.Protocol
         public byte[] BuildSegment()
         {
             byte[] payload = EncodePayload();
-            byte[] output = { (byte)Type };
-            return output.Concat(payload).ToArray();
+            byte[] header = { (byte)Type };
+            return header.Concat(payload).ToArray();
         }
 
         protected abstract byte[] EncodePayload();

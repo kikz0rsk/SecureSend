@@ -6,20 +6,20 @@ namespace SecureSend.Protocol
 {
     internal class FileInfoSegment : Segment
     {
-        string fileName;
-        ulong fileSize;
-        byte[] hash;
-
-        public FileInfoSegment(string fileName, ulong fileSize, byte[] hash) : base(SegmentType.FILE_INFO)
+        public FileInfoSegment(string fileName, ulong fileSize, byte[] hash)
+            : base(SegmentType.FILE_INFO)
         {
-            this.fileName = fileName;
-            this.fileSize = fileSize;
-            this.hash = hash;
+            FileName = fileName;
+            FileSize = fileSize;
+            Hash = hash;
         }
 
         protected override byte[] EncodePayload()
         {
-            return EncodeULong(this.fileSize).Concat(hash).Concat(EncodeVarLengthString(fileName)).ToArray();
+            return EncodeULong(FileSize)
+                .Concat(Hash)
+                .Concat(EncodeVarLengthString(FileName))
+                .ToArray();
         }
 
         public static FileInfoSegment DecodeFromBytes(ReadOnlySpan<byte> payloadBytes)
@@ -31,19 +31,10 @@ namespace SecureSend.Protocol
             return new FileInfoSegment(filename, fileSize, hash);
         }
 
-        public string GetFileName()
-        {
-            return fileName;
-        }
+        public string FileName { get; private set; }
 
-        public ulong GetFileSize()
-        {
-            return fileSize;
-        }
+        public ulong FileSize { get; private set; }
 
-        public byte[] GetHash()
-        {
-            return hash;
-        }
+        public byte[] Hash { get; private set; }
     }
 }

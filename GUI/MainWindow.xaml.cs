@@ -283,5 +283,21 @@ namespace SecureSend
         {
             cipherChangeSettings.IsEnabled = true;
         }
+
+        private void Window_Drop(object sender, DragEventArgs e)
+        {
+            if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
+
+            string[] paths = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+            if (paths.Length == 0) return;
+
+            inputFilePath.Text = paths[0];
+        }
+
+        private void inputFilePath_PreviewDragOver(object sender, DragEventArgs e)
+        {
+            e.Handled = true;
+        }
     }
 }

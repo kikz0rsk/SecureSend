@@ -288,7 +288,7 @@ namespace SecureSend.Endpoint
                     catch (MappingException ex)
                     {
                         Debug.WriteLine("[NAT] mapping conflict: " + ex.ToString());
-                        publicPort = (CryptoUtils.GetRandomInstance().Next() + 10000) % 65535;
+                        publicPort = (CryptoUtils.GetRandomInstance().Next()) % (65_535 - 5_000) + 5_000;
                         Debug.WriteLine("[NAT] trying random port");
                         attempt++;
                     }

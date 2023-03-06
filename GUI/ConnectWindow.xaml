@@ -7,9 +7,9 @@
         mc:Ignorable="d"
         Title="Pripojiť sa na server" Height="142" Width="320" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
     <Grid Margin="10,10,10,10">
-        <TextBox x:Name="ipAddress" HorizontalAlignment="Left" Margin="86,1,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="211" Height="24" VerticalContentAlignment="Center"/>
+        <TextBox x:Name="ipAddress" HorizontalAlignment="Left" Margin="86,1,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="211" Height="24" VerticalContentAlignment="Center" KeyDown="KeyDownHandler"/>
         <Label Content="IP Adresa" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-        <TextBox x:Name="port" HorizontalAlignment="Left" Margin="86,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" Width="211" Height="24" Text="23488" VerticalContentAlignment="Center"/>
+        <TextBox x:Name="port" HorizontalAlignment="Left" Margin="86,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" Width="211" Height="24" Text="23488" VerticalContentAlignment="Center" KeyDown="KeyDownHandler"/>
         <Label Content="Port" HorizontalAlignment="Left" VerticalAlignment="Center"/>
         <Button x:Name="connectBtn" Content="Pripojiť sa" HorizontalAlignment="Center" Margin="0,84,0,0" VerticalAlignment="Top" Height="22" Width="116" Click="connectBtn_Click"/>
 

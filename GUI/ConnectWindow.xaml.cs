@@ -26,6 +26,11 @@ namespace SecureSend.GUI
 
         private void connectBtn_Click(object sender, RoutedEventArgs e)
         {
+            Connect();
+        }
+
+        private void Connect()
+        {
             if (ipAddress.Text.Trim().Length == 0 || port.Text.Trim().Length == 0)
             {
                 return;
@@ -40,5 +45,12 @@ namespace SecureSend.GUI
         public string? IpAddress { get; protected set; }
 
         public string? Port { get; protected set; }
+
+        private void KeyDownHandler(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+
+            Connect();
+        }
     }
 }

@@ -52,12 +52,12 @@ namespace SecureSend.Base
                     string computerName = parts[0];
 
                     // first part device id
-                    byte[] deviceFingerprint = Convert.FromHexString(parts[1]);
+                    byte[] hardwareFingerprint = Convert.FromHexString(parts[1]);
 
                     // second part public key
                     byte[] pubKey = Convert.FromBase64String(parts[2]);
 
-                    identities.Add(new Identity(deviceFingerprint, pubKey, computerName));
+                    identities.Add(new Identity(hardwareFingerprint, pubKey, computerName));
                 }
 
                 Identities = identities;
@@ -75,7 +75,7 @@ namespace SecureSend.Base
                 foreach (Identity identity in Identities)
                 {
                     fileStream.WriteLine(identity.ComputerName + ":"
-                        + identity.DeviceFingerprintString + ':'
+                        + identity.HardwareFingerprintString + ':'
                         + identity.PublicKeyString);
                 }
             }
@@ -92,7 +92,7 @@ namespace SecureSend.Base
             bool result = false;
             foreach (Identity identity in Identities)
             {
-                if (Enumerable.SequenceEqual(identity.DeviceFingerprint, deviceFingerprint) &&
+                if (Enumerable.SequenceEqual(identity.HardwareFingerprint, deviceFingerprint) &&
                     Enumerable.SequenceEqual(identity.PublicKey, publicKey))
                 {
                     return true;
@@ -109,7 +109,7 @@ namespace SecureSend.Base
             Load();
         }
 
-        public static byte[] GetDeviceFingerprint()
+        public static byte[] GetHardwareFingerprint()
         {
             return SHA256.Create().ComputeHash(UTF8Encoding.UTF8.GetBytes(
                 GetMotherboardSerialNumber() + GetDiskSerialNumber()));

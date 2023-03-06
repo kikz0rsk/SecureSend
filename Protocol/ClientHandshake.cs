@@ -6,11 +6,11 @@ namespace SecureSend.Protocol
 {
     internal class ClientHandshake : Segment
     {
-        public ClientHandshake(byte[] publicKey, byte[] deviceFingerprint, string computerName) :
+        public ClientHandshake(byte[] publicKey, byte[] hardwareFingerprint, string computerName) :
             base(SegmentType.CLIENT_HANDSHAKE)
         {
             PublicKey = publicKey;
-            DeviceFingerprint = deviceFingerprint;
+            HardwareFingerprint = hardwareFingerprint;
             ComputerName = computerName;
         }
 
@@ -27,14 +27,14 @@ namespace SecureSend.Protocol
         protected override byte[] EncodePayload()
         {
             return PublicKey
-                .Concat(DeviceFingerprint)
+                .Concat(HardwareFingerprint)
                 .Concat(EncodeVarLengthString(ComputerName))
                 .ToArray();
         }
 
         public byte[] PublicKey { get; protected set; }
 
-        public byte[] DeviceFingerprint { get; protected set; }
+        public byte[] HardwareFingerprint { get; protected set; }
 
         public string ComputerName { get; protected set; }
     }

@@ -11,7 +11,7 @@
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Názov zariadenia" Width="150" DisplayMemberBinding="{Binding ComputerName}" />
-                    <GridViewColumn Header="Jednoznačný identifikátor zariadenia" Width="300" DisplayMemberBinding="{Binding DeviceFingerprintString}" />
+                    <GridViewColumn Header="Identifikátor hardvéru" Width="300" DisplayMemberBinding="{Binding HardwareFingerprintString}" />
                     <GridViewColumn Header="Verejný kľúč" Width="300" DisplayMemberBinding="{Binding PublicKeyString}" />
                 </GridView>
 

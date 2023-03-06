@@ -214,7 +214,7 @@ namespace SecureSend.Endpoint
         {
             ClientHandshake clientHandshake = new ClientHandshake(
                 IdentityManager.Instance.GetKey().PublicKey.Export(KeyBlobFormat.RawPublicKey),
-                TrustedEndpointsManager.GetDeviceFingerprint(), System.Environment.MachineName);
+                TrustedEndpointsManager.GetHardwareFingerprint(), System.Environment.MachineName);
 
             SendUnencryptedSegment(clientHandshake);
 
@@ -232,7 +232,7 @@ namespace SecureSend.Endpoint
                 return null;
             }
 
-            deviceFingerprint = serverHandshake.DeviceFingerprint;
+            deviceFingerprint = serverHandshake.HardwareFingerprint;
             remoteEndpointPublicKey = PublicKey.Import(KeyAgreementAlgorithm.X25519, serverHandshake.PublicKey, KeyBlobFormat.RawPublicKey);
             remoteComputerName = serverHandshake.ComputerName;
 

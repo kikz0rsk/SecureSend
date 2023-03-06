@@ -7,11 +7,11 @@ namespace SecureSend.Protocol
     internal class ServerHandshake : Segment
     {
         public ServerHandshake(byte[] publicKey, byte[] sessionId,
-            byte[] deviceFingerprint, string computerName) : base(SegmentType.SERVER_HANDSHAKE)
+            byte[] hardwareFingerprint, string computerName) : base(SegmentType.SERVER_HANDSHAKE)
         {
             PublicKey = publicKey;
             SessionId = sessionId;
-            DeviceFingerprint = deviceFingerprint;
+            HardwareFingerprint = hardwareFingerprint;
             ComputerName = computerName;
         }
 
@@ -20,16 +20,16 @@ namespace SecureSend.Protocol
             SegmentDecoder decoder = new SegmentDecoder();
             byte[] publicKey = decoder.DecodeFixedLengthBytes(payloadBytes, 32);
             byte[] sessionId = decoder.DecodeFixedLengthBytes(payloadBytes, 64);
-            byte[] deviceFingerprint = decoder.DecodeFixedLengthBytes(payloadBytes, 32);
+            byte[] hardwareFingerprint = decoder.DecodeFixedLengthBytes(payloadBytes, 32);
             string computerName = decoder.DecodeVarLengthString(payloadBytes);
-            return new ServerHandshake(publicKey, sessionId, deviceFingerprint, computerName);
+            return new ServerHandshake(publicKey, sessionId, hardwareFingerprint, computerName);
         }
 
         protected override byte[] EncodePayload()
         {
             return PublicKey
                 .Concat(SessionId)
-                .Concat(DeviceFingerprint)
+                .Concat(HardwareFingerprint)
                 .Concat(EncodeVarLengthString(ComputerName))
                 .ToArray();
         }
@@ -38,7 +38,7 @@ namespace SecureSend.Protocol
 
         public byte[] SessionId { get; protected set; }
 
-        public byte[] DeviceFingerprint { get; protected set; }
+        public byte[] HardwareFingerprint { get; protected set; }
 
         public string ComputerName { get; protected set; }
     }

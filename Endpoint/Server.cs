@@ -55,10 +55,10 @@ namespace SecureSend.Endpoint
             }
 
             port = ((IPEndPoint)serverSocket.LocalEndpoint).Port;
-            InvokeGUI(new Action(() =>
+            InvokeGUI(() =>
             {
                 application.MainWindow.statusPortText.Content = "Port pre pripojenie: " + port.ToString();
-            }));
+            });
 
             while (!stopSignal)
             {
@@ -103,10 +103,10 @@ namespace SecureSend.Endpoint
 
         protected void HandleConnection()
         {
-            InvokeGUI(new Action(() =>
+            InvokeGUI(() =>
             {
                 application.MainWindow.currentConnectionText.Content = "Vytvára sa bezpečný kanál...";
-            }));
+            });
 
             this.symmetricKey = EstablishTrust();
             if (this.symmetricKey == null)
@@ -120,10 +120,10 @@ namespace SecureSend.Endpoint
                 return;
             }
 
-            InvokeGUI(new Action(() =>
+            InvokeGUI(() =>
             {
                 application.MainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa...";
-            }));
+            });
 
             bool authorized = AuthorizeAccess();
             if (!authorized)
@@ -160,10 +160,10 @@ namespace SecureSend.Endpoint
                 SendEncryptedSegment(
                     new PasswordAuthRequestSegment(salt));
 
-                InvokeGUI(new Action(() =>
+                InvokeGUI(() =>
                 {
                     application.MainWindow.currentConnectionText.Content = "Čaká sa na zadanie mena a hesla...";
-                }));
+                });
 
                 try
                 {
@@ -255,10 +255,10 @@ namespace SecureSend.Endpoint
             stopSignal = true;
             serverSocket?.Stop();
 
-            InvokeGUI(new Action(() =>
+            InvokeGUI(() =>
             {
                 application.MainWindow.statusPortText.Content = "Pripájanie je vypnuté";
-            }));
+            });
         }
 
         public async void EnableUpnpForward()
@@ -298,10 +298,10 @@ namespace SecureSend.Endpoint
 
                 if (success)
                 {
-                    InvokeGUI(new Action(() =>
+                    InvokeGUI(() =>
                     {
                         application.MainWindow.upnpPortStatus.Content = "Port pre pripojenie z internetu: " + publicPort.ToString();
-                    }));
+                    });
                     Debug.WriteLine("[NAT] successfully setup UPnP port forward");
                     return;
                 }
@@ -311,10 +311,10 @@ namespace SecureSend.Endpoint
                 Debug.WriteLine("[NAT] general exception: " + ex.ToString());
             }
 
-            InvokeGUI(new Action(() =>
+            InvokeGUI(() =>
             {
                 application.MainWindow.upnpPortStatus.Content = "Presmerovanie portu UPnP zlyhalo";
-            }));
+            });
         }
 
         public async void DisableUpnpForward()
@@ -324,10 +324,10 @@ namespace SecureSend.Endpoint
             await natDevice?.DeletePortMapAsync(mapping);
             this.mapping = null;
 
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            InvokeGUI(() =>
             {
                 application.MainWindow.upnpPortStatus.Content = "";
-            }));
+            });
         }
 
         public int? Port { get { return port; } }

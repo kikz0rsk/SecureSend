@@ -42,12 +42,12 @@ namespace SecureSend.Endpoint
             {
                 connection = new TcpClient();
 
-                InvokeGUI(new Action(() =>
+                InvokeGUI(() =>
                 {
                     application.MainWindow.currentConnectionText.Content = "Prebieha pripájanie...";
                     application.MainWindow.disconnectBtn.IsEnabled = false;
                     application.MainWindow.connectBtn.IsEnabled = false;
-                }));
+                });
 
                 try
                 {
@@ -111,10 +111,10 @@ namespace SecureSend.Endpoint
 
         protected void HandleConnection()
         {
-            InvokeGUI(new Action(() =>
+            InvokeGUI(() =>
             {
                 application.MainWindow.currentConnectionText.Content = "Vytvára sa bezpečný kanál...";
-            }));
+            });
 
             this.symmetricKey = EstablishTrust();
             if (this.symmetricKey == null)
@@ -128,10 +128,10 @@ namespace SecureSend.Endpoint
                 return;
             }
 
-            InvokeGUI(new Action(() =>
+            InvokeGUI(() =>
             {
                 application.MainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa...";
-            }));
+            });
 
             bool authorized = AuthorizeAccess(true);
             if (!authorized)

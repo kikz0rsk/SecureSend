@@ -132,10 +132,7 @@ namespace SecureSend.Endpoint
             this.symmetricKey = key;
             this.cipherAlgorithm = newAlgo;
 
-            InvokeGUI(new Action(() =>
-            {
-                application.MainWindow.SetCipher(algo);
-            }));
+            InvokeGUI(() => application.MainWindow.SetCipher(algo));
         }
 
         public void ChangeCipher(CipherAlgorithm algo, byte[] salt)
@@ -147,26 +144,26 @@ namespace SecureSend.Endpoint
 
         protected void ReceiveFile()
         {
-            InvokeGUI(new Action(() =>
+            InvokeGUI(() =>
             {
                 application.MainWindow.fileProgressBar.IsIndeterminate = true;
                 application.MainWindow.sendFileButton.IsEnabled = false;
                 application.MainWindow.statusText.Content = "Odosielacie zariadenie začína prenos";
                 application.MainWindow.currentConnectionText.Content = "Prijímanie súboru...";
                 application.MainWindow.DisableCipherChange();
-            }));
+            });
 
             Segment segment = ReceiveEncryptedSegment();
 
             FileInfoSegment fileInfo = (FileInfoSegment)segment;
 
-            InvokeGUI(new Action(() =>
+            InvokeGUI(() =>
             {
                 application.MainWindow.statusText.Content = "Prichádzajúci súbor " + fileInfo.FileName;
                 application.MainWindow.fileProgressBar.Value = 0;
                 application.MainWindow.sendFileButton.IsEnabled = false;
                 application.MainWindow.fileProgressBar.IsIndeterminate = false;
-            }));
+            });
 
             ulong totalBytes = fileInfo.FileSize;
 
@@ -194,19 +191,19 @@ namespace SecureSend.Endpoint
 
                     fileStream.Write(data);
                     bytesWritten += (ulong)data.Length;
-                    InvokeAsyncGUI(new Action(() =>
+                    InvokeAsyncGUI(() =>
                     {
                         application.MainWindow.SetProgress(bytesWritten, totalBytes);
-                    }));
+                    });
                 }
             }
             connection.ReceiveTimeout = 0;
 
-            InvokeGUI(new Action(() =>
+            InvokeGUI(() =>
             {
                 application.MainWindow.statusText.Content = "Overuje sa kontrolný súčet súboru...";
                 application.MainWindow.fileProgressBar.IsIndeterminate = true;
-            }));
+            });
 
             try
             {
@@ -240,7 +237,7 @@ namespace SecureSend.Endpoint
                 });
             }
 
-            InvokeAsyncGUI(new Action(() =>
+            InvokeAsyncGUI(() =>
             {
                 application.MainWindow.SetProgress(0, 1);
                 application.MainWindow.statusText.Content = "Súbor bol prijatý";
@@ -248,7 +245,7 @@ namespace SecureSend.Endpoint
                 application.MainWindow.fileProgressBar.IsIndeterminate = false;
                 application.MainWindow.currentConnectionText.Content = "Pripojené";
                 application.MainWindow.EnableCipherChange();
-            }));
+            });
         }
 
         protected void SendFile()
@@ -261,7 +258,7 @@ namespace SecureSend.Endpoint
 
             if (filePathString == null || !File.Exists(filePathString)) return;
 
-            InvokeGUI(new Action(() =>
+            InvokeGUI(() =>
             {
                 application.MainWindow.fileProgressBar.Value = 0;
                 application.MainWindow.fileProgressBar.IsIndeterminate = true;
@@ -269,7 +266,7 @@ namespace SecureSend.Endpoint
                 application.MainWindow.statusText.Content = "Počíta sa kontrolný súčet súboru...";
                 application.MainWindow.currentConnectionText.Content = "Odosielanie súboru...";
                 application.MainWindow.DisableCipherChange();
-            }));
+            });
 
             SendEncryptedSegment(new PrepareTransferSegment());
 
@@ -277,11 +274,11 @@ namespace SecureSend.Endpoint
 
             byte[] hash = CryptoUtils.CalculateFileHash(filePathString);
 
-            InvokeGUI(new Action(() =>
+            InvokeGUI(() =>
             {
                 application.MainWindow.fileProgressBar.IsIndeterminate = false;
                 application.MainWindow.statusText.Content = "Odosiela sa súbor...";
-            }));
+            });
 
             FileInfoSegment fileInfoSegment = new FileInfoSegment(Path.GetFileName(filePathString), totalBytes, hash);
             SendEncryptedSegment(fileInfoSegment);
@@ -296,18 +293,18 @@ namespace SecureSend.Endpoint
                     DataSegment data = new DataSegment(buffer.Take(bytesRead).ToArray());
                     SendEncryptedSegment(data);
                     bytesSent += (ulong)bytesRead;
-                    InvokeAsyncGUI(new Action(() =>
+                    InvokeAsyncGUI(() =>
                     {
                         application.MainWindow.SetProgress(bytesSent, totalBytes);
-                    }));
+                    });
                 }
             }
 
-            InvokeAsyncGUI(new Action(() =>
+            InvokeAsyncGUI(() =>
             {
                 application.MainWindow.statusText.Content = "Prijímajúce zariadenie overuje integritu súboru...";
                 application.MainWindow.fileProgressBar.IsIndeterminate = true;
-            }));
+            });
 
             Segment result = ReceiveEncryptedSegment();
 
@@ -328,7 +325,7 @@ namespace SecureSend.Endpoint
                 });
             }
 
-            InvokeAsyncGUI(new Action(() =>
+            InvokeAsyncGUI(() =>
             {
                 application.MainWindow.statusText.Content = "Súbor bol odoslaný";
                 application.MainWindow.sendFileButton.IsEnabled = true;
@@ -336,7 +333,7 @@ namespace SecureSend.Endpoint
                 application.MainWindow.fileProgressBar.IsIndeterminate = false;
                 application.MainWindow.currentConnectionText.Content = "Pripojené";
                 application.MainWindow.EnableCipherChange();
-            }));
+            });
         }
 
         protected bool AuthorizeAccess(bool client = false)
@@ -448,11 +445,11 @@ namespace SecureSend.Endpoint
             this.connected = connected;
             if (connected)
             {
-                InvokeGUI(new Action(() => { application.MainWindow.SetConnected(); }));
+                InvokeGUI(() => application.MainWindow.SetConnected());
                 return;
             }
 
-            InvokeGUI(new Action(() => { application.MainWindow.SetDisconnected(); }));
+            InvokeGUI(() => application.MainWindow.SetDisconnected());
         }
 
         public bool IsConnected()

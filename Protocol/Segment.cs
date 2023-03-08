@@ -110,8 +110,9 @@ namespace SecureSend.Protocol
 
         public static byte[] EncodeVarLengthString(string str)
         {
-            byte[] encodedLength = EncodeUShort(Convert.ToUInt16(str.Length));
-            return encodedLength.Concat(UTF8Encoding.UTF8.GetBytes(str)).ToArray();
+            byte[] encodedString = UTF8Encoding.UTF8.GetBytes(str);
+            byte[] encodedLength = EncodeUShort(Convert.ToUInt16(encodedString.Length));
+            return encodedLength.Concat(encodedString).ToArray();
         }
 
         public static string DecodeVarLengthString(ReadOnlySpan<byte> input, out int totalLength)

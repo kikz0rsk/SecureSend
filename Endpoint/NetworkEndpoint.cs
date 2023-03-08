@@ -35,6 +35,7 @@ namespace SecureSend.Endpoint
         protected volatile bool connected = false;
         protected volatile bool client = false;
         protected byte[] lastSequenceForNonce = new byte[6];
+        protected byte[]? lastRemoteNonce = new byte[12];
 
         protected volatile AeadAlgorithm cipherAlgorithm = AeadAlgorithm.Aes256Gcm;
 
@@ -91,11 +92,18 @@ namespace SecureSend.Endpoint
                 byte[] payload = encryptedSegment.Skip(12).ToArray();
                 byte[]? decryptedSegmentBytes = cipherAlgorithm.Decrypt(symmetricKey, nonce, null, payload);
 
+                if(lastRemoteNonce != null)
+                {
+                    if (nonce.SequenceEqual(lastRemoteNonce)) continue; // This nonce definitively should not be the same as the previous one
+                }
+
                 if (decryptedSegmentBytes == null) continue;
 
                 Segment? segment = Segment.Deserialize(decryptedSegmentBytes);
 
                 if (segment == null) continue;
+
+                lastRemoteNonce = nonce;
 
                 return segment;
             }

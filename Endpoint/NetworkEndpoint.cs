@@ -461,19 +461,14 @@ namespace SecureSend.Endpoint
         {
             for (int i = 5; i >= 0; i--)
             {
-                bool carry = false;
                 if (lastSequenceForNonce[i] == 255)
                 {
                     lastSequenceForNonce[i] = 0;
-                    carry = true;
                     continue;
                 }
 
                 lastSequenceForNonce[i]++;
-                if (!carry)
-                {
-                    return;
-                }
+                return;
             }
         }
     }

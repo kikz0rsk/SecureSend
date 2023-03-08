@@ -266,6 +266,7 @@ namespace SecureSend.Endpoint
             if (this.port == null) return;
             if (this.mapping != null) return;
 
+            InvokeGUI(() => application.MainWindow.upnpPortStatus.Content = "Prebieha pokus o presmerovanie portu...");
             try
             {
                 var discoverService = new NatDiscoverer();
@@ -313,7 +314,7 @@ namespace SecureSend.Endpoint
 
             InvokeGUI(() =>
             {
-                application.MainWindow.upnpPortStatus.Content = "Presmerovanie portu UPnP zlyhalo";
+                application.MainWindow.upnpPortStatus.Content = "Presmerovanie portu UPnP bolo neúspešné";
             });
         }
 

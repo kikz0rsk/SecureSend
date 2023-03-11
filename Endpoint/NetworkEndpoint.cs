@@ -94,7 +94,16 @@ namespace SecureSend.Endpoint
 
                 if(lastRemoteNonce != null)
                 {
-                    if (nonce.SequenceEqual(lastRemoteNonce)) continue; // This nonce definitively should not be the same as the previous one
+                    if (nonce.SequenceEqual(lastRemoteNonce)) continue; // Nonce definitively should not be the same as the previous one
+
+                    ulong lastNonceUint64 = NonceToUint64(lastRemoteNonce.Skip(6).Take(6).ToArray());
+                    ulong thisNonceUint64 = NonceToUint64(nonce.Skip(6).Take(6).ToArray());
+
+                    if (lastNonceUint64 != ulong.MaxValue && 
+                        thisNonceUint64 <= lastNonceUint64)
+                    {
+                        continue;
+                    }
                 }
 
                 if (decryptedSegmentBytes == null) continue;
@@ -478,6 +487,14 @@ namespace SecureSend.Endpoint
                 lastSequenceForNonce[i]++;
                 return;
             }
+        }
+
+        protected ulong NonceToUint64(byte[] nonceSeqPart)
+        {
+            // Using padding [ 255, 255 ]
+            byte[] longBytes = nonceSeqPart.Concat(new byte[] { 255, 255 }).ToArray();
+            if (!BitConverter.IsLittleEndian) Array.Reverse(longBytes);
+            return BitConverter.ToUInt64(longBytes);
         }
     }
 }

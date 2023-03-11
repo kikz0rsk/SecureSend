@@ -97,6 +97,7 @@ namespace SecureSend.Endpoint
                     filesToSend.Clear();
                     SetConnected(false);
                     cipherAlgorithm = AeadAlgorithm.Aes256Gcm;
+                    lastRemoteNonce = null;
                 }
             }
         }

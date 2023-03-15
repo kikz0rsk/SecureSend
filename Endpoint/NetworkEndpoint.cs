@@ -102,15 +102,24 @@ namespace SecureSend.Endpoint
                     if (lastNonceUint64 != ulong.MaxValue && 
                         thisNonceUint64 <= lastNonceUint64)
                     {
+                        Debug.WriteLine("Bad nonce. Last=" + lastNonceUint64 + " This=" + thisNonceUint64);
                         continue;
                     }
                 }
 
-                if (decryptedSegmentBytes == null) continue;
+                if (decryptedSegmentBytes == null)
+                {
+                    Debug.WriteLine("Failed to decrypt incoming message");
+                    continue;
+                }
 
                 Segment? segment = Segment.Deserialize(decryptedSegmentBytes);
 
-                if (segment == null) continue;
+                if (segment == null)
+                {
+                    Debug.WriteLine("Failed to deserialize incoming message");
+                    continue;
+                }
 
                 lastRemoteNonce = nonce;
 
@@ -491,9 +500,12 @@ namespace SecureSend.Endpoint
 
         protected ulong NonceToUint64(byte[] nonceSeqPart)
         {
+            if(BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(nonceSeqPart);
+            }
             // Using padding [ 255, 255 ]
             byte[] longBytes = nonceSeqPart.Concat(new byte[] { 255, 255 }).ToArray();
-            if (!BitConverter.IsLittleEndian) Array.Reverse(longBytes);
             return BitConverter.ToUInt64(longBytes);
         }
     }

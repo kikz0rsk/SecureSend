@@ -86,10 +86,10 @@ namespace SecureSend.Endpoint
             {
                 ushort segmentLength = Segment.DecodeUShort(NetworkUtils.ReadExactlyBytes(stream, 2));
 
-                byte[] encryptedSegment = NetworkUtils.ReadExactlyBytes(stream, segmentLength);
+                ReadOnlySpan<byte> encryptedSegment = NetworkUtils.ReadExactlyBytes(stream, segmentLength);
 
-                byte[] nonce = encryptedSegment.Take(12).ToArray();
-                byte[] payload = encryptedSegment.Skip(12).ToArray();
+                byte[] nonce = encryptedSegment.Slice(0, 12).ToArray();
+                ReadOnlySpan<byte> payload = encryptedSegment.Slice(12);
                 byte[]? decryptedSegmentBytes = cipherAlgorithm.Decrypt(symmetricKey, nonce, null, payload);
 
                 if(lastRemoteNonce != null)

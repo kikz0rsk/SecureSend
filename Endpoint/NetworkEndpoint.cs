@@ -198,6 +198,10 @@ namespace SecureSend.Endpoint
                 return application.MainWindow.saveFolderLocation.Text.Trim();
             });
 
+            if(!Directory.Exists(saveFolder))
+            {
+                Directory.CreateDirectory(saveFolder);
+            }
             string savePath = Path.Combine(saveFolder, fileInfo.FileName);
 
             connection.ReceiveTimeout = 30_000;

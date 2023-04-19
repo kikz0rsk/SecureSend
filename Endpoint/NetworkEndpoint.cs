@@ -92,14 +92,14 @@ namespace SecureSend.Endpoint
                 ReadOnlySpan<byte> payload = encryptedSegment.Slice(12);
                 byte[]? decryptedSegmentBytes = cipherAlgorithm.Decrypt(symmetricKey, nonce, null, payload);
 
-                if(lastRemoteNonce != null)
+                if (lastRemoteNonce != null)
                 {
                     if (nonce.SequenceEqual(lastRemoteNonce)) continue; // Nonce definitively should not be the same as the previous one
 
                     ulong lastNonceUint64 = NonceToUint64(lastRemoteNonce.Skip(6).Take(6).ToArray());
                     ulong thisNonceUint64 = NonceToUint64(nonce.Skip(6).Take(6).ToArray());
 
-                    if (lastNonceUint64 != ulong.MaxValue && 
+                    if (lastNonceUint64 != ulong.MaxValue &&
                         thisNonceUint64 <= lastNonceUint64)
                     {
                         Debug.WriteLine("Bad nonce. Last=" + lastNonceUint64 + " This=" + thisNonceUint64);
@@ -198,9 +198,21 @@ namespace SecureSend.Endpoint
                 return application.MainWindow.saveFolderLocation.Text.Trim();
             });
 
-            if(!Directory.Exists(saveFolder))
+            if (!Directory.Exists(saveFolder))
             {
-                Directory.CreateDirectory(saveFolder);
+                try
+                {
+                    Directory.CreateDirectory(saveFolder);
+                }
+                catch (Exception)
+                {
+                    saveFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Downloads";
+                    Task.Run(() =>
+                    {
+                        MessageBox.Show("Nepodarilo sa vytvoriť zadaný adresár na uloženie súboru. Súbor sa uloží na prednastavené umiestnenie: " + saveFolder, "Chyba pri vytváraní adresára",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                    });
+                }
             }
             string savePath = Path.Combine(saveFolder, fileInfo.FileName);
 
@@ -504,7 +516,7 @@ namespace SecureSend.Endpoint
 
         protected ulong NonceToUint64(byte[] nonceSeqPart)
         {
-            if(BitConverter.IsLittleEndian)
+            if (BitConverter.IsLittleEndian)
             {
                 Array.Reverse(nonceSeqPart);
             }

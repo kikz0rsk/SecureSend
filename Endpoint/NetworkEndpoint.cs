@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -214,7 +215,9 @@ namespace SecureSend.Endpoint
                     });
                 }
             }
-            string savePath = Path.Combine(saveFolder, fileInfo.FileName);
+
+            string freeFileName = GenerateFreeFileName(saveFolder, fileInfo.FileName);
+            string savePath = Path.Combine(saveFolder, freeFileName);
 
             connection.ReceiveTimeout = 30_000;
             using (FileStream fileStream = new FileStream(savePath, FileMode.Create))
@@ -257,7 +260,7 @@ namespace SecureSend.Endpoint
                     SendEncryptedSegment(new AckSegment());
                     Task.Run(() =>
                     {
-                        MessageBox.Show("Súbor " + fileInfo.FileName + " bol úspešne prijatý", "Súbor prijatý", MessageBoxButton.OK, MessageBoxImage.Information);
+                        MessageBox.Show("Súbor bol úspešne prijatý a uložený v ceste " + savePath, "Súbor prijatý", MessageBoxButton.OK, MessageBoxImage.Information);
                     });
                 }
                 else
@@ -523,6 +526,25 @@ namespace SecureSend.Endpoint
             // Using padding [ 255, 255 ]
             byte[] longBytes = nonceSeqPart.Concat(new byte[] { 255, 255 }).ToArray();
             return BitConverter.ToUInt64(longBytes);
+        }
+
+        protected string GenerateFreeFileName(string saveFolder, string originalFileName)
+        {
+            string transformedFileName = originalFileName;
+            string savePath = Path.Combine(saveFolder, originalFileName);
+            int suffix = 1;
+            while (File.Exists(savePath))
+            {
+                string fileNameWithoutExt = Path.GetFileNameWithoutExtension(originalFileName);
+                string ext = Path.GetExtension(originalFileName);
+
+                transformedFileName = fileNameWithoutExt + " (" + suffix + ")" + ext;
+
+                savePath = Path.Combine(saveFolder, transformedFileName);
+                suffix++;
+            }
+
+            return transformedFileName;
         }
     }
 }

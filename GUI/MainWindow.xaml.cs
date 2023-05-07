@@ -31,7 +31,7 @@ namespace SecureSend
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
-            saveFolderLocation.Text = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Downloads";
+            saveFolderLocation.Text = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Downloads\\SecureSend";
             publicKeyText.Text = Convert.ToBase64String(application.Key.PublicKey.Export(KeyBlobFormat.RawPublicKey));
 
             statusText.Content = "Štart servera...";

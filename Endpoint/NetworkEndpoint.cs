@@ -206,7 +206,7 @@ namespace SecureSend.Endpoint
                 }
                 catch (Exception)
                 {
-                    saveFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Downloads";
+                    saveFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Downloads\\SecureSend";
                     Task.Run(() =>
                     {
                         MessageBox.Show("Nepodarilo sa vytvoriť zadaný adresár na uloženie súboru. Súbor sa uloží na prednastavené umiestnenie: " + saveFolder, "Chyba pri vytváraní adresára",

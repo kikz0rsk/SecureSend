@@ -20,7 +20,8 @@ namespace SecureSend.Endpoint
     {
         private string? ipAddress;
         private string? port;
-        protected Thread? thread;
+
+        public Thread? Thread { get; private set; }
 
         public Client(SecureSendApp application) : base(application)
         { }
@@ -30,9 +31,9 @@ namespace SecureSend.Endpoint
             this.ipAddress = ipAddress;
             this.port = port;
 
-            thread = new Thread(_Connect);
-            thread.IsBackground = true;
-            thread.Start();
+            Thread = new Thread(_Connect);
+            Thread.IsBackground = true;
+            Thread.Start();
         }
 
         protected void _Connect()
@@ -255,11 +256,6 @@ namespace SecureSend.Endpoint
             sessionId = serverHandshake.SessionId;
             return KeyDerivationAlgorithm.HkdfSha512.DeriveKey(sharedSecret,
                 serverHandshake.SessionId, null, AeadAlgorithm.Aes256Gcm, CryptoUtils.AllowExport());
-        }
-
-        public Thread? GetThread()
-        {
-            return thread;
         }
     }
 }

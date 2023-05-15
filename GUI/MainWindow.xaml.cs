@@ -79,7 +79,7 @@ namespace SecureSend
         {
             application.MainWindow = null;
             client?.Disconnect();
-            client?.GetThread()?.Interrupt();
+            client?.Thread?.Interrupt();
 
             server?.StopServer();
         }

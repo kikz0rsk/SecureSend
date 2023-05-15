@@ -324,6 +324,7 @@ namespace SecureSend.Endpoint
             if (natDevice == null || mapping == null) return;
 
             await natDevice?.DeletePortMapAsync(mapping);
+
             this.mapping = null;
 
             InvokeGUI(() =>
@@ -333,10 +334,5 @@ namespace SecureSend.Endpoint
         }
 
         public int? Port { get { return port; } }
-
-        public Thread? ServerThread
-        {
-            get { return thread; }
-        }
     }
 }

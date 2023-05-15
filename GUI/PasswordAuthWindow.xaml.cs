@@ -24,6 +24,7 @@ namespace SecureSend.GUI
         {
             InitializeComponent();
 
+            ClosedWithConfirm = false;
             if (changePassword)
             {
                 this.button.Content = "Zmeniť údaje";
@@ -44,6 +45,7 @@ namespace SecureSend.GUI
 
             Username = this.username.Text;
             Password = this.password.Password;
+            ClosedWithConfirm = true;
 
             Close();
         }
@@ -51,5 +53,6 @@ namespace SecureSend.GUI
         public string? Username { get; protected set; }
 
         public string? Password { get; protected set; }
+        public bool ClosedWithConfirm { get; protected set; }
     }
 }

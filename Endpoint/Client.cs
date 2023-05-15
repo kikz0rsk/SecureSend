@@ -178,6 +178,12 @@ namespace SecureSend.Endpoint
                         return window;
                     });
 
+                    if(!window.ClosedWithConfirm)
+                    {
+                        Disconnect();
+                        return;
+                    }
+
                     byte[] hash = HashAlgorithm.Sha256.Hash(
                             UTF8Encoding.UTF8.GetBytes(window.Password + salt));
 

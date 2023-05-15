@@ -8,6 +8,7 @@ using SecureSend.Utils;
 using SecureSend.Base;
 using System.Diagnostics;
 using SecureSend.Protocol;
+using System.Threading.Tasks;
 
 namespace SecureSend
 {
@@ -210,18 +211,20 @@ namespace SecureSend
             if (!serverSettingsWindow.AllowServer)
             {
                 Debug.WriteLine("stopping server");
+                server?.DisableUpnpForward();
                 server?.StopServer();
                 return;
             }
 
             server?.StopServer();
             application.ServerPort = serverSettingsWindow.Port;
+            server.DisableUpnpForward();
             server = application.CreateServer();
             server.StartServer();
 
             if (serverSettingsWindow.AllowUpnp)
             {
-                server.EnableUpnpForward();
+                Task.Run(() => { Task.Delay(1000); server.EnableUpnpForward(); });   
             }
         }
 

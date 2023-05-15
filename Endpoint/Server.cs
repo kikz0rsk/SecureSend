@@ -20,7 +20,7 @@ namespace SecureSend.Endpoint
     public class Server : NetworkEndpoint
     {
 
-        private int? port;
+        private volatile int port;
         public TcpListener? serverSocket;
         private Thread? thread;
 
@@ -262,9 +262,8 @@ namespace SecureSend.Endpoint
             });
         }
 
-        public async void EnableUpnpForward()
+        public async Task EnableUpnpForward()
         {
-            if (this.port == null) return;
             if (this.mapping != null) return;
 
             InvokeGUI(() => application.MainWindow.upnpPortStatus.Content = "Prebieha pokus o presmerovanie portu...");
@@ -319,7 +318,7 @@ namespace SecureSend.Endpoint
             });
         }
 
-        public async void DisableUpnpForward()
+        public async Task DisableUpnpForward()
         {
             if (natDevice == null || mapping == null) return;
 

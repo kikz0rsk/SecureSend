@@ -289,9 +289,9 @@ namespace SecureSend.Endpoint
                     }
                     catch (MappingException ex)
                     {
-                        Debug.WriteLine("[NAT] mapping conflict: " + ex.ToString());
+                        Debug.WriteLine("[UPnP] mapping conflict: " + ex.ToString());
                         publicPort = (CryptoUtils.GetRandomInstance().Next()) % (65_535 - 5_000) + 5_000;
-                        Debug.WriteLine("[NAT] trying random port");
+                        Debug.WriteLine("[UPnP] trying random port");
                         attempt++;
                     }
                     catch (Exception)
@@ -304,13 +304,13 @@ namespace SecureSend.Endpoint
                     {
                         application.MainWindow.upnpPortStatus.Content = "Port pre pripojenie z internetu: " + publicPort.ToString();
                     });
-                    Debug.WriteLine("[NAT] successfully setup UPnP port forward");
+                    Debug.WriteLine("[UPnP] successfully setup port forward");
                     return;
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("[NAT] general exception: " + ex.ToString());
+                Debug.WriteLine("[UPnP] general exception: " + ex.ToString());
             }
 
             InvokeGUI(() =>
@@ -323,14 +323,19 @@ namespace SecureSend.Endpoint
         {
             if (natDevice == null || mapping == null) return;
 
-            await natDevice?.DeletePortMapAsync(mapping);
-
-            this.mapping = null;
-
-            InvokeGUI(() =>
+            try
             {
-                application.MainWindow.upnpPortStatus.Content = "";
-            });
+                await natDevice?.DeletePortMapAsync(mapping);
+
+                this.mapping = null;
+
+                InvokeGUI(() =>
+                {
+                    application.MainWindow.upnpPortStatus.Content = "";
+                });
+            } catch(Exception ex) {
+                Debug.WriteLine("[UPnP] Exception while disabling: " + ex.ToString());
+            }
         }
 
         public int? Port { get { return port; } }

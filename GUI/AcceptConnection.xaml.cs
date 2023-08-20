@@ -29,7 +29,7 @@ namespace SecureSend.GUI
 
             if (client)
             {
-                question.Content = "Chcete sa pripojiť na toto zariadenie?";
+                question.Content = "Connect to this device?";
             }
             computerNameAndAddress.Content = computerName + " (" + ip + ")";
             deviceIdentification.Content = Convert.ToHexString(deviceFingerprint);

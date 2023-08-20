@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SecureSend.GUI"
         mc:Ignorable="d"
-        Title="Potvrdenie spojenia" Height="296" Width="520" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        Title="New device verification" Height="296" Width="520" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="520"/>
@@ -15,18 +15,18 @@
             <RowDefinition Height="243.035"/>
             <RowDefinition Height="37.005"/>
         </Grid.RowDefinitions>
-        <Label Content="Nové zariadenie" HorizontalAlignment="Left" Margin="11,5,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" UseLayoutRounding="False" Height="37" Width="315"/>
-        <Label Content="Názov a IP adresa" HorizontalAlignment="Left" Margin="11,89,0,0" VerticalAlignment="Top" Height="25" Width="108"/>
-        <Label x:Name="computerNameAndAddress" Content="" HorizontalAlignment="Left" Margin="131,89,0,0" VerticalAlignment="Top" Height="25"/>
-        <Label Content="Identifikátor&#xA;hardvéru" HorizontalAlignment="Left" Margin="11,119,0,0" VerticalAlignment="Top" Height="42" Width="74"/>
-        <Label x:Name="deviceIdentification" Content="" HorizontalAlignment="Left" Margin="131,130,0,0" VerticalAlignment="Top" Height="25"/>
-        <Label x:Name="question" Content="Chcete povoliť tomuto zariadeniu sa pripojiť?" Margin="0,212,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="15" Height="30"/>
-        <Button x:Name="acceptOnce" Content="Tentokrát povoliť" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Height="25" Width="150" Click="acceptOnce_Click" Grid.Row="1"/>
-        <Button x:Name="acceptRemember" Content="Povoliť a zapamätať" HorizontalAlignment="Left" Margin="188,0,0,0" VerticalAlignment="Center" Height="25" Width="150" Click="acceptRemember_Click" Grid.Row="1"/>
-        <Button x:Name="reject" Content="Nepovoliť" HorizontalAlignment="Left" Margin="360,0,0,0" VerticalAlignment="Center" Height="25" Width="150" Click="reject_Click" Grid.Row="1"/>
-        <Label Content="Identita&#xD;&#xA;(verejný kľúč)" HorizontalAlignment="Left" Margin="11,165,0,0" VerticalAlignment="Top" Height="42" Width="80"/>
-        <Label x:Name="identity" Content="" HorizontalAlignment="Left" Margin="131,175,0,0" VerticalAlignment="Top" Height="25"/>
-        <TextBlock HorizontalAlignment="Left" Margin="16,47,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="32" Width="495"><Run Text="Táto kombinácia identifikátora zariadenia a identity sa nenachádza v zozname zapam"/><Run Language="sk-sk" Text="ätaných"/><Run Text=" zariadení."/></TextBlock>
+        <Label Content="New device" HorizontalAlignment="Left" Margin="11,5,0,0" VerticalAlignment="Top" FontSize="20" FontWeight="Bold" UseLayoutRounding="False" Height="37" Width="315"/>
+        <Label Content="Name and&#xD;&#xA;IP address" HorizontalAlignment="Left" Margin="11,80,0,0" VerticalAlignment="Top" Height="41" Width="80"/>
+        <Label x:Name="computerNameAndAddress" Content="" HorizontalAlignment="Left" Margin="105,92,0,0" VerticalAlignment="Top" Height="25"/>
+        <Label Content="Hardware&#xD;&#xA;fingerprint" HorizontalAlignment="Left" Margin="11,121,0,0" VerticalAlignment="Top" Height="42" Width="74"/>
+        <Label x:Name="deviceIdentification" Content="" HorizontalAlignment="Left" Margin="105,129,0,0" VerticalAlignment="Top" Height="26"/>
+        <Label x:Name="question" Content="Allow this device to connect?" Margin="0,212,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="15" Height="30"/>
+        <Button x:Name="acceptOnce" Content="Allow this time" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Height="25" Width="150" Click="acceptOnce_Click" Grid.Row="1"/>
+        <Button x:Name="acceptRemember" Content="Allow and remember" HorizontalAlignment="Left" Margin="188,0,0,0" VerticalAlignment="Center" Height="25" Width="150" Click="acceptRemember_Click" Grid.Row="1"/>
+        <Button x:Name="reject" Content="Deny" HorizontalAlignment="Left" Margin="360,0,0,0" VerticalAlignment="Center" Height="25" Width="150" Click="reject_Click" Grid.Row="1"/>
+        <Label Content="Identity&#xD;&#xA;(public key)" HorizontalAlignment="Left" Margin="11,163,0,0" VerticalAlignment="Top" Height="42" Width="80"/>
+        <Label x:Name="identity" Content="" HorizontalAlignment="Left" Margin="105,171,0,0" VerticalAlignment="Top" Height="26"/>
+        <TextBlock HorizontalAlignment="Left" Margin="16,47,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="32" Width="495"><Run Language="sk-sk" Text="This combination of hardwa"/><Run Text="re fingerprint and public key is not in the list of trusted devices."/></TextBlock>
 
     </Grid>
 </Window>

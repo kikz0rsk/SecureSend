@@ -60,10 +60,10 @@ namespace SecureSend
             saveFolderLocation.Text = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Downloads\\SecureSend";
             publicKeyText.Text = Convert.ToBase64String(application.Key.PublicKey.Export(KeyBlobFormat.RawPublicKey));
 
-            statusText.Content = "Štart servera...";
+            statusText.Content = "Starting server...";
             server = application.CreateServer();
             server.StartServer();
-            statusText.Content = "Pripravené";
+            statusText.Content = "Ready";
         }
 
         protected void disconnctBtn_Click(object sender, RoutedEventArgs e)
@@ -126,22 +126,22 @@ namespace SecureSend
 
         public void SetConnected()
         {
-            currentConnectionText.Content = "Pripojené";
+            currentConnectionText.Content = "Connected";
             disconnectBtn.IsEnabled = true;
             connectBtn.IsEnabled = false;
             SetProgress(0, 1);
-            statusText.Content = "Pripravené";
+            statusText.Content = "Ready";
             sendFileButton.IsEnabled = true;
         }
 
         public void SetDisconnected()
         {
-            currentConnectionText.Content = "Žiadne spojenie";
+            currentConnectionText.Content = "No connection";
             disconnectBtn.IsEnabled = false;
             connectBtn.IsEnabled = true;
             fileProgressBar.IsIndeterminate = false;
             SetProgress(0, 1);
-            statusText.Content = "Pripravené";
+            statusText.Content = "Ready";
             sendFileButton.IsEnabled = false;
         }
 
@@ -160,7 +160,7 @@ namespace SecureSend
             var dialog = new Microsoft.Win32.OpenFileDialog();
             dialog.CheckFileExists = true;
             dialog.CheckPathExists = true;
-            dialog.Filter = "Všetky súbory|*.*";
+            dialog.Filter = "All files|*.*";
 
             if (dialog.ShowDialog() != true) return;
 
@@ -286,12 +286,12 @@ namespace SecureSend
                 case CipherAlgorithm.AES256:
                     aes256.IsChecked = true;
                     chachapoly1305.IsChecked = false;
-                    statusText.Content = "Šifrovanie bolo zmenené na AES256";
+                    statusText.Content = "Encryption changed to AES256";
                     break;
                 case CipherAlgorithm.ChaCha20Poly1305:
                     aes256.IsChecked = false;
                     chachapoly1305.IsChecked = true;
-                    statusText.Content = "Šifrovanie bolo zmenené na ChaCha20Poly1305";
+                    statusText.Content = "Encryption changed to ChaCha20Poly1305";
                     break;
             }
         }

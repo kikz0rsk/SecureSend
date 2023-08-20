@@ -57,7 +57,7 @@ namespace SecureSend.Endpoint
             port = ((IPEndPoint)serverSocket.LocalEndpoint).Port;
             InvokeGUI(() =>
             {
-                application.MainWindow.statusPortText.Content = "Port pre pripojenie: " + port.ToString();
+                application.MainWindow.statusPortText.Content = "Port for incoming connections: " + port.ToString();
             });
 
             while (!stopSignal)
@@ -77,20 +77,20 @@ namespace SecureSend.Endpoint
                 catch (ConnectionClosedException) { }
                 catch (ArgumentOutOfRangeException ex)
                 {
-                    MessageBox.Show("Neočakávaná odpoveď.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Unexpected response.", "Protocol error", MessageBoxButton.OK, MessageBoxImage.Error);
                     Debug.Write(ex.ToString());
                 }
                 catch (IOException)
                 {
-                    MessageBox.Show("Spojenie zlyhalo.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Connection failed.", "Connection error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 catch (ObjectDisposedException)
                 {
-                    MessageBox.Show("Spojenie zlyhalo.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Connection failed.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Vyskytla sa chyba: " + ex.ToString(), "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("An error occurred: " + ex.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 finally
                 {
@@ -106,7 +106,7 @@ namespace SecureSend.Endpoint
         {
             InvokeGUI(() =>
             {
-                application.MainWindow.currentConnectionText.Content = "Vytvára sa bezpečný kanál...";
+                application.MainWindow.currentConnectionText.Content = "Establishing secure channel...";
             });
 
             this.symmetricKey = EstablishTrust();
@@ -115,7 +115,7 @@ namespace SecureSend.Endpoint
                 Disconnect();
                 Task.Run(() =>
                 {
-                    MessageBox.Show("Nepodarilo sa nadviazať spoločný šifrovací kľúč.", "Chyba pri pripájaní klienta",
+                    MessageBox.Show("Could not negotiate shared encryption key.", "Key error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 });
                 return;
@@ -123,7 +123,7 @@ namespace SecureSend.Endpoint
 
             InvokeGUI(() =>
             {
-                application.MainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa...";
+                application.MainWindow.currentConnectionText.Content = "Waiting for connection authorization...";
             });
 
             bool authorized = AuthorizeAccess();
@@ -149,7 +149,7 @@ namespace SecureSend.Endpoint
                 Disconnect();
                 Task.Run(() =>
                 {
-                    MessageBox.Show("Užívateľ odmietol žiadosť o pripojenie.", "Spojenie bolo odmietnuté",
+                    MessageBox.Show("User denied connection request.", "Connection denied",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 });
                 return;
@@ -163,7 +163,7 @@ namespace SecureSend.Endpoint
 
                 InvokeGUI(() =>
                 {
-                    application.MainWindow.currentConnectionText.Content = "Čaká sa na zadanie mena a hesla...";
+                    application.MainWindow.currentConnectionText.Content = "Waiting for username and password authentication...";
                 });
 
                 try
@@ -258,7 +258,7 @@ namespace SecureSend.Endpoint
 
             InvokeGUI(() =>
             {
-                application.MainWindow.statusPortText.Content = "Pripájanie je vypnuté";
+                application.MainWindow.statusPortText.Content = "Incoming connections are disabled";
             });
         }
 
@@ -266,7 +266,7 @@ namespace SecureSend.Endpoint
         {
             if (this.mapping != null) return;
 
-            InvokeGUI(() => application.MainWindow.upnpPortStatus.Content = "Prebieha pokus o presmerovanie portu...");
+            InvokeGUI(() => application.MainWindow.upnpPortStatus.Content = "[UPnP] Trying automatic port forward...");
             try
             {
                 var discoverService = new NatDiscoverer();
@@ -301,7 +301,7 @@ namespace SecureSend.Endpoint
                 {
                     InvokeGUI(() =>
                     {
-                        application.MainWindow.upnpPortStatus.Content = "Port pre pripojenie z internetu: " + publicPort.ToString();
+                        application.MainWindow.upnpPortStatus.Content = "Port for connections from the Internet: " + publicPort.ToString();
                     });
                     Debug.WriteLine("[UPnP] successfully setup port forward");
                     return;
@@ -314,7 +314,7 @@ namespace SecureSend.Endpoint
 
             InvokeGUI(() =>
             {
-                application.MainWindow.upnpPortStatus.Content = "Presmerovanie portu UPnP bolo neúspešné";
+                application.MainWindow.upnpPortStatus.Content = "[UPnP] Port forward failed";
             });
         }
 

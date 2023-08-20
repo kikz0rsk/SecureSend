@@ -45,7 +45,7 @@ namespace SecureSend.Endpoint
 
                 InvokeGUI(() =>
                 {
-                    application.MainWindow.currentConnectionText.Content = "Prebieha pripájanie...";
+                    application.MainWindow.currentConnectionText.Content = "Connecting...";
                     application.MainWindow.disconnectBtn.IsEnabled = false;
                     application.MainWindow.connectBtn.IsEnabled = false;
                 });
@@ -56,12 +56,12 @@ namespace SecureSend.Endpoint
                 }
                 catch (FormatException)
                 {
-                    MessageBox.Show("Nesprávne zadané parametre.", "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Incorrect input.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 catch (SocketException ex)
                 {
-                    MessageBox.Show("Chyba pri pripájaní. Podrobnosti: " + ex.Message, "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Error while connecting. Details: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 finally
@@ -86,20 +86,20 @@ namespace SecureSend.Endpoint
             { }
             catch (ArgumentOutOfRangeException ex)
             {
-                MessageBox.Show("Neočakávaná odpoveď.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Unexpected response.", "Connection error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Debug.Write(ex.ToString());
             }
             catch (IOException)
             {
-                MessageBox.Show("Spojenie zlyhalo.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Connection failed.", "Connection error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (ObjectDisposedException)
             {
-                MessageBox.Show("Spojenie zlyhalo.", "Chyba spojenia", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Connection failed.", "Connection error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Vyskytla sa chyba: " + ex.ToString(), "Chyba", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("An error occurred: " + ex.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
@@ -115,7 +115,7 @@ namespace SecureSend.Endpoint
         {
             InvokeGUI(() =>
             {
-                application.MainWindow.currentConnectionText.Content = "Vytvára sa bezpečný kanál...";
+                application.MainWindow.currentConnectionText.Content = "Establishing secure channel...";
             });
 
             this.symmetricKey = EstablishTrust();
@@ -124,7 +124,7 @@ namespace SecureSend.Endpoint
                 Disconnect();
                 Task.Run(() =>
                 {
-                    MessageBox.Show("Nepodarilo sa nadviazať spoločný šifrovací kľúč.", "Chyba pri pripájaní k serveru",
+                    MessageBox.Show("Could not negotiate shared encryption key.", "Key error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 });
                 return;
@@ -132,7 +132,7 @@ namespace SecureSend.Endpoint
 
             InvokeGUI(() =>
             {
-                application.MainWindow.currentConnectionText.Content = "Čaká sa na potvrdenie užívateľa...";
+                application.MainWindow.currentConnectionText.Content = "Waiting for connection authorization...";
             });
 
             bool authorized = AuthorizeAccess(true);
@@ -158,7 +158,7 @@ namespace SecureSend.Endpoint
                 Disconnect();
                 Task.Run(() =>
                 {
-                    MessageBox.Show("Užívateľ odmietol žiadosť o pripojenie.", "Spojenie bolo odmietnuté",
+                    MessageBox.Show("User denied connection request.", "Connection denied",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 });
                 return;
@@ -196,7 +196,7 @@ namespace SecureSend.Endpoint
                     {
                         Task.Run(() =>
                         {
-                            MessageBox.Show("Nesprávne meno alebo heslo.", "Spojenie bolo odmietnuté",
+                            MessageBox.Show("Incorrect username or password.", "Connection denied",
                             MessageBoxButton.OK, MessageBoxImage.Error);
                         });
                         Disconnect();
@@ -208,7 +208,7 @@ namespace SecureSend.Endpoint
             {
                 Task.Run(() =>
                 {
-                    MessageBox.Show(ex.ToString(), "Spojenie bolo odmietnuté",
+                    MessageBox.Show(ex.ToString(), "Connection denied",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 });
                 return;

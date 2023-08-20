@@ -5,19 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SecureSend.GUI"
         mc:Ignorable="d"
-        Title="Správa zapamätaných zariadení" Height="450" Width="800" SizeToContent="WidthAndHeight" Loaded="Window_Loaded" MinHeight="400" WindowStartupLocation="CenterOwner">
+        Title="Trusted devices management" Height="450" Width="800" SizeToContent="WidthAndHeight" Loaded="Window_Loaded" MinHeight="400" WindowStartupLocation="CenterOwner">
     <Grid Margin="0,0,0,-6">
         <ListView x:Name="list" Margin="0,0,0,47" SelectionMode="Single">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Názov zariadenia" Width="150" DisplayMemberBinding="{Binding ComputerName}" />
-                    <GridViewColumn Header="Identifikátor hardvéru" Width="300" DisplayMemberBinding="{Binding HardwareFingerprintString}" />
-                    <GridViewColumn Header="Verejný kľúč" Width="300" DisplayMemberBinding="{Binding PublicKeyString}" />
+                    <GridViewColumn Header="Device name" Width="150" DisplayMemberBinding="{Binding ComputerName}" />
+                    <GridViewColumn Header="Hardware fingerprint" Width="300" DisplayMemberBinding="{Binding HardwareFingerprintString}" />
+                    <GridViewColumn Header="Public key" Width="300" DisplayMemberBinding="{Binding PublicKeyString}" />
                 </GridView>
 
             </ListView.View>
         </ListView>
-        <Button Content="Odstrániť" HorizontalAlignment="Left" Margin="10,0,0,12" VerticalAlignment="Bottom" Height="26" Width="93" Click="onDeleteDeviceButtonClick"/>
+        <Button Content="Delete" HorizontalAlignment="Left" Margin="10,0,0,12" VerticalAlignment="Bottom" Height="26" Width="93" Click="onDeleteDeviceButtonClick"/>
 
     </Grid>
 </Window>

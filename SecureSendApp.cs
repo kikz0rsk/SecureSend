@@ -16,7 +16,7 @@ namespace SecureSend
             PasswordAuthEnabled = false;
             Key = IdentityManager.Instance.GetKey();
             ServerPort = 23488;
-            AllowUpnp = false;
+            UpnpService = new UpnpService(this);
             AllowIncomingConnections = true;
             Username = "admin";
             Password = "";
@@ -40,7 +40,7 @@ namespace SecureSend
 
         public int ServerPort { get; set; }
 
-        public bool AllowUpnp { get; set; }
+        public UpnpService UpnpService { get; set; }
 
         public Server CreateServer()
         {
@@ -49,9 +49,8 @@ namespace SecureSend
                 Server.StopServer();
             }
 
-            Server server = new Server(this);
-            Server = server;
-            return server;
+            Server = new Server(this);
+            return Server;
         }
 
         public Client CreateClient()
@@ -61,9 +60,8 @@ namespace SecureSend
                 Client.Disconnect();
             }
 
-            Client client = new Client(this);
-            Client = client;
-            return client;
+            Client = new Client(this);
+            return Client;
         }
     }
 }

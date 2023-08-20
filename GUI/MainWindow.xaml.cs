@@ -9,6 +9,7 @@ using SecureSend.Base;
 using System.Diagnostics;
 using SecureSend.Protocol;
 using System.Threading.Tasks;
+using Open.Nat;
 
 namespace SecureSend
 {
@@ -28,6 +29,30 @@ namespace SecureSend
 
             this.application = application;
             application.MainWindow = this;
+            application.UpnpService.OnUpnpSuccess += OnUpnpSuccess;
+            application.UpnpService.OnUpnpFail += OnUpnpFail;
+            application.UpnpService.OnUpnpDisable += OnUpnpDisabled;
+        }
+
+        private void OnUpnpSuccess(Mapping mapping)
+        {
+            Application.Current.Dispatcher.Invoke(() => {
+                upnpPortStatus.Content = "For connections from Internet: " + mapping.PublicIP.ToString() + ":" + mapping.PublicPort.ToString();
+            });
+        }
+
+        private void OnUpnpFail()
+        {
+            Application.Current.Dispatcher.Invoke(() => {
+                upnpPortStatus.Content = "Failed to create UPnP mapping";
+            });
+        }
+
+        private void OnUpnpDisabled()
+        {
+            Application.Current.Dispatcher.Invoke(() => {
+                upnpPortStatus.Content = "Connections from Internet disabled";
+            });
         }
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
@@ -114,6 +139,7 @@ namespace SecureSend
             currentConnectionText.Content = "Žiadne spojenie";
             disconnectBtn.IsEnabled = false;
             connectBtn.IsEnabled = true;
+            fileProgressBar.IsIndeterminate = false;
             SetProgress(0, 1);
             statusText.Content = "Pripravené";
             sendFileButton.IsEnabled = false;
@@ -182,17 +208,10 @@ namespace SecureSend
             application.PasswordAuthEnabled = window.AuthEnabled;
         }
 
-        private void onAllowUpnpClick(object sender, RoutedEventArgs e)
-        {
-            if (server == null) return;
-
-            server.EnableUpnpForward();
-        }
-
         private void onServerSettingsClick(object sender, RoutedEventArgs e)
         {
             ServerSettingsWindow serverSettingsWindow = new ServerSettingsWindow(
-                application.AllowIncomingConnections, application.AllowUpnp, application.ServerPort)
+                application.AllowIncomingConnections, application.UpnpService.UpnpEnabled, application.ServerPort)
             {
                 Owner = this
             };
@@ -205,27 +224,27 @@ namespace SecureSend
 
             Debug.WriteLine("apply server changes");
             application.AllowIncomingConnections = serverSettingsWindow.AllowServer;
-            application.AllowUpnp = serverSettingsWindow.AllowUpnp;
+            application.UpnpService.UpnpEnabled = serverSettingsWindow.AllowUpnp;
             application.ServerPort = serverSettingsWindow.Port;
 
             if (!serverSettingsWindow.AllowServer)
             {
                 Debug.WriteLine("stopping server");
-                server?.DisableUpnpForward();
+                application.UpnpService.DisableUpnpForward();
                 server?.StopServer();
                 return;
             }
 
             server?.StopServer();
             application.ServerPort = serverSettingsWindow.Port;
-            server.DisableUpnpForward();
+            application.UpnpService.DisableUpnpForward().ContinueWith(async(e) => {
+                if (serverSettingsWindow.AllowUpnp)
+                {
+                    await application.UpnpService.EnableUpnpForward();
+                }
+            }, TaskContinuationOptions.None);
             server = application.CreateServer();
             server.StartServer();
-
-            if (serverSettingsWindow.AllowUpnp)
-            {
-                Task.Run(() => { Task.Delay(1000); server.EnableUpnpForward(); });   
-            }
         }
 
         private void onAesSelected(object sender, RoutedEventArgs e)

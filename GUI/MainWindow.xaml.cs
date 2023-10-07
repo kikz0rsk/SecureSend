@@ -10,6 +10,7 @@ using System.Diagnostics;
 using SecureSend.Protocol;
 using System.Threading.Tasks;
 using Open.Nat;
+using System.Net;
 
 namespace SecureSend
 {
@@ -96,8 +97,35 @@ namespace SecureSend
                 return;
             }
 
-            client = new Client(application);
-            application.Client = client;
+            IPAddress address;
+            if(!IPAddress.TryParse(connectWindow.IpAddress, out address))
+            {
+                Task.Run(() =>
+                {
+                    MessageBox.Show("Address is not valid.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                });
+                return;
+            }
+
+            ushort port;
+            if (!ushort.TryParse(connectWindow.Port, out port)) {
+                Task.Run(() =>
+                {
+                    MessageBox.Show("Port is not valid.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                });
+                return;
+            }
+
+            if (IPAddress.IsLoopback(address) && port == application.Server.Port)
+            {
+                Task.Run(() =>
+                {
+                    MessageBox.Show("Cannot connect to this instance.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                });
+                return;
+            }
+
+            client = application.CreateClient();
             client.Connect(connectWindow.IpAddress, connectWindow.Port);
         }
 
